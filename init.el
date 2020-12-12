@@ -32,7 +32,7 @@
  '(custom-safe-themes
    '("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default))
  '(package-selected-packages
-   '(doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil)))
+   '(magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil)))
 
 
 (custom-set-faces
@@ -117,16 +117,24 @@
 (setq multi-term-program "/bin/zsh")
 
 ;; Line Numbers
-(display-line-numbers-mode)
-(setq display-line-numbers 'relative)
+(when (version<= "26.0.50" emacs-version )
+  (global-display-line-numbers-mode)
+(setq display-line-numbers 'relative))
 
 ;; Modeline
 (require 'doom-modeline)
 (doom-modeline-mode 1)
 (setq doom-modeline-height 15)
 
+;; Easy motion
+(require 'evil-easymotion)
+(evilem-default-keybindings "SPC")
+
+;; Moving stuff around
 (global-set-key [(ctrl j)]  'windmove-down)
 (global-set-key [(ctrl k)]  'windmove-up)
 (global-set-key [(ctrl h)]  'windmove-left)
 (global-set-key [(ctrl l)]  'windmove-right)
+
+
 
