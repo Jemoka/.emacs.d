@@ -21,9 +21,15 @@
 (unless (package-installed-p 'evil)
   (package-install 'evil))
 
+
 ;; Enable Evil
+(setq evil-want-keybinding nil)
 (require 'evil)
 (evil-mode 1)
+
+;; Move evilness
+(evil-collection-init)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -32,7 +38,7 @@
  '(custom-safe-themes
    '("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default))
  '(package-selected-packages
-   '(magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil)))
+   '(evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil)))
 
 
 (custom-set-faces
@@ -89,12 +95,12 @@
 
 ;; mouse mode
 ;;;; Mouse scrolling in terminal emacs
-(unless (display-graphic-p)
+;; (unless (display-graphic-p)
   ;; activate mouse-based scrolling
-  (xterm-mouse-mode 1)
-  (global-set-key (kbd "<mouse-4>") 'scroll-down-line)
-  (global-set-key (kbd "<mouse-5>") 'scroll-up-line)
-  )
+;;   (xterm-mouse-mode 1)
+;;  (global-set-key (kbd "<mouse-4>") 'scroll-down-line)
+;;  (global-set-key (kbd "<mouse-5>") 'scroll-up-line)
+;;  )
 
 ;; eshell
 (require 'eshell)
@@ -135,6 +141,10 @@
 (global-set-key [(ctrl k)]  'windmove-up)
 (global-set-key [(ctrl h)]  'windmove-left)
 (global-set-key [(ctrl l)]  'windmove-right)
+
+;; Titlebar
+(add-to-list 'default-frame-alist '(ns-appearance . dark))
+
 
 
 
