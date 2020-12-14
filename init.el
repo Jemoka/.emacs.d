@@ -37,7 +37,7 @@
  '(custom-safe-themes
    '("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default))
  '(package-selected-packages
-   '(evil-leader evil-nerd-commenter lsp-jedi lsp-python-ms company-lsp lsp-mode company neotree perspective evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil)))
+   '(ido-completing-read+ persp-mode rjsx-mode pyvenv yasnippet exec-path-from-shell evil-leader evil-nerd-commenter lsp-mode company neotree perspective evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil)))
 
 
 (custom-set-faces
@@ -46,6 +46,10 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+;; Get executables
+(when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize))
 
 ;; Evil Surround
 (use-package evil-surround
@@ -140,25 +144,113 @@
 
 ;; Ido Mode
 (ido-mode 1)
+(ido-everywhere 1)
+
+(require 'ido-completing-read+)
+(ido-ubiquitous-mode 1)
 
 ;; Perspectives
 (define-key evil-motion-state-map (kbd "C-b") nil)
 (define-key global-map (kbd "C-b") nil)
+(setq persp-keymap-prefix (kbd "C-b"))
 
-(use-package perspective
-  :ensure t
-  :init
-  (setq persp-mode-prefix-key (kbd "C-b"))
-  (persp-mode))
+(with-eval-after-load "persp-mode-autoloads"
+    (setq wg-morph-on nil) ;; switch off animation
+    (setq persp-autokill-buffer-on-remove 'kill-weak)
+    (add-hook 'window-setup-hook #'(lambda () (persp-mode 1))))
+
+
+;; (use-package perspective
+;;   :ensure t
+;;   :init
+;;   (setq persp-mode-prefix-key (kbd "C-b"))
+;;   (persp-mode))
 
 ;; NERDTree
 (require 'neotree)
 (define-key evil-normal-state-map (kbd "C-n") nil)
 (global-set-key (kbd "C-n") 'neotree-toggle)
 
+;; Python Executable
+(setq py-shell-name "python3")
+(setq python-shell-interpreter "python3")
+(setq py-python-command "/usr/local/bin/python3.8")
+
+(use-package pyvenv
+  :ensure t
+  :config
+  (pyvenv-mode t)
+
+  ;; Set correct Python interpreter
+  (setq pyvenv-post-activate-hooks
+        (list (lambda ()
+		    (setq python-shell-interpreter (concat pyvenv-virtual-env "bin/python3"))
+		    (setq py-python-command "/usr/local/bin/python3.8")
+		)))
+  (setq pyvenv-post-deactivate-hooks
+	(list (lambda ()
+		  (setq python-shell-interpreter "python3")
+		  (setq py-python-command "/usr/local/bin/python3.8")
+		))))
+
+;; Autocomplete
+(use-package company
+  :ensure t
+  :init
+  (add-hook 'after-init-hook 'global-company-mode)
+  :config
+  (setq company-idle-delay 0.0)
+  (setq company-minimum-prefix-length 1))
+
+(use-package lsp-mode
+    :init
+    (setq lsp-enable-snippet nil)
+    (setq lsp-completion-enable-additional-text-edit nil)
+    (setq lsp-eldoc-enable-hover nil)
+    (setq lsp-signature-auto-activate nil) ;; you could manually requiest them via `lsp-signature-activate`
+    (setq lsp-signature-render-documentation nil)
+    (setq lsp-diagnostics-provider :none)
+    :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+	    (python-mode . lsp)
+	    (c++-mode . lsp)
+	    (c-mode . lsp)
+	    (html-mode . lsp)
+	    (css-mode . lsp)
+	    (rjsx-mode . lsp)
+	    ;; if you want which-key integration
+	    (lsp-mode . lsp-enable-which-key-integration))
+    :commands lsp)
+
+;; (require 'yasnippet)
+
+(use-package yasnippet
+    :init
+    (yas-global-mode 1))
+
+
 ;; Help
 (global-unset-key (kbd "M-h"))
+(global-unset-key (kbd "C-h"))
+(global-set-key (kbd "M-h") help-map)
 
+;; Commenting
+(require 'evil-leader)
+(global-evil-leader-mode)
+(setq evil-leader/leader "<SPC>")
+(evil-leader/set-key
+  "cc" 'evilnc-comment-or-uncomment-lines
+  "cu" 'evilnc-comment-or-uncomment-lines
+  "cy" 'evilnc-copy-and-comment-lines
+  "cp" 'evilnc-comment-or-uncomment-paragraphs
+  "cr" 'comment-or-uncomment-region
+  "cv" 'evilnc-toggle-invert-comment-line-by-line
+  "."  'evilnc-copy-and-comment-operator
+  "\\" 'evilnc-comment-operator ; if you prefer backslash key
+)
+
+;; C indentation?
+(setq-default c-basic-offset 4)
+(setq-default lisp-body-indent 4)
 
 
 ;; Moving stuff around
