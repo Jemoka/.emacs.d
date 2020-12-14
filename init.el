@@ -209,7 +209,7 @@
     (setq lsp-eldoc-enable-hover nil)
     (setq lsp-signature-auto-activate nil) ;; you could manually requiest them via `lsp-signature-activate`
     (setq lsp-signature-render-documentation nil)
-    (setq lsp-diagnostics-provider :none)
+    ;; (setq lsp-diagnostics-provider :none) stop it from yelling at you
     :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
 	    (python-mode . lsp)
 	    (c++-mode . lsp)
@@ -261,4 +261,7 @@
 
 ;; Titlebar
 (add-to-list 'default-frame-alist '(ns-appearance . dark))
+
+;; @Jemoka
+
 
