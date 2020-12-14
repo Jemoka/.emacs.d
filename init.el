@@ -37,7 +37,7 @@
  '(custom-safe-themes
    '("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default))
  '(package-selected-packages
-   '(neotree perspective evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil)))
+   '(evil-leader evil-nerd-commenter lsp-jedi lsp-python-ms company-lsp lsp-mode company neotree perspective evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil)))
 
 
 (custom-set-faces
@@ -122,9 +122,8 @@
 (setq multi-term-program "/bin/zsh")
 
 ;; Line Numbers
-(when (version<= "26.0.50" emacs-version )
-  (global-display-line-numbers-mode)
-(setq display-line-numbers 'relative))
+(global-display-line-numbers-mode)
+(setq display-line-numbers 'relative)
 
 ;; Modeline
 (require 'doom-modeline)
