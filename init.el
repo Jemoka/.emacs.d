@@ -175,7 +175,8 @@
     (setq neo-theme (if (display-graphic-p) 'nerd))
     (define-key evil-normal-state-map (kbd "C-n") nil)
     (define-key neotree-mode-map (kbd "C-n") nil)
-    (global-set-key (kbd "C-n") 'neotree-toggle))
+    (global-set-key (kbd "C-n") 'neotree-toggle)
+    (setq neo-autorefresh t))
 
 (use-package multi-term
     :ensure t
@@ -207,12 +208,11 @@
 ;; Autocomplete
 (use-package company
   :ensure t
-  :init
-  (add-hook 'after-init-hook 'global-company-mode)
   :config
+  (add-to-list 'company-backends 'company-capf)
   (setq company-idle-delay 0.0)
   (setq company-minimum-prefix-length 1)
-  (add-to-list 'company-backends 'company-files))
+  (global-company-mode))
 
 (use-package lsp-mode
     :init
