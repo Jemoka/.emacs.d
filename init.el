@@ -37,7 +37,7 @@
  '(custom-safe-themes
    '("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default))
  '(package-selected-packages
-   '(ido-completing-read+ persp-mode rjsx-mode pyvenv yasnippet exec-path-from-shell evil-leader evil-nerd-commenter lsp-mode company neotree perspective evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil)))
+   '(eww-lnum ido-completing-read+ persp-mode rjsx-mode pyvenv yasnippet exec-path-from-shell evil-leader evil-nerd-commenter lsp-mode company neotree perspective evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil)))
 
 
 (custom-set-faces
@@ -90,6 +90,7 @@
 ;; unbreak terminal
 (defadvice ansi-term (after advise-ansi-term-coding-system)
     (set-process-coding-system 'utf-8-unix 'utf-8-unix))
+(setq system-uses-terminfo nil)
 (ad-activate 'ansi-term)
 
 ;; ColORS
@@ -167,9 +168,19 @@
 ;;   (persp-mode))
 
 ;; NERDTree
-(require 'neotree)
-(define-key evil-normal-state-map (kbd "C-n") nil)
-(global-set-key (kbd "C-n") 'neotree-toggle)
+(use-package neotree
+    :ensure t
+    :init
+    :config
+    (setq neo-theme (if (display-graphic-p) 'nerd))
+    (define-key evil-normal-state-map (kbd "C-n") nil)
+    (define-key neotree-mode-map (kbd "C-n") nil)
+    (global-set-key (kbd "C-n") 'neotree-toggle))
+
+(use-package multi-term
+    :ensure t
+    :config
+    (setq multi-term-program "/bin/zsh"))
 
 ;; Python Executable
 (setq py-shell-name "python3")
@@ -200,7 +211,8 @@
   (add-hook 'after-init-hook 'global-company-mode)
   :config
   (setq company-idle-delay 0.0)
-  (setq company-minimum-prefix-length 1))
+  (setq company-minimum-prefix-length 1)
+  (add-to-list 'company-backends 'company-files))
 
 (use-package lsp-mode
     :init
