@@ -16,6 +16,24 @@
 ;; Always make sure package is installed
 (require 'use-package-ensure)
 (setq use-package-always-ensure t)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default))
+ '(package-selected-packages
+   '(eww-lnum ido-completing-read+ persp-mode rjsx-mode pyvenv yasnippet exec-path-from-shell evil-leader evil-nerd-commenter lsp-mode company neotree perspective evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil)))
+(package-install-selected-packages)
+
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+
 
 ;; Download Evil
 (unless (package-installed-p 'evil)
@@ -29,23 +47,7 @@
 ;; Move evilness
 (evil-collection-init)
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   '("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default))
- '(package-selected-packages
-   '(eww-lnum ido-completing-read+ persp-mode rjsx-mode pyvenv yasnippet exec-path-from-shell evil-leader evil-nerd-commenter lsp-mode company neotree perspective evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil)))
 
-
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
 
 ;; Get executables
 (when (memq window-system '(mac ns x))
@@ -79,7 +81,7 @@
 (evil-set-undo-system 'undo-tree)
 
 ;; Theme
-(load-theme 'doom-vibrant t)
+(load-theme 'doom-horizon t)
 
 ;; Disable menu
 (tool-bar-mode -1)
@@ -127,7 +129,6 @@
 (setq multi-term-program "/bin/zsh")
 
 ;; Line Numbers
-(global-display-line-numbers-mode)
 (setq display-line-numbers 'relative)
 
 ;; Modeline
@@ -176,6 +177,8 @@
     (define-key evil-normal-state-map (kbd "C-n") nil)
     (define-key neotree-mode-map (kbd "C-n") nil)
     (global-set-key (kbd "C-n") 'neotree-toggle)
+    (doom-themes-neotree-config)
+    (doom-themes-visual-bell-config)
     (setq neo-autorefresh t))
 
 (use-package multi-term
