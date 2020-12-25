@@ -129,7 +129,8 @@
 (setq multi-term-program "/bin/zsh")
 
 ;; Line Numbers
-(setq display-line-numbers 'relative)
+(global-display-line-numbers-mode)
+(setq display-line-numbers-type 'relative)
 
 ;; Modeline
 (require 'doom-modeline)
