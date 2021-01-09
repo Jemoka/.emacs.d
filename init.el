@@ -24,7 +24,7 @@
  '(custom-safe-themes
    '("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default))
  '(package-selected-packages
-   '(evil-escape vterm eww-lnum ido-completing-read+ persp-mode rjsx-mode pyvenv yasnippet exec-path-from-shell evil-leader evil-nerd-commenter lsp-mode company neotree perspective evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil)))
+   '(zetteldeft deft evil-escape vterm eww-lnum ido-completing-read+ persp-mode rjsx-mode pyvenv yasnippet exec-path-from-shell evil-leader evil-nerd-commenter lsp-mode company neotree perspective evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil)))
 (package-install-selected-packages)
 
 (custom-set-faces
@@ -42,6 +42,7 @@
 (setq evil-want-keybinding nil)
 (require 'evil)
 (evil-mode 1)
+(add-hook 'vterm-mode-hook 'evil-emacs-state)
 
 ;; Move evilness
 (evil-collection-init)
@@ -145,6 +146,8 @@
 ;; Ido Mode
 (ido-mode 1)
 (ido-everywhere 1)
+(define-key evil-normal-state-map (kbd "SPC f f") 'ido-find-file)
+(define-key evil-normal-state-map (kbd "SPC f d") 'dired)
 
 (require 'ido-completing-read+)
 (ido-ubiquitous-mode 1)
@@ -187,7 +190,6 @@
 ;; Python Executable
 (setq py-shell-name "python3")
 (setq python-shell-interpreter "python3")
-(setq py-python-command "/usr/local/bin/python3.8")
 
 (use-package pyvenv
   :ensure t
@@ -222,7 +224,7 @@
     (setq lsp-enable-snippet nil)
     (setq lsp-completion-enable-additional-text-edit nil)
     (setq lsp-eldoc-enable-hover nil)
-    (setq lsp-signature-auto-activate nil) ;; you could manually requiest them via `lsp-signature-activate`
+    (setq lsp-signature-auto-activate nil) ;; you could manually request them via `lsp-signature-activate`
     (setq lsp-signature-render-documentation nil)
     ;; (setq lsp-diagnostics-provider :none) stop it from yelling at you
     :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
@@ -265,6 +267,37 @@
   "\\" 'evilnc-comment-operator ; if you prefer backslash key
 )
 
+;; Zettlekasten
+;; https://notes.huy.rocks/emacs-for-note-taking
+
+(use-package deft
+  :ensure t
+  :config
+  (setq deft-directory "~/Documents/School Work/2020-2021/KnowledgeBase"
+        deft-recursive t
+        deft-default-extension "md"
+        deft-text-mode 'org-mode
+        deft-use-filename-as-title t
+	deft-use-filter-string-for-filename t)
+  (setq markdown-enable-wiki-links t)
+  (setq markdown-link-space-sub-char " ")
+  (global-set-key (kbd "C-c d") 'deft))
+(defun insert-file-name-as-wikilink (filename &optional args)
+  (interactive "*fInsert file name: \nP")
+  (insert (concat "[[" (file-name-sans-extension (file-relative-name
+  filename)) "]]")))
+  
+(define-key evil-normal-state-map (kbd "SPC m i") 'insert-file-name-as-wikilink)
+(define-key evil-normal-state-map (kbd "SPC m f") 'markdown-follow-wiki-link-at-point)
+(define-key evil-normal-state-map (kbd "SPC m l") 'markdown-follow-link-at-point)
+
+(defun insert-clipboard-image-to-buffer (filename &optional args)
+  (interactive "*FSave image to: \n")
+  (shell-command (concat "~/.emacs.d/pasteimage " (replace-regexp-in-string "\s" "\\\\ " filename)))
+  (insert (concat "![](" (file-relative-name filename) ")")))
+ 
+(define-key evil-normal-state-map (kbd "SPC m m") 'insert-clipboard-image-to-buffer)
+
 ;; C indentation?
 (setq-default c-basic-offset 4)
 (setq-default lisp-body-indent 4)
@@ -274,6 +307,12 @@
 (define-key vterm-mode-map (kbd "C-j") nil)
 (define-key vterm-mode-map (kbd "C-k") nil)
 (define-key vterm-mode-map (kbd "C-l") nil)
+
+(global-unset-key (kbd "C-h"))
+(global-unset-key (kbd "C-j"))
+(global-unset-key (kbd "C-k"))
+(global-unset-key (kbd "C-l"))
+
 (global-set-key [(ctrl j)]  'windmove-down)
 (global-set-key [(ctrl k)]  'windmove-up)
 (global-set-key [(ctrl h)]  'windmove-left)
