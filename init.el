@@ -24,7 +24,7 @@
  '(custom-safe-themes
    '("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default))
  '(package-selected-packages
-   '(eww-lnum ido-completing-read+ persp-mode rjsx-mode pyvenv yasnippet exec-path-from-shell evil-leader evil-nerd-commenter lsp-mode company neotree perspective evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil)))
+   '(evil-escape vterm eww-lnum ido-completing-read+ persp-mode rjsx-mode pyvenv yasnippet exec-path-from-shell evil-leader evil-nerd-commenter lsp-mode company neotree perspective evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil)))
 (package-install-selected-packages)
 
 (custom-set-faces
@@ -33,7 +33,6 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-
 
 ;; Download Evil
 (unless (package-installed-p 'evil)
@@ -46,8 +45,6 @@
 
 ;; Move evilness
 (evil-collection-init)
-
-
 
 ;; Get executables
 (when (memq window-system '(mac ns x))
@@ -142,7 +139,7 @@
 (evilem-default-keybindings "SPC")
 
 ;; Show icons
-(setq doom-modeline-icon (display-graphic-p))
+(setq doom-modeline-icon t)
 (setq doom-modeline-major-mode-icon t)
 
 ;; Ido Mode
@@ -214,8 +211,10 @@
   :ensure t
   :config
   (add-to-list 'company-backends 'company-capf)
-  (setq company-idle-delay 0.0)
+  (setq company-idle-delay 1)
   (setq company-minimum-prefix-length 1)
+  (global-unset-key (kbd "TAB"))
+  (global-set-key (kbd "TAB") 'company-indent-or-complete-common)
   (global-company-mode))
 
 (use-package lsp-mode
@@ -243,6 +242,8 @@
     :init
     (yas-global-mode 1))
 
+(use-package vterm
+    :ensure t)
 
 ;; Help
 (global-unset-key (kbd "M-h"))
@@ -268,16 +269,26 @@
 (setq-default c-basic-offset 4)
 (setq-default lisp-body-indent 4)
 
-
 ;; Moving stuff around
+(define-key vterm-mode-map (kbd "C-h") nil)
+(define-key vterm-mode-map (kbd "C-j") nil)
+(define-key vterm-mode-map (kbd "C-k") nil)
+(define-key vterm-mode-map (kbd "C-l") nil)
 (global-set-key [(ctrl j)]  'windmove-down)
 (global-set-key [(ctrl k)]  'windmove-up)
 (global-set-key [(ctrl h)]  'windmove-left)
 (global-set-key [(ctrl l)]  'windmove-right)
 
+;; Get rid of arrows
+(setf (cdr (assq 'continuation fringe-indicator-alist))
+      '(nil nil) ;; no continuation indicators
+      ;; '(nil right-curly-arrow) ;; right indicator only
+      ;; '(left-curly-arrow nil) ;; left indicator only
+      ;; '(left-curly-arrow right-curly-arrow) ;; default
+      )
+
 ;; Titlebar
 (add-to-list 'default-frame-alist '(ns-appearance . dark))
 
 ;; @Jemoka
-
 
