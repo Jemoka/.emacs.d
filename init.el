@@ -309,6 +309,8 @@
   (insert (concat "![](" (file-relative-name filename) ")")))
  
 (define-key evil-normal-state-map (kbd "SPC m m") 'insert-clipboard-image-to-buffer)
+(define-key evil-normal-state-map (kbd "SPC p s") 'ido-switch-buffer)
+(define-key evil-normal-state-map (kbd "SPC p l") 'list-buffers)
 
 ;; C indentation?
 (setq-default c-basic-offset 4)
