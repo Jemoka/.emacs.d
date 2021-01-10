@@ -24,7 +24,15 @@
  '(custom-safe-themes
    '("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default))
  '(package-selected-packages
-   '(auctex zetteldeft deft evil-escape vterm eww-lnum ido-completing-read+ persp-mode rjsx-mode pyvenv yasnippet exec-path-from-shell evil-leader evil-nerd-commenter lsp-mode company neotree perspective evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil)))
+   '(which-key lsp-jedi lsp-python-ms texfrag auctex zetteldeft deft evil-escape vterm eww-lnum ido-completing-read+ persp-mode rjsx-mode pyvenv yasnippet exec-path-from-shell evil-leader evil-nerd-commenter lsp-mode company neotree perspective evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil))
+ '(texfrag-setup-alist
+   '((texfrag-html html-mode)
+     (texfrag-eww eww-mode)
+     (texfrag-sx sx-question-mode)
+     (texfrag-prog prog-mode)
+     (texfrag-trac-wiki trac-wiki-mode markdown-mode)
+     (texfrag-markdown markdown-mode)
+     (texfrag-org org-mode))))
 (package-install-selected-packages)
 
 (custom-set-faces
@@ -147,7 +155,9 @@
 (ido-mode 1)
 (ido-everywhere 1)
 (define-key evil-normal-state-map (kbd "SPC f f") 'ido-find-file)
+(define-key evil-normal-state-map (kbd "SPC m h") 'ido-find-file) ;; markdown mode find file backup
 (define-key evil-normal-state-map (kbd "SPC f d") 'dired)
+(define-key evil-normal-state-map (kbd "SPC m n") 'dired)
 (setq ido-enable-flex-matching t)
 
 (require 'ido-completing-read+)
@@ -188,6 +198,9 @@
     :config
     (setq multi-term-program "/bin/zsh"))
 
+;; Which Key
+(which-key-mode)
+
 ;; Python Executable
 (setq py-shell-name "python3")
 (setq python-shell-interpreter "python3")
@@ -195,26 +208,26 @@
 (use-package pyvenv
   :ensure t
   :config
-  (pyvenv-mode t)
+  (pyvenv-mode t))
 
   ;; Set correct Python interpreter
-  (setq pyvenv-post-activate-hooks
-        (list (lambda ()
-		    (setq python-shell-interpreter (concat pyvenv-virtual-env "bin/python3"))
-		    (setq py-python-command "/usr/local/bin/python3.8")
-		)))
-  (setq pyvenv-post-deactivate-hooks
-	(list (lambda ()
-		  (setq python-shell-interpreter "python3")
-		  (setq py-python-command "/usr/local/bin/python3.8")
-		))))
+  ;; (setq pyvenv-post-activate-hooks
+  ;;       (list (lambda ()
+  ;; 		    (setq python-shell-interpreter (concat pyvenv-virtual-env "bin/python3"))
+  ;; 		    (setq py-python-command "/usr/local/bin/python3.8")
+  ;; 		)))
+  ;; (setq pyvenv-post-deactivate-hooks
+  ;; 	(list (lambda ()
+  ;; 		  (setq python-shell-interpreter "python3")
+  ;; 		  (setq py-python-command "/usr/local/bin/python3.8")
+  ;; 		))))
 
 ;; Autocomplete
 (use-package company
   :ensure t
   :config
   (add-to-list 'company-backends 'company-capf)
-  (setq company-idle-delay 1)
+  (setq company-idle-delay 0.25)
   (setq company-minimum-prefix-length 1)
   (global-unset-key (kbd "TAB"))
   (global-set-key (kbd "TAB") 'company-indent-or-complete-common)
@@ -222,22 +235,35 @@
 
 (use-package lsp-mode
     :init
-    (setq lsp-enable-snippet nil)
-    (setq lsp-completion-enable-additional-text-edit nil)
-    (setq lsp-eldoc-enable-hover nil)
+    ;; (setq lsp-enable-snippet nil)
+    ;; (setq lsp-completion-enable-additional-text-edit nil)
+    ;; (setq lsp-eldoc-enable-hover nil)
     (setq lsp-signature-auto-activate nil) ;; you could manually request them via `lsp-signature-activate`
     (setq lsp-signature-render-documentation nil)
     ;; (setq lsp-diagnostics-provider :none) stop it from yelling at you
+    (setq lsp-modeline-code-actions-enable nil)
+    (setq lsp-headerline-breadcrumb-enable nil)
+    (setq lsp-ui-sideline-enable nil)
+    :config
+    (setq lsp-clients-clangd-args '("-background-index" "-j=4" "-log=error"))
     :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-	    (python-mode . lsp)
 	    (c++-mode . lsp)
 	    (c-mode . lsp)
 	    (html-mode . lsp)
 	    (css-mode . lsp)
+	    (python-mode . lsp)
 	    (rjsx-mode . lsp)
 	    ;; if you want which-key integration
 	    (lsp-mode . lsp-enable-which-key-integration))
     :commands lsp)
+
+(use-package lsp-jedi
+  :ensure t
+  :config
+  (with-eval-after-load "lsp-mode"
+    (add-to-list 'lsp-disabled-clients 'pyls)
+    (add-to-list 'lsp-enabled-clients 'jedi)))
+
 
 ;; (require 'yasnippet)
 
@@ -273,8 +299,8 @@
     :mode (("README\\.md\\'" . gfm-mode)
 	   ("\\.md\\'" . markdown-mode)
 	   ("\\.markdown\\'" . markdown-mode))
-    :init (setq markdown-command "pandoc -s --mathjax")
-    :config
+    :init
+    (setq markdown-command "pandoc -s --mathjax")
     (setq markdown-header-scaling t)
     (setq markdown-enable-math t))
 
@@ -288,19 +314,22 @@
         deft-recursive t
         deft-default-extension "md"
         deft-text-mode 'org-mode
+	deft-recursive-ignore-dir-regexp "\\..*"
         deft-use-filename-as-title t
 	deft-use-filter-string-for-filename t)
   (setq markdown-enable-wiki-links t)
   (setq markdown-link-space-sub-char " ")
   (define-key evil-normal-state-map (kbd "SPC m d") 'deft))
+
 (defun insert-file-name-as-wikilink (filename &optional args)
-  (interactive "*fInsert file name: \nP")
-  (insert (concat "[[" (file-name-sans-extension (file-relative-name
-  filename)) "]] ")))
-  
+    (interactive "*FInsert file name: \nP")
+    (kill-new (file-name-base buffer-file-name))
+    (insert (concat "[[" (file-name-sans-extension (file-relative-name
+						    filename)) "]] ")))
+
 (define-key evil-normal-state-map (kbd "SPC m i") 'insert-file-name-as-wikilink)
 (define-key evil-insert-state-map (kbd "[[") 'insert-file-name-as-wikilink)
-(define-key evil-normal-state-map (kbd "SPC m f") 'markdown-follow-wiki-link-at-point)
+(define-key evil-normal-state-map (kbd "SPC m m") 'markdown-follow-wiki-link-at-point)
 (define-key evil-normal-state-map (kbd "SPC m l") 'markdown-follow-link-at-point)
 
 (defun insert-clipboard-image-to-buffer (filename &optional args)
@@ -308,7 +337,8 @@
   (shell-command (concat "~/.emacs.d/pasteimage " (replace-regexp-in-string "\s" "\\\\ " filename)))
   (insert (concat "![](" (file-relative-name filename) ")")))
  
-(define-key evil-normal-state-map (kbd "SPC m m") 'insert-clipboard-image-to-buffer)
+(define-key evil-normal-state-map (kbd "SPC m j") 'insert-clipboard-image-to-buffer)
+
 (define-key evil-normal-state-map (kbd "SPC p s") 'ido-switch-buffer)
 (define-key evil-normal-state-map (kbd "SPC p l") 'list-buffers)
 
