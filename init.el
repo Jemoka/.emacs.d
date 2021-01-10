@@ -155,9 +155,9 @@
 (ido-mode 1)
 (ido-everywhere 1)
 (define-key evil-normal-state-map (kbd "SPC f f") 'ido-find-file)
-(define-key evil-normal-state-map (kbd "SPC m h") 'ido-find-file) ;; markdown mode find file backup
+(define-key evil-normal-state-map (kbd "SPC m n") 'ido-find-file) ;; markdown mode find file backup
 (define-key evil-normal-state-map (kbd "SPC f d") 'dired)
-(define-key evil-normal-state-map (kbd "SPC m n") 'dired)
+(define-key evil-normal-state-map (kbd "SPC m h") 'dired)
 (setq ido-enable-flex-matching t)
 
 (require 'ido-completing-read+)
@@ -361,6 +361,8 @@
 (global-set-key [(ctrl k)]  'windmove-up)
 (global-set-key [(ctrl h)]  'windmove-left)
 (global-set-key [(ctrl l)]  'windmove-right)
+
+(define-key evil-normal-state-map (kbd "SPC g t") 'magit)
 
 ;; SHow paren
 (show-paren-mode 1)
