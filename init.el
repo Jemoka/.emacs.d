@@ -24,7 +24,7 @@
  '(custom-safe-themes
    '("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default))
  '(package-selected-packages
-   '(zetteldeft deft evil-escape vterm eww-lnum ido-completing-read+ persp-mode rjsx-mode pyvenv yasnippet exec-path-from-shell evil-leader evil-nerd-commenter lsp-mode company neotree perspective evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil)))
+   '(auctex zetteldeft deft evil-escape vterm eww-lnum ido-completing-read+ persp-mode rjsx-mode pyvenv yasnippet exec-path-from-shell evil-leader evil-nerd-commenter lsp-mode company neotree perspective evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil)))
 (package-install-selected-packages)
 
 (custom-set-faces
@@ -148,6 +148,7 @@
 (ido-everywhere 1)
 (define-key evil-normal-state-map (kbd "SPC f f") 'ido-find-file)
 (define-key evil-normal-state-map (kbd "SPC f d") 'dired)
+(setq ido-enable-flex-matching t)
 
 (require 'ido-completing-read+)
 (ido-ubiquitous-mode 1)
@@ -175,9 +176,9 @@
     :init
     :config
     (setq neo-theme (if (display-graphic-p) 'nerd))
-    (define-key evil-normal-state-map (kbd "C-n") nil)
-    (define-key neotree-mode-map (kbd "C-n") nil)
-    (global-set-key (kbd "C-n") 'neotree-toggle)
+    ;; (define-key evil-normal-state-map (kbd "C-n") nil)
+    ;; (define-key neotree-mode-map (kbd "C-n") nil)
+    ;; (global-set-key (kbd "C-n") 'neotree-toggle)
     (doom-themes-neotree-config)
     (doom-themes-visual-bell-config)
     (setq neo-autorefresh t))
@@ -267,6 +268,16 @@
   "\\" 'evilnc-comment-operator ; if you prefer backslash key
 )
 
+(use-package markdown-mode
+    :ensure t
+    :mode (("README\\.md\\'" . gfm-mode)
+	   ("\\.md\\'" . markdown-mode)
+	   ("\\.markdown\\'" . markdown-mode))
+    :init (setq markdown-command "pandoc -s --mathjax")
+    :config
+    (setq markdown-header-scaling t)
+    (setq markdown-enable-math t))
+
 ;; Zettlekasten
 ;; https://notes.huy.rocks/emacs-for-note-taking
 
@@ -281,13 +292,14 @@
 	deft-use-filter-string-for-filename t)
   (setq markdown-enable-wiki-links t)
   (setq markdown-link-space-sub-char " ")
-  (global-set-key (kbd "C-c d") 'deft))
+  (define-key evil-normal-state-map (kbd "SPC m d") 'deft))
 (defun insert-file-name-as-wikilink (filename &optional args)
   (interactive "*fInsert file name: \nP")
   (insert (concat "[[" (file-name-sans-extension (file-relative-name
-  filename)) "]]")))
+  filename)) "]] ")))
   
 (define-key evil-normal-state-map (kbd "SPC m i") 'insert-file-name-as-wikilink)
+(define-key evil-insert-state-map (kbd "[[") 'insert-file-name-as-wikilink)
 (define-key evil-normal-state-map (kbd "SPC m f") 'markdown-follow-wiki-link-at-point)
 (define-key evil-normal-state-map (kbd "SPC m l") 'markdown-follow-link-at-point)
 
@@ -317,6 +329,9 @@
 (global-set-key [(ctrl k)]  'windmove-up)
 (global-set-key [(ctrl h)]  'windmove-left)
 (global-set-key [(ctrl l)]  'windmove-right)
+
+;; SHow paren
+(show-paren-mode 1)
 
 ;; Get rid of arrows
 (setf (cdr (assq 'continuation fringe-indicator-alist))
