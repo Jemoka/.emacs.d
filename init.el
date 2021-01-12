@@ -23,8 +23,10 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    '("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default))
+ '(latex-preview-pane-multifile-mode 'off)
  '(package-selected-packages
-   '(which-key lsp-jedi lsp-python-ms texfrag auctex zetteldeft deft evil-escape vterm eww-lnum ido-completing-read+ persp-mode rjsx-mode pyvenv yasnippet exec-path-from-shell evil-leader evil-nerd-commenter lsp-mode company neotree perspective evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil))
+   '(pdf-tools latex-preview-pane auctex-latexmk company-auctex company-ebdb which-key lsp-jedi lsp-python-ms texfrag auctex zetteldeft deft evil-escape vterm eww-lnum ido-completing-read+ persp-mode rjsx-mode pyvenv yasnippet exec-path-from-shell evil-leader evil-nerd-commenter company neotree perspective evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil))
+ '(pdf-latex-command "xelatex")
  '(texfrag-setup-alist
    '((texfrag-html html-mode)
      (texfrag-eww eww-mode)
@@ -138,6 +140,15 @@
 (global-display-line-numbers-mode)
 (setq display-line-numbers-type 'relative)
 
+(defun inhibit-line-numbers ()
+  "Counter-act `display-line-numbers-mode'."
+  (add-hook 'after-change-major-mode-hook
+            (lambda () (display-line-numbers-mode 0))
+            :append :local))
+
+(add-hook 'pdf-view-mode-hook 'inhibit-line-numbers)
+
+
 ;; Modeline
 (require 'doom-modeline)
 (doom-modeline-mode 1)
@@ -223,6 +234,7 @@
   ;; 		))))
 
 ;; Autocomplete
+
 (use-package company
   :ensure t
   :config
@@ -328,9 +340,11 @@
 						    filename)) "]] ")))
 
 (define-key evil-normal-state-map (kbd "SPC m i") 'insert-file-name-as-wikilink)
-(define-key evil-insert-state-map (kbd "[[") 'insert-file-name-as-wikilink)
 (define-key evil-normal-state-map (kbd "SPC m m") 'markdown-follow-wiki-link-at-point)
 (define-key evil-normal-state-map (kbd "SPC m l") 'markdown-follow-link-at-point)
+(define-key evil-normal-state-map (kbd "SPC m t e") 'texfrag-mode)
+(define-key evil-normal-state-map (kbd "SPC m t t") 'texfrag-document)
+(define-key markdown-mode-map (kbd "[[") 'insert-file-name-as-wikilink)
 
 (defun insert-clipboard-image-to-buffer (filename &optional args)
   (interactive "*FSave image to: \n")
@@ -338,13 +352,40 @@
   (insert (concat "![](" (file-relative-name filename) ")")))
  
 (define-key evil-normal-state-map (kbd "SPC m j") 'insert-clipboard-image-to-buffer)
+(define-key evil-normal-state-map (kbd "SPC m u") 'insert-clipboard-image-to-buffer)
 
 (define-key evil-normal-state-map (kbd "SPC p s") 'ido-switch-buffer)
 (define-key evil-normal-state-map (kbd "SPC p l") 'list-buffers)
-
+(define-key evil-ex-map (kbd "W") 'evil-write)
+ 
 ;; C indentation?
 (setq-default c-basic-offset 4)
 (setq-default lisp-body-indent 4)
+
+;; AcuTex
+(setq TeX-auto-save t)
+(setq TeX-parse-self t)
+(setq TeX-interactive-mode t)
+(setq-default TeX-master nil)
+(setq TeX-engine "xetex")
+(define-key LaTeX-mode-map (kbd "C-j") nil)
+
+(setq pdf-view-use-scaling t
+      pdf-view-use-imagemagick nil)
+
+(defun auto-compile-on-save ()
+  "Automatically compile latex dacument on save"
+  (add-hook 'after-save-hook
+            (lambda () (Tex-command-run-all))
+            :append :local))
+
+(add-hook 'latex-mode 'auto-compile-on-save)
+
+
+(require 'auctex-latexmk)
+(auctex-latexmk-setup)
+
+(setq doc-view-resolution 192)
 
 ;; Moving stuff around
 (define-key vterm-mode-map (kbd "C-h") nil)
