@@ -3,6 +3,9 @@
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
+
+(when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize))
 ;;(package-refresh-contents)
 
 ;; Download use-package
@@ -23,10 +26,13 @@
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    '("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" default))
+ '(display-line-numbers-type 'relative)
+ '(global-display-line-numbers-mode t)
  '(latex-preview-pane-multifile-mode 'off)
  '(package-selected-packages
-   '(pdf-tools latex-preview-pane auctex-latexmk company-auctex company-ebdb which-key lsp-jedi lsp-python-ms texfrag auctex zetteldeft deft evil-escape vterm eww-lnum ido-completing-read+ persp-mode rjsx-mode pyvenv yasnippet exec-path-from-shell evil-leader evil-nerd-commenter company neotree perspective evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil))
+   '(writeroom-mode focus ccls typescript-mode pdf-tools latex-preview-pane auctex-latexmk company-auctex which-key lsp-jedi lsp-python-ms texfrag auctex zetteldeft deft evil-escape vterm eww-lnum ido-completing-read+ persp-mode rjsx-mode pyvenv yasnippet exec-path-from-shell evil-leader evil-nerd-commenter company neotree perspective evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil))
  '(pdf-latex-command "xelatex")
+ '(show-paren-mode t)
  '(texfrag-setup-alist
    '((texfrag-html html-mode)
      (texfrag-eww eww-mode)
@@ -34,7 +40,8 @@
      (texfrag-prog prog-mode)
      (texfrag-trac-wiki trac-wiki-mode markdown-mode)
      (texfrag-markdown markdown-mode)
-     (texfrag-org org-mode))))
+     (texfrag-org org-mode)))
+ '(tool-bar-mode nil))
 (package-install-selected-packages)
 
 (custom-set-faces
@@ -44,6 +51,10 @@
  ;; If there is more than one, they won't work right.
  )
 
+(setenv "PATH" (concat "/Library/TeX/texbin:"
+                       (getenv "PATH")))
+(add-to-list 'exec-path "/Library/TeX/texbin")
+
 ;; Download Evil
 (unless (package-installed-p 'evil)
   (package-install 'evil))
@@ -52,7 +63,7 @@
 (setq evil-want-keybinding nil)
 (require 'evil)
 (evil-mode 1)
-(add-hook 'vterm-mode-hook 'evil-emacs-state)
+;; (add-hook 'vterm-mode-hook 'evil-emacs-state)
 
 ;; Move evilness
 (evil-collection-init)
@@ -245,6 +256,12 @@
   (global-set-key (kbd "TAB") 'company-indent-or-complete-common)
   (global-company-mode))
 
+(use-package ccls
+  :ensure t
+  :config
+  (setq ccls-executable (expand-file-name "/usr/local/bin/ccls"))
+  )
+
 (use-package lsp-mode
     :init
     ;; (setq lsp-enable-snippet nil)
@@ -256,15 +273,17 @@
     (setq lsp-modeline-code-actions-enable nil)
     (setq lsp-headerline-breadcrumb-enable nil)
     (setq lsp-ui-sideline-enable nil)
-    :config
-    (setq lsp-clients-clangd-args '("-background-index" "-j=4" "-log=error"))
+    (setq read-process-output-max (* 1024 1024)) ;; 1mb
+    (setq gc-cons-threshold 100000000)
     :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-	    (c++-mode . lsp)
-	    (c-mode . lsp)
-	    (html-mode . lsp)
+	   (c++-mode . lsp)
+	   (c-mode . lsp)
+	   (html-mode . lsp)
 	    (css-mode . lsp)
 	    (python-mode . lsp)
 	    (rjsx-mode . lsp)
+	    (js-mode . lsp)
+	    (typescript-mode . lsp)
 	    ;; if you want which-key integration
 	    (lsp-mode . lsp-enable-which-key-integration))
     :commands lsp)
@@ -273,9 +292,7 @@
   :ensure t
   :config
   (with-eval-after-load "lsp-mode"
-    (add-to-list 'lsp-disabled-clients 'pyls)
-    (add-to-list 'lsp-enabled-clients 'jedi)))
-
+    (add-to-list 'lsp-disabled-clients 'pyls)))
 
 ;; (require 'yasnippet)
 
@@ -284,7 +301,17 @@
     (yas-global-mode 1))
 
 (use-package vterm
-    :ensure t)
+    :ensure t
+    :config
+    ;; Moving stuff around
+    (define-key vterm-mode-map (kbd "C-h") nil)
+    (define-key vterm-mode-map (kbd "C-j") nil)
+    (define-key vterm-mode-map (kbd "C-k") nil)
+    (define-key vterm-mode-map (kbd "C-l") nil)
+    :hook (
+	   (vterm-mode . evil-emacs-state)
+	   )
+    )
 
 ;; Help
 (global-unset-key (kbd "M-h"))
@@ -315,6 +342,7 @@
     (setq markdown-command "pandoc -s --mathjax")
     (setq markdown-header-scaling t)
     (setq markdown-enable-math t))
+
 
 ;; Zettlekasten
 ;; https://notes.huy.rocks/emacs-for-note-taking
@@ -367,11 +395,10 @@
 (setq TeX-parse-self t)
 (setq TeX-interactive-mode t)
 (setq-default TeX-master nil)
-(setq TeX-engine "xetex")
-(define-key LaTeX-mode-map (kbd "C-j") nil)
+(setq-default TeX-engine 'xetex)
+(setq-default TeX-PDF-mode t)
 
-(setq pdf-view-use-scaling t
-      pdf-view-use-imagemagick nil)
+(setq pdf-view-use-scaling t)
 
 (defun auto-compile-on-save ()
   "Automatically compile latex dacument on save"
@@ -387,11 +414,6 @@
 
 (setq doc-view-resolution 192)
 
-;; Moving stuff around
-(define-key vterm-mode-map (kbd "C-h") nil)
-(define-key vterm-mode-map (kbd "C-j") nil)
-(define-key vterm-mode-map (kbd "C-k") nil)
-(define-key vterm-mode-map (kbd "C-l") nil)
 
 (global-unset-key (kbd "C-h"))
 (global-unset-key (kbd "C-j"))
