@@ -4,8 +4,6 @@
              '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
 
-(when (memq window-system '(mac ns x))
-  (exec-path-from-shell-initialize))
 ;;(package-refresh-contents)
 
 ;; Download use-package
@@ -30,7 +28,7 @@
  '(global-display-line-numbers-mode t)
  '(latex-preview-pane-multifile-mode 'off)
  '(package-selected-packages
-   '(writeroom-mode focus ccls typescript-mode pdf-tools latex-preview-pane auctex-latexmk company-auctex which-key lsp-jedi lsp-python-ms texfrag auctex zetteldeft deft evil-escape vterm eww-lnum ido-completing-read+ persp-mode rjsx-mode pyvenv yasnippet exec-path-from-shell evil-leader evil-nerd-commenter company neotree perspective evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil))
+   '(ess writeroom-mode focus ccls typescript-mode latex-preview-pane auctex-latexmk company-auctex which-key lsp-jedi lsp-python-ms texfrag auctex zetteldeft deft evil-escape vterm eww-lnum ido-completing-read+ persp-mode rjsx-mode pyvenv yasnippet exec-path-from-shell evil-leader evil-nerd-commenter company neotree perspective evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil))
  '(pdf-latex-command "xelatex")
  '(show-paren-mode t)
  '(texfrag-setup-alist
@@ -54,6 +52,11 @@
 (setenv "PATH" (concat "/Library/TeX/texbin:"
                        (getenv "PATH")))
 (add-to-list 'exec-path "/Library/TeX/texbin")
+
+(when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize))
+
+
 
 ;; Download Evil
 (unless (package-installed-p 'evil)
@@ -95,6 +98,7 @@
   :ensure t
   :config)
 
+(define-key evil-normal-state-map (kbd "SPC l p") 'latex-preview-pane-mode)
 ;; Making undo work?!
 (global-undo-tree-mode)
 (evil-set-undo-system 'undo-tree)
@@ -397,8 +401,10 @@
 (setq-default TeX-master nil)
 (setq-default TeX-engine 'xetex)
 (setq-default TeX-PDF-mode t)
+(define-key TeX-mode-map (kbd "C-j") nil)
 
-(setq pdf-view-use-scaling t)
+(setq pdf-view-use-scaling t
+    pdf-view-use-imagemagick nil)
 
 (defun auto-compile-on-save ()
   "Automatically compile latex dacument on save"
@@ -428,7 +434,7 @@
 (define-key evil-normal-state-map (kbd "SPC g t") 'magit)
 
 ;; SHow paren
-(show-paren-mode 1)
+(show-paren-mode nil)
 
 ;; Get rid of arrows
 (setf (cdr (assq 'continuation fringe-indicator-alist))
