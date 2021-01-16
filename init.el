@@ -53,8 +53,8 @@
                        (getenv "PATH")))
 (add-to-list 'exec-path "/Library/TeX/texbin")
 
-(when (memq window-system '(mac ns x))
-  (exec-path-from-shell-initialize))
+;; (when (memq window-system '(mac ns x))
+;;   (exec-path-from-shell-initialize))
 
 
 
@@ -178,8 +178,10 @@
 (setq doom-modeline-major-mode-icon t)
 
 ;; Ido Mode
+(require 'flx-ido)
 (ido-mode 1)
 (ido-everywhere 1)
+(flx-ido-mode 1)
 (define-key evil-normal-state-map (kbd "SPC f f") 'ido-find-file)
 (define-key evil-normal-state-map (kbd "SPC m n") 'ido-find-file) ;; markdown mode find file backup
 (define-key evil-normal-state-map (kbd "SPC f d") 'dired)
@@ -199,6 +201,11 @@
     (setq persp-autokill-buffer-on-remove 'kill-weak)
     (add-hook 'window-setup-hook #'(lambda () (persp-mode 1))))
 
+(defun turnoff ()
+    (display-line-numbers--turn-off)
+    )
+
+(add-hook 'doc-view-minor-mode-hook 'turnoff)
 
 ;; (use-package perspective
 ;;   :ensure t
@@ -276,9 +283,11 @@
     ;; (setq lsp-diagnostics-provider :none) stop it from yelling at you
     (setq lsp-modeline-code-actions-enable nil)
     (setq lsp-headerline-breadcrumb-enable nil)
-    (setq lsp-ui-sideline-enable nil)
+    (setq lsp-ui-sideline-enable t)
+    (setq lsp-eldoc-enable-hover nil)
     (setq read-process-output-max (* 1024 1024)) ;; 1mb
     (setq gc-cons-threshold 100000000)
+    (add-to-list 'lsp-disabled-clients 'ccls)
     :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
 	   (c++-mode . lsp)
 	   (c-mode . lsp)
@@ -389,6 +398,10 @@
 (define-key evil-normal-state-map (kbd "SPC p s") 'ido-switch-buffer)
 (define-key evil-normal-state-map (kbd "SPC p l") 'list-buffers)
 (define-key evil-ex-map (kbd "W") 'evil-write)
+
+
+;; DocView
+(setq doc-view-continuous t)
  
 ;; C indentation?
 (setq-default c-basic-offset 4)
@@ -419,6 +432,12 @@
 (auctex-latexmk-setup)
 
 (setq doc-view-resolution 192)
+
+(require 'emms-setup)
+(emms-all)
+(emms-default-players)
+(setq emms-source-file-default-directory "~/Music/Music/Media.localized/")
+
 
 
 (global-unset-key (kbd "C-h"))
