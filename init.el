@@ -19,7 +19,7 @@
 (add-to-list 'package-archives
 	     '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
-(package-refresh-contents)
+;; (package-refresh-contents)
 
 ;; Download and install use-package
 (unless (package-installed-p 'use-package)
@@ -50,7 +50,7 @@
  '(global-display-line-numbers-mode t)
  '(latex-preview-pane-multifile-mode 'off)
  '(package-selected-packages
-   '(ess writeroom-mode focus typescript-mode latex-preview-pane auctex-latexmk company-auctex which-key lsp-jedi lsp-python-ms texfrag auctex zetteldeft deft evil-escape vterm eww-lnum ido-completing-read+ persp-mode rjsx-mode pyvenv yasnippet exec-path-from-shell evil-leader evil-nerd-commenter company neotree evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil))
+   '(podcaster flx-ido ess writeroom-mode focus typescript-mode latex-preview-pane auctex-latexmk company-auctex which-key lsp-jedi lsp-python-ms texfrag auctex zetteldeft deft evil-escape vterm eww-lnum ido-completing-read+ persp-mode rjsx-mode pyvenv yasnippet exec-path-from-shell evil-leader evil-nerd-commenter company neotree evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil))
  '(pdf-latex-command "xelatex")
  '(show-paren-mode t)
  '(texfrag-setup-alist
@@ -232,13 +232,28 @@
     :ensure t
     :config
     (add-to-list 'company-backends 'company-capf)
-    (push '(company-capf :with company-yasnippet) company-backends)
+    ;; (push '(company-capf :with company-yasnippet) company-backends)
     (setq company-idle-delay 0)
     (setq company-minimum-prefix-length 1)
     (global-unset-key (kbd "TAB"))
-    (global-set-key (kbd "TAB") 'company-indent-or-complete-common)
-    (global-company-mode))
+    (global-set-key (kbd "TAB") 'smarter-tab-to-complete)
+    (global-company-mode)
+    (defun smarter-tab-to-complete ()
+	"Try to `org-cycle', `yas-expand', and `yas-next-field' at current cursor position.
 
+If all failed, try to complete the common part with `company-complete-common'"
+	(interactive)
+	(if yas-minor-mode
+		(let ((old-point (point))
+		      (old-tick (buffer-chars-modified-tick))
+		      (func-list '(org-cycle yas-expand yas-next-field)))
+		    (catch 'func-suceed
+			(dolist (func func-list)
+			    (ignore-errors (call-interactively func))
+			    (unless (and (eq old-point (point))
+					 (eq old-tick (buffer-chars-modified-tick)))
+				(throw 'func-suceed t)))
+			(company-complete-common))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -376,8 +391,7 @@
     (setq-default TeX-master nil)
     (setq-default TeX-engine 'xetex)
     (setq-default TeX-PDF-mode t)
-    (define-key TeX-mode-map (kbd "C-j") nil)
-    )
+    (define-key TeX-mode-map (kbd "C-j") nil))
 
 ;; AcuTeX with LaTeXmk
 (use-package auctex-latexmk
@@ -461,6 +475,22 @@
 ;; Stop those arrows
 (setf (cdr (assq 'continuation fringe-indicator-alist))
       '(nil nil))
+
+;;;; Chapter 9.m: multimedia stuff
+(use-package podcaster
+    :ensure t
+    :config
+    (add-to-list 'podcaster-feeds-urls "https://www.unmade.fm/episodes?format=rss")
+    (add-to-list 'podcaster-feeds-urls "https://www.relay.fm/cortex/feed")
+    (add-to-list 'podcaster-feeds-urls "http://www.hellointernet.fm/podcast?format=rss")
+    (add-to-list 'podcaster-feeds-urls "https://www.relay.fm/connected/feed")
+    (evil-leader/set-key
+	"pdc" 'podcaster
+	"pdp" 'podcaster-pause
+	"pdr" 'podcaster-resume
+	"pds" 'podcaster-stop)
+    (setq podcaster-mp3-player (executable-find "ffplay")))
+;;;; END
 
 
 
