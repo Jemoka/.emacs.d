@@ -157,16 +157,14 @@
 ;; Disabled menu
 (tool-bar-mode -1)
 
-;; Get rid of scrollbars
+;; Get rid of scrollbars && enable hark header
 (add-to-list 'default-frame-alist
-	     '(vertical-scroll-bars . nil))
+	     '(vertical-scroll-bars . nil)
+	     '(ns-appearance . dark))
 
 ;; Line numbers
 (global-display-line-numbers-mode)
 (setq display-line-numbers-type 'relative)
-
-;; Dark Header. Not that it matters because I use emacs w/o headers
-(add-to-list 'default-frame-alist '(ns-appearance . dark))
 
 
 
@@ -235,8 +233,7 @@
     ;; (push '(company-capf :with company-yasnippet) company-backends)
     (setq company-idle-delay 0)
     (setq company-minimum-prefix-length 1)
-    (global-unset-key (kbd "TAB"))
-    (global-set-key (kbd "TAB") 'smarter-tab-to-complete)
+    (setq max-specpdl-size 3000)
     (global-company-mode)
     (defun smarter-tab-to-complete ()
 	"Try to `org-cycle', `yas-expand', and `yas-next-field' at current cursor position.
@@ -253,7 +250,10 @@ If all failed, try to complete the common part with `company-complete-common'"
 			    (unless (and (eq old-point (point))
 					 (eq old-tick (buffer-chars-modified-tick)))
 				(throw 'func-suceed t)))
-			(company-complete-common))))))
+			(company-complete-common)))))
+    (global-unset-key (kbd "TAB"))
+    (global-set-key (kbd "TAB") 'smarter-tab-to-complete)
+    )
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -278,6 +278,7 @@ If all failed, try to complete the common part with `company-complete-common'"
     "ff" 'ido-find-file
     "mn" 'ido-find-file
     "ps" 'ido-switch-buffer
+    "pk" 'ido-kill-buffer
     "pl" 'list-buffers
     "fd" 'dired
     "mh" 'dired)
