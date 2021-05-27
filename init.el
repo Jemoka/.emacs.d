@@ -178,81 +178,63 @@
     (yas-global-mode 1))
 
 ;; All hell breaking loose. LanguageServerTime! :sunglasses:
-(use-package lsp-mode
-    :init
-    (setq lsp-enable-snippet nil)
-    ;; (setq lsp-completion-enable-additional-text-edit nil)
-    ;; (setq lsp-eldoc-enable-hover nil)
-    (setq lsp-signature-auto-activate nil) ;; you could manually request them via `lsp-signature-activate`
-    (setq lsp-signature-render-documentation nil)
-    ;; (setq lsp-diagnostics-provider :none) stop it from yelling at you
-    (setq lsp-modeline-code-actions-enable nil)
-    (setq lsp-completion-show-detail nil)
-    (setq lsp-enable-symbol-highlighting nil)
-    (setq lsp-headerline-breadcrumb-enable nil)
-    (setq lsp-ui-sideline-enable nil)
-    (setq lsp-eldoc-enable-hover nil)
-    (setq lsp-enable-semantic-highlighting nil)
-    (setq read-process-output-max (* 1024 1024)) ;; 1mb
-    (setq lsp-idle-delay 0.500)
-    (setq gc-cons-threshold 100000000)
-    (setq lsp-clients-clangd-executable "/usr/local/opt/llvm/bin/clangd")
-    (setq lsp-clients-clangd-args '("-function-arg-placeholders=0"))
-    :config
-    (lsp-register-client
-     (make-lsp-client :new-connection (lsp-tramp-connection "jedi-language-server")
-		      :major-modes '(python-mode)
-		      :remote? t
-		      :server-id 'pyls-remote))
-    :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-	   (c++-mode . lsp)
-	   (c-mode . lsp)
-	   (html-mode . lsp)
-	   (css-mode . lsp)
-	   (python-mode . lsp)
-	   (rjsx-mode . lsp)
-	   (js-mode . lsp)
-	   (typescript-mode . lsp)
-	   ;; if you want which-key integration
-	   (lsp-mode . lsp-enable-which-key-integration))
-    :commands lsp)
+;; (use-package lsp-mode
+;;     :init
+;;     (setq lsp-enable-snippet nil)
+;;     ;; (setq lsp-completion-enable-additional-text-edit nil)
+;;     ;; (setq lsp-eldoc-enable-hover nil)
+;;     (setq lsp-signature-auto-activate nil) ;; you could manually request them via `lsp-signature-activate`
+;;     (setq lsp-signature-render-documentation nil)
+;;     ;; (setq lsp-diagnostics-provider :none) stop it from yelling at you
+;;     (setq lsp-modeline-code-actions-enable nil)
+;;     (setq lsp-completion-show-detail nil)
+;;     (setq lsp-enable-symbol-highlighting nil)
+;;     (setq lsp-headerline-breadcrumb-enable nil)
+;;     (setq lsp-ui-sideline-enable nil)
+;;     (setq lsp-eldoc-enable-hover nil)
+;;     (setq lsp-enable-semantic-highlighting nil)
+;;     (setq read-process-output-max (* 1024 1024)) ;; 1mb
+;;     (setq lsp-idle-delay nil)
+;;     (setq gc-cons-threshold 100000000)
+;;     (setq lsp-clients-clangd-executable "/usr/local/opt/llvm/bin/clangd")
+;;     (setq lsp-clients-clangd-args '("-function-arg-placeholders=0"))
+;;     :config
+;;     (lsp-register-client
+;;      (make-lsp-client :new-connection (lsp-tramp-connection "jedi-language-server")
+;; 		      :major-modes '(python-mode)
+;; 		      :remote? t
+;; 		      :server-id 'pyls-remote))
+;;     :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+;; 	   (c++-mode . lsp)
+;; 	   (c-mode . lsp)
+;; 	   (html-mode . lsp)
+;; 	   (css-mode . lsp)
+;; 	   (python-mode . lsp)
+;; 	   (rjsx-mode . lsp)
+;; 	   (js-mode . lsp)
+;; 	   (typescript-mode . lsp)
+;; 	   ;; if you want which-key integration
+;; 	   (lsp-mode . lsp-enable-which-key-integration))
+;;     :commands lsp)
 
 ;; And jedi. Because we are different that way.
-(use-package lsp-jedi
-    :ensure t
-    :config
-    (with-eval-after-load "lsp-mode"
-	(add-to-list 'lsp-disabled-clients 'pyls)))
+;; (use-package lsp-jedi
+;;     :ensure t
+;;     :config
+;;     (with-eval-after-load "lsp-mode"
+;; 	(add-to-list 'lsp-disabled-clients 'pyls)))
 
 ;; Lastly, a lovely completion popover menu coutesy of company.
 (use-package company
     :ensure t
+    :init
+    (add-hook 'after-init-hook 'global-company-mode)
     :config
     (add-to-list 'company-backends 'company-capf)
     ;; (push '(company-capf :with company-yasnippet) company-backends)
     (setq company-idle-delay 0)
     (setq company-minimum-prefix-length 1)
-    (setq max-specpdl-size 3000)
-    (global-company-mode)
-    (defun smarter-tab-to-complete ()
-	"Try to `org-cycle', `yas-expand', and `yas-next-field' at current cursor position.
-
-If all failed, try to complete the common part with `company-complete-common'"
-	(interactive)
-	(if yas-minor-mode
-		(let ((old-point (point))
-		      (old-tick (buffer-chars-modified-tick))
-		      (func-list '(org-cycle yas-expand yas-next-field)))
-		    (catch 'func-suceed
-			(dolist (func func-list)
-			    (ignore-errors (call-interactively func))
-			    (unless (and (eq old-point (point))
-					 (eq old-tick (buffer-chars-modified-tick)))
-				(throw 'func-suceed t)))
-			(company-complete-common)))))
-    (global-unset-key (kbd "TAB"))
-    (global-set-key (kbd "TAB") 'smarter-tab-to-complete)
-    )
+    (setq max-specpdl-size 3000))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
