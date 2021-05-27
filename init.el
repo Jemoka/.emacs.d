@@ -158,9 +158,8 @@
 (tool-bar-mode -1)
 
 ;; Get rid of scrollbars && enable hark header
-(add-to-list 'default-frame-alist
-	     '(vertical-scroll-bars . nil)
-	     '(ns-appearance . dark))
+(add-to-list 'default-frame-alist '(vertical-scroll-bars . nil))
+(add-to-list 'default-frame-alist '(ns-appearance . dark))
 
 ;; Line numbers
 (global-display-line-numbers-mode)
