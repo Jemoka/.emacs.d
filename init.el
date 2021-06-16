@@ -19,7 +19,7 @@
 (add-to-list 'package-archives
 	     '("melpa" . "https://melpa.org/packages/"))
 (package-initialize)
-;; (package-refresh-contents)
+(package-refresh-contents)
 
 ;; Download and install use-package
 (unless (package-installed-p 'use-package)
@@ -28,10 +28,6 @@
 
 ;; Enable use-package 
 (require 'use-package)
-
-;; Always make sure package is installed when used
-(require 'use-package-ensure)
-(setq use-package-always-ensure t)
 
 ;; Add custom package to load-path
 (add-to-list 'load-path "~/.emacs.d/lisp/nox")
@@ -51,17 +47,9 @@
  '(global-display-line-numbers-mode t)
  '(latex-preview-pane-multifile-mode 'off)
  '(package-selected-packages
-   '(posframe nox podcaster flx-ido ess writeroom-mode focus typescript-mode latex-preview-pane auctex-latexmk company-auctex which-key lsp-jedi lsp-python-ms texfrag auctex zetteldeft deft evil-escape vterm eww-lnum ido-completing-read+ persp-mode rjsx-mode pyvenv yasnippet exec-path-from-shell evil-leader evil-nerd-commenter company neotree evil-collection magit evil-easymotion doom-modeline smart-mode-line doom-themes powerline-evil powerline hemisu-theme exwm-x multi-term exwm direx ansi-term dashboard nord-theme vscdark-theme evil-surround evil))
+   '(doom-modeline evil-nerd-commenter magit use-package-ensure persp-mode podcaster which-key yasnippet vterm use-package undo-tree pyvenv lsp-ui ido-completing-read+ flx-ido evil-surround evil-leader evil-easymotion evil-collection doom-themes deft dashboard company-quickhelp ccls auctex-latexmk))
  '(pdf-latex-command "xelatex")
  '(show-paren-mode t)
- '(texfrag-setup-alist
-   '((texfrag-html html-mode)
-     (texfrag-eww eww-mode)
-     (texfrag-sx sx-question-mode)
-     (texfrag-prog prog-mode)
-     (texfrag-trac-wiki trac-wiki-mode markdown-mode)
-     (texfrag-markdown markdown-mode)
-     (texfrag-org org-mode)))
  '(tool-bar-mode nil))
 (package-install-selected-packages)
 
@@ -134,6 +122,10 @@
     :config
     (evilem-default-keybindings "SPC"))
 
+;; Nerd Commenter
+(use-package evil-nerd-commenter
+    :ensure t)
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -143,24 +135,37 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; The Doom Theme
-(load-theme 'doom-horizon t)
+(use-package doom-themes
+  :ensure t
+  :config
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  (load-theme 'doom-vibrant t)
+  (doom-themes-visual-bell-config)
+  (doom-themes-org-config))
 
-;; The Modeline
+;;; The Modeline
 (use-package doom-modeline
     :ensure t
     :init
     (setq doom-modeline-height 15)
     (setq doom-modeline-icon t)
     (setq doom-modeline-major-mode-icon t)
+    (setq doom-modeline-buffer-file-name-style 'truncate-upto-project)
+    (setq doom-modeline-buffer-state-icon t)
+    (setq doom-modeline-buffer-modification-icon t)
     :config
     (doom-modeline-mode 1))
 
 ;; Disabled menu
 (tool-bar-mode -1)
 
-;; Get rid of scrollbars && enable hark header
+;; Get rid of scrollbars && get rid of top bar
 (add-to-list 'default-frame-alist '(vertical-scroll-bars . nil))
-(add-to-list 'default-frame-alist '(ns-appearance . dark))
+(add-to-list 'default-frame-alist '(ns-apperance . dark))
+(add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+(setq ns-use-proxy-icon nil)
+(setq frame-title-format nil)
 
 ;; Line numbers
 (global-display-line-numbers-mode)
@@ -178,46 +183,47 @@
     :init
     (yas-global-mode 1))
 
+;; LSP mode that LSPs
+(use-package lsp-mode
+  :ensure t
+  :init
+  (setq lsp-headerline-breadcrumb-enable nil)
+  (setq lsp-completion-show-detail nil)
+  :hook ((c++-mode . lsp)
+         (c-mode . lsp)
+         (python-mode . lsp)
+         (js-mode . lsp)
+         (typescript-mode . lsp))
+  :commands lsp)
 
+;; CCLS
+(use-package ccls
+  :ensure t
+  :init
+  (setq ccls-executable "/usr/local/bin/ccls")
+  :hook ((c-mode c++-mode objc-mode cuda-mode) .
+         (lambda () (require 'ccls) (lsp))))
 
-;; Lastly, a lovely completion popover menu coutesy of company.
+;; lsp-ui
+(use-package lsp-ui
+  :ensure t
+  :after lsp
+  :hook ((lsp-mode . lsp-ui-mode)))
+
+;; Companify
 (use-package company
-    :ensure t
-    :init
-    (add-hook 'after-init-hook 'global-company-mode)
-    :config
-    (add-to-list 'company-backends 'company-capf)
-    ;; (push '(company-capf :with company-yasnippet) company-backends)
-    (setq company-idle-delay nil)
-    (setq company-minimum-prefix-length 1)
-    (setq max-specpdl-size 3000)
-    (global-unset-key (kbd "TAB"))
-    (global-set-key (kbd "TAB") 'company-indent-or-complete-common)
-    (global-company-mode))
+  :ensure t
+  :init
+  (setq company-idle-delay 0)
+  (setq company-tooltip-maximum-width 40)
+  :hook
+  (prog-mode . company-mode))
 
-
-
-;; Nox? unfortunately packages not on ELPA freaks use-package out.
-(require 'nox)
-(dolist (hook (list
-		'js-mode-hook
-		'rust-mode-hook
-		'python-mode-hook
-		'ruby-mode-hook
-		'java-mode-hook
-		'sh-mode-hook
-		'php-mode-hook
-		'c-mode-common-hook
-		'c-mode-hook
-		'csharp-mode-hook
-		'c++-mode-hook
-		'haskell-mode-hook
-		))
-    (add-hook hook '(lambda () (nox-ensure))))
-(add-to-list 'nox-server-programs '(c++-mode . ("clangd" "-function-arg-placeholders=0")))
-(setq nox-python-server "pyright")
-
-
+;; Quickhelp
+(use-package company-quickhelp
+  :ensure t
+  :after company
+  :init (company-quickhelp-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;           Chapter 5: ido          ;;;;
@@ -406,13 +412,20 @@
 
 ;;;;  Chapter 9.h: help mode config!
 ;; First, once you press a key, you want to know what else to do
-(which-key-mode)
+(use-package which-key
+    :ensure t
+    :config
+    (which-key-mode))
 
 ;; Unset m/c-h and friends and remap help map to M-h
 (global-unset-key (kbd "M-h"))
 (global-unset-key (kbd "C-h"))
 (global-set-key (kbd "M-h") help-map)
 ;;;; END
+
+;; The Magical Magit
+(use-package magit
+    :ensure t)
 
 ;;;; Chapter 9.v: bad vim habits!
 ;; Don't discriminate against Shift-Colon-W 
@@ -489,8 +502,6 @@
 (setenv "PATH" (concat "/Library/TeX/texbin:"
 		       (getenv "PATH")))
 (add-to-list 'exec-path "/Library/TeX/texbin")
-(when (memq window-system '(mac ns x))
-    (exec-path-from-shell-initialize))
 
 ;; @Jemoka
 
