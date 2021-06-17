@@ -43,6 +43,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("5aef652e40fa5f111e78997285f6e4c892112da0c2f919eb663baaa330a8521f" "9f9fc38446c384a4e909b7220d15bf0c152849ef42f5b1b97356448612c77953" default))
  '(display-line-numbers-type 'relative)
  '(global-display-line-numbers-mode t)
  '(latex-preview-pane-multifile-mode 'off)
@@ -140,7 +142,7 @@
   :config
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  (load-theme 'doom-vibrant t)
+  (load-theme 'doom-henna)
   (doom-themes-visual-bell-config)
   (doom-themes-org-config))
 
@@ -150,10 +152,10 @@
     :init
     (setq doom-modeline-height 15)
     (setq doom-modeline-icon t)
-    (setq doom-modeline-major-mode-icon t)
+    (setq doom-modeline-major-mode-icon nil)
     (setq doom-modeline-buffer-file-name-style 'truncate-upto-project)
     (setq doom-modeline-buffer-state-icon t)
-    (setq doom-modeline-buffer-modification-icon t)
+    (setq doom-modeline-buffer-modification-icon nil)
     :config
     (doom-modeline-mode 1))
 
@@ -164,8 +166,8 @@
 (add-to-list 'default-frame-alist '(vertical-scroll-bars . nil))
 (add-to-list 'default-frame-alist '(ns-apperance . dark))
 (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-(setq ns-use-proxy-icon nil)
-(setq frame-title-format nil)
+(setq-default ns-use-proxy-icon nil)
+(setq-default frame-title-format "\n")
 
 ;; Line numbers
 (global-display-line-numbers-mode)
@@ -175,7 +177,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; Chapter 4: autocompletion ;;;;
-;;;;      aaaaaaaaaaaaaa       ;;;;
+;;;;      aaaaaaaaaaaaaa      ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Yah. Snippets.
