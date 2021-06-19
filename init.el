@@ -149,20 +149,11 @@
     (setq doom-modeline-buffer-file-name-style 'truncate-upto-project)
     (setq doom-modeline-buffer-state-icon t)
     (setq doom-modeline-buffer-modification-icon nil)
-    ;:config
-    ;(add-hook 'doom-modeline-mode-hook
-		   ;(let ((char-table char-width-table))
-		   ;(while (setq char-table (char-table-parent char-table)))
-		   ;(dolist (pair doom-modeline-rhs-icons-alist)
-			   ;(let ((width 2)  ; <-- tweak this
-				 ;(chars (cdr pair))
-				 ;(table (make-char-table nil)))
-			   ;(dolist (char chars)
-				   ;(set-char-table-range table char width))
-			   ;(optimize-char-table table)
-			   ;(set-char-table-parent table char-table)
-			   ;(setq char-width-table table)))))
-    (doom-modeline-mode 1))
+    :config
+    (doom-modeline-def-modeline 'main
+                                '(bar " " modals matches buffer-info remote-host buffer-position parrot selection-info)
+                                '(objed-state misc-info minor-modes checker input-method buffer-encoding major-mode process vcs "  "))
+    :hook (after-init . doom-modeline-mode))
 
 ;; Disabled menu
 (tool-bar-mode -1)
