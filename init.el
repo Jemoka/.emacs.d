@@ -37,19 +37,19 @@
 ;;;; But it also contains lot's of old packages   ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; custom variables
+;; Custom's variables
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
-   '("5aef652e40fa5f111e78997285f6e4c892112da0c2f919eb663baaa330a8521f" "9f9fc38446c384a4e909b7220d15bf0c152849ef42f5b1b97356448612c77953" default))
+   '("d47f868fd34613bd1fc11721fe055f26fd163426a299d45ce69bef1f109e1e71" "1f50a7274cd56f28713e1694600ec7b8f2fd1c7d2ef38c5e7378a26931605409" "22a514f7051c7eac7f07112a217772f704531b136f00e2ccfaa2e2a456558d39" "5aef652e40fa5f111e78997285f6e4c892112da0c2f919eb663baaa330a8521f" "9f9fc38446c384a4e909b7220d15bf0c152849ef42f5b1b97356448612c77953" default))
  '(display-line-numbers-type 'relative)
  '(global-display-line-numbers-mode t)
  '(latex-preview-pane-multifile-mode 'off)
  '(package-selected-packages
-   '(doom-modeline evil-nerd-commenter magit use-package-ensure persp-mode podcaster which-key yasnippet vterm use-package undo-tree pyvenv lsp-ui ido-completing-read+ flx-ido evil-surround evil-leader evil-easymotion evil-collection doom-themes deft dashboard company-quickhelp ccls auctex-latexmk))
+   '(eglot flycheck projectile doom-modeline evil-nerd-commenter magit use-package-ensure persp-mode podcaster which-key yasnippet vterm use-package undo-tree pyvenv ido-completing-read+ flx-ido evil-surround evil-leader evil-easymotion evil-collection doom-themes deft dashboard company-quickhelp auctex-latexmk))
  '(pdf-latex-command "xelatex")
  '(show-paren-mode t)
  '(tool-bar-mode nil))
@@ -156,13 +156,25 @@
     (setq doom-modeline-buffer-file-name-style 'truncate-upto-project)
     (setq doom-modeline-buffer-state-icon t)
     (setq doom-modeline-buffer-modification-icon nil)
-    :config
+    ;:config
+    ;(add-hook 'doom-modeline-mode-hook
+		   ;(let ((char-table char-width-table))
+		   ;(while (setq char-table (char-table-parent char-table)))
+		   ;(dolist (pair doom-modeline-rhs-icons-alist)
+			   ;(let ((width 2)  ; <-- tweak this
+				 ;(chars (cdr pair))
+				 ;(table (make-char-table nil)))
+			   ;(dolist (char chars)
+				   ;(set-char-table-range table char width))
+			   ;(optimize-char-table table)
+			   ;(set-char-table-parent table char-table)
+			   ;(setq char-width-table table)))))
     (doom-modeline-mode 1))
 
 ;; Disabled menu
 (tool-bar-mode -1)
 
-;; Get rid of scrollbars && get rid of top bar
+;; Get rid of scrollbars, get rid of top bar, and disable fringes
 (add-to-list 'default-frame-alist '(vertical-scroll-bars . nil))
 (add-to-list 'default-frame-alist '(ns-apperance . dark))
 (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
@@ -185,47 +197,41 @@
     :init
     (yas-global-mode 1))
 
-;; LSP mode that LSPs
-(use-package lsp-mode
-  :ensure t
-  :init
-  (setq lsp-headerline-breadcrumb-enable nil)
-  (setq lsp-completion-show-detail nil)
-  :hook ((c++-mode . lsp)
-         (c-mode . lsp)
-         (python-mode . lsp)
-         (js-mode . lsp)
-         (typescript-mode . lsp))
-  :commands lsp)
+;; "Projects"
+(use-package projectile
+    :ensure t
+    :config
+    (projectile-mode +1)
+    (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map))
 
-;; CCLS
-(use-package ccls
-  :ensure t
-  :init
-  (setq ccls-executable "/usr/local/bin/ccls")
-  :hook ((c-mode c++-mode objc-mode cuda-mode) .
-         (lambda () (require 'ccls) (lsp))))
-
-;; lsp-ui
-(use-package lsp-ui
-  :ensure t
-  :after lsp
-  :hook ((lsp-mode . lsp-ui-mode)))
+;; Flycheck
+(use-package flycheck
+    :ensure t)
 
 ;; Companify
 (use-package company
   :ensure t
   :init
   (setq company-idle-delay 0)
+  (setq company-minimum-prefix-length 1)
   (setq company-tooltip-maximum-width 40)
-  :hook
-  (prog-mode . company-mode))
+  (setq company-backends '((company-files company-yasnippet :separate company-capf)))
+  :config
+  (global-company-mode))
+
+;; eglot lsp
+(use-package eglot
+    :ensure t
+    :init
+    :config
+    (add-to-list 'eglot-stay-out-of 'company)
+    (setq eglot-ignored-server-capabilites '(:hoverProvider)))
 
 ;; Quickhelp
 (use-package company-quickhelp
   :ensure t
   :after company
-  :init (company-quickhelp-mode))
+  :config (company-quickhelp-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;           Chapter 5: ido          ;;;;
