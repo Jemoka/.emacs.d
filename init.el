@@ -388,7 +388,11 @@
     "mte" 'texfrag-mode
     "mtt" 'texfrag-document
     "mj" 'insert-clipboard-image-to-buffer
-    "mu" 'insert-clipboard-image-to-buffer)
+    "mu" 'insert-clipboard-image-to-buffer
+    "hv" 'describe-variable
+    "hp" 'describe-package
+    "hs" 'describe-symbol
+    "hk" 'describe-key)
 
 
 
