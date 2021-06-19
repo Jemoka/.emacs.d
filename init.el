@@ -32,6 +32,8 @@
 ;; Add custom package to load-path
 (add-to-list 'load-path "~/.emacs.d/lisp/nox")
 
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; Chapter 1: Emacs told me not to touch this   ;;;;
 ;;;; But it also contains lot's of old packages   ;;;;
@@ -51,17 +53,8 @@
  '(package-selected-packages
    '(eglot flycheck projectile doom-modeline evil-nerd-commenter magit use-package-ensure persp-mode podcaster which-key yasnippet vterm use-package undo-tree pyvenv ido-completing-read+ flx-ido evil-surround evil-leader evil-easymotion evil-collection doom-themes deft dashboard company-quickhelp auctex-latexmk))
  '(pdf-latex-command "xelatex")
- '(show-paren-mode t)
  '(tool-bar-mode nil))
 (package-install-selected-packages)
-
-;; custom faces
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
 
 
 
@@ -189,7 +182,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;; Chapter 4: autocompletion ;;;;
-;;;;      aaaaaaaaaaaaaa      ;;;;
+;;;;      aaaaaaaaaaaaaa       ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Yah. Snippets.
@@ -208,6 +201,9 @@
 (use-package flycheck
     :ensure t
     :config
+    (set-face-attribute 'flycheck-error nil :underline '(:color "red2" :style line)) 
+    (set-face-attribute 'flycheck-warning nil :underline '(:color "yellow2" :style line)) 
+    (set-face-attribute 'flycheck-info nil :underline '(:color "green2" :style line)) 
     ;; Just yoink the spacemacs fringe
     ;; Custom fringe indicator
     (define-fringe-bitmap 'my-flycheck-fringe-indicator
@@ -506,7 +502,7 @@
 (evil-leader/set-key "gt" 'magit)
 
 ;; Don't show parens
-(show-paren-mode nil)
+(show-paren-mode t)
 
 ;; Stop those arrows
 (setf (cdr (assq 'continuation fringe-indicator-alist))
