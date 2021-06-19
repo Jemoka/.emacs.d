@@ -206,7 +206,48 @@
 
 ;; Flycheck
 (use-package flycheck
-    :ensure t)
+    :ensure t
+    :config
+    ;; Just yoink the spacemacs fringe
+    ;; Custom fringe indicator
+    (define-fringe-bitmap 'my-flycheck-fringe-indicator
+	(vector #b00000000
+		#b00000000
+		#b00000000
+		#b00000000
+		#b00000000
+		#b00000000
+		#b00000000
+		#b00011100
+		#b00111110
+		#b00111110
+		#b00111110
+		#b00011100
+		#b00000000
+		#b00000000
+		#b00000000
+		#b00000000
+		#b00000000))
+    (let ((bitmap 'my-flycheck-fringe-indicator))
+	(flycheck-define-error-level 'error
+	    :severity 2
+	    :overlay-category 'flycheck-error-overlay
+	    :fringe-bitmap bitmap
+	    :error-list-face 'flycheck-error-list-error
+	    :fringe-face 'flycheck-fringe-error)
+	(flycheck-define-error-level 'warning
+	    :severity 1
+	    :overlay-category 'flycheck-warning-overlay
+	    :fringe-bitmap bitmap
+	    :error-list-face 'flycheck-error-list-warning
+	    :fringe-face 'flycheck-fringe-warning)
+	(flycheck-define-error-level 'info
+	    :severity 0
+	    :overlay-category 'flycheck-info-overlay
+	    :fringe-bitmap bitmap
+	    :error-list-face 'flycheck-error-list-info
+	    :fringe-face 'flycheck-fringe-info))
+    (add-hook 'after-init-hook #'global-flycheck-mode))
 
 ;; Companify
 (use-package company
@@ -215,6 +256,7 @@
   (setq company-idle-delay 0)
   (setq company-minimum-prefix-length 1)
   (setq company-tooltip-maximum-width 40)
+  (setq company-format-margin-function nil)
   (setq company-backends '((company-files company-yasnippet :separate company-capf)))
   :config
   (global-company-mode))
@@ -225,7 +267,13 @@
     :init
     :config
     (add-to-list 'eglot-stay-out-of 'company)
-    (setq eglot-ignored-server-capabilites '(:hoverProvider)))
+    (add-to-list 'eglot-stay-out-of 'flymake)
+    (setq eglot-ignored-server-capabilites '(:hoverProvider))
+    :hook
+    ((c++-mode . eglot-ensure)
+     (c-mode . eglot-ensure)
+     (python-mode . eglot-ensure)
+     (js-mode . eglot-ensure)))
 
 ;; Quickhelp
 (use-package company-quickhelp
@@ -281,9 +329,8 @@
     (define-key vterm-mode-map (kbd "C-j") nil)
     (define-key vterm-mode-map (kbd "C-k") nil)
     (define-key vterm-mode-map (kbd "C-l") nil)
-    :hook (
-	   (vterm-mode . evil-emacs-state)
-	   ))
+    :hook
+    ((vterm-mode . evil-emacs-state)))
 
 
 
