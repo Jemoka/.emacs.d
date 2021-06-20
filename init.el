@@ -152,7 +152,7 @@
     :config
     (doom-modeline-def-modeline 'main
                                 '(bar " " modals matches buffer-info remote-host buffer-position parrot selection-info)
-                                '(objed-state misc-info minor-modes checker input-method buffer-encoding major-mode process vcs "  "))
+                                '(objed-state misc-info minor-modes input-method buffer-encoding major-mode process vcs "  "))
     :hook (after-init . doom-modeline-mode))
 
 ;; Disabled menu
@@ -195,9 +195,11 @@
     (set-face-attribute 'flycheck-error nil :underline '(:color "red2" :style line)) 
     (set-face-attribute 'flycheck-warning nil :underline '(:color "yellow2" :style line)) 
     (set-face-attribute 'flycheck-info nil :underline '(:color "green2" :style line)) 
-    ;; Disable info level checks
+    ;; Disable info and warning level checks
     (set-face-attribute 'flycheck-fringe-info nil :foreground (face-attribute 'fringe :background ))   	
     (set-face-attribute 'flycheck-info nil :underline nil)
+    (set-face-attribute 'flycheck-fringe-warning nil :foreground (face-attribute 'fringe :background ))   	
+    (set-face-attribute 'flycheck-warning nil :underline nil)
     ;; Just yoink the spacemacs fringe
     ;; Custom fringe indicator
     (define-fringe-bitmap 'my-flycheck-fringe-indicator
@@ -227,17 +229,17 @@
 	    :fringe-face 'flycheck-fringe-error)
 	(flycheck-define-error-level 'warning
 	    :severity 1
-	    :overlay-category 'flycheck-warning-overlay
-	    :fringe-bitmap bitmap
-	    :error-list-face 'flycheck-error-list-warning
-	    :fringe-face 'flycheck-fringe-warning)
+	    :overlay-category nil
+	    :fringe-bitmap nil
+	    :error-list-face nil
+	    :fringe-face nil)
 	(flycheck-define-error-level 'info
 	    :severity 0
 	    :overlay-category nil
 	    :fringe-bitmap nil
 	    :error-list-face nil
 	    :fringe-face nil))
-    (add-hook 'after-init-hook #'global-flycheck-mode))
+    (global-flycheck-mode t))
 
 ;; Companify
 (use-package company
@@ -247,7 +249,7 @@
   (setq company-minimum-prefix-length 0)
   (setq company-tooltip-maximum-width 40)
   (setq company-format-margin-function nil)
-  (setq company-backends '((company-files company-yasnippet :separate company-capf)))
+  (setq company-backends '((company-files company-yasnippet :separate company-capf :with company-dabbrev)))
   :config
   (define-key company-active-map (kbd "TAB") 'company-select-next)
   (define-key company-active-map (kbd "<backtab>") 'company-select-previous)
@@ -263,6 +265,8 @@
     (add-to-list 'eglot-stay-out-of 'company)
     (add-to-list 'eglot-stay-out-of 'flymake)
     (setq eglot-ignored-server-capabilites '(:hoverProvider))
+    (add-to-list 'eglot-server-programs '(c++-mode . ("clangd")))
+    (flymake-mode-off)
     :hook
     ((c++-mode . eglot-ensure)
      (c-mode . eglot-ensure)
