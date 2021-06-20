@@ -51,7 +51,7 @@
  '(global-display-line-numbers-mode t)
  '(latex-preview-pane-multifile-mode 'off)
  '(package-selected-packages
-   '(eglot flycheck projectile doom-modeline evil-nerd-commenter magit use-package-ensure persp-mode podcaster which-key yasnippet vterm use-package undo-tree pyvenv ido-completing-read+ flx-ido evil-surround evil-leader evil-easymotion evil-collection doom-themes deft dashboard company-quickhelp auctex-latexmk))
+   '(typescript-mode key-chord eglot flycheck projectile doom-modeline evil-nerd-commenter magit use-package-ensure persp-mode podcaster which-key yasnippet vterm use-package undo-tree pyvenv ido-completing-read+ flx-ido evil-surround evil-leader evil-easymotion evil-collection doom-themes deft dashboard company-quickhelp auctex-latexmk))
  '(pdf-latex-command "xelatex")
  '(tool-bar-mode nil))
 (package-install-selected-packages)
@@ -195,6 +195,9 @@
     (set-face-attribute 'flycheck-error nil :underline '(:color "red2" :style line)) 
     (set-face-attribute 'flycheck-warning nil :underline '(:color "yellow2" :style line)) 
     (set-face-attribute 'flycheck-info nil :underline '(:color "green2" :style line)) 
+    ;; Disable info level checks
+    (set-face-attribute 'flycheck-fringe-info nil :foreground (face-attribute 'fringe :background ))   	
+    (set-face-attribute 'flycheck-info nil :underline nil)
     ;; Just yoink the spacemacs fringe
     ;; Custom fringe indicator
     (define-fringe-bitmap 'my-flycheck-fringe-indicator
@@ -230,10 +233,10 @@
 	    :fringe-face 'flycheck-fringe-warning)
 	(flycheck-define-error-level 'info
 	    :severity 0
-	    :overlay-category 'flycheck-info-overlay
-	    :fringe-bitmap bitmap
-	    :error-list-face 'flycheck-error-list-info
-	    :fringe-face 'flycheck-fringe-info))
+	    :overlay-category nil
+	    :fringe-bitmap nil
+	    :error-list-face nil
+	    :fringe-face nil))
     (add-hook 'after-init-hook #'global-flycheck-mode))
 
 ;; Companify
@@ -241,11 +244,15 @@
   :ensure t
   :init
   (setq company-idle-delay 0)
-  (setq company-minimum-prefix-length 1)
+  (setq company-minimum-prefix-length 0)
   (setq company-tooltip-maximum-width 40)
   (setq company-format-margin-function nil)
   (setq company-backends '((company-files company-yasnippet :separate company-capf)))
   :config
+  (define-key company-active-map (kbd "TAB") 'company-select-next)
+  (define-key company-active-map (kbd "<backtab>") 'company-select-previous)
+  (define-key company-active-map (kbd "RET") nil)
+  (add-hook 'after-init-hook 'company-tng-mode)
   (global-company-mode))
 
 ;; eglot lsp
@@ -260,6 +267,7 @@
     ((c++-mode . eglot-ensure)
      (c-mode . eglot-ensure)
      (python-mode . eglot-ensure)
+     (typescript-mode . eglot-ensure)
      (js-mode . eglot-ensure)))
 
 ;; Quickhelp
@@ -379,7 +387,9 @@
     "hv" 'describe-variable
     "hp" 'describe-package
     "hs" 'describe-symbol
-    "hk" 'describe-key)
+    "hk" 'describe-key
+    "pf" 'projectile-find-file)
+    
 
 
 
@@ -443,6 +453,17 @@
     :ensure t
     :config
     (dashboard-setup-startup-hook))
+
+;; Keychords (jj)
+(use-package key-chord
+    :ensure t
+    :config
+    (setq key-chord-two-keys-delay 0.5)
+    (key-chord-define evil-insert-state-map "jj" 'evil-normal-state)
+    (key-chord-mode 1))
+
+;; Put the savefiles seperately
+(setq backup-directory-alist `(("." . "~/.saves")))
 
 ;;;;  Chapter 9.p: python config!
 ;; Use python3 already
@@ -551,3 +572,9 @@
 
 ;; @Jemoka
 
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
