@@ -254,7 +254,8 @@
     (setq company-minimum-prefix-length 0)
     (setq company-tooltip-maximum-width 40)
     (setq company-format-margin-function nil)
-    (setq company-backends '((company-files company-yasnippet :separate company-capf :with company-dabbrev)))
+    (setq company-transformers '(company-sort-by-backend-importance))
+    (setq company-backends '((company-files company-yasnippet :separate company-capf :with company-dabbrev-code)))
     :config
     (define-key company-active-map (kbd "TAB") 'company-select-next)
     (define-key company-active-map (kbd "<backtab>") 'company-select-previous)
