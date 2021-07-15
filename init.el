@@ -261,7 +261,13 @@
     (define-key company-active-map (kbd "RET") nil)
     (add-hook 'after-init-hook 'company-tng-mode)
     (advice-add 'company-tng--supress-post-completion :override #'ignore)
-    (global-company-mode))
+    (global-company-mode)
+    :hook
+    ((prog-mode . (lambda ()
+		      (setq company-frontends
+			    '(company-tng-frontend
+                              company-pseudo-tooltip-frontend
+			      company-quickhelp-frontend))))))
 
 ;; eglot lsp
 (use-package eglot
@@ -280,6 +286,7 @@
      (typescript-mode . eglot-ensure)
      (js-mode . eglot-ensure)))
 
+;; quickhelp
 (use-package company-quickhelp
     :config
     (company-quickhelp-mode))
@@ -483,7 +490,7 @@
 ;;;; END
 
 ;; Set font
-(set-frame-font "Hack 9" nil t)
+(add-to-list 'default-frame-alist '(font . "Hack 9"))
 
 ;; Set frame title
 (setq frame-title-format '("emacs"))
@@ -492,6 +499,8 @@
 (setq scroll-step            1
       scroll-conservatively  10000)
 
+;; SPACES!!!
+(setq indent-tabs-mode nil)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -499,20 +508,20 @@
 ;;;;                load me last(ish) plz                 ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; ;; Clear C-b of its normal duties
-;; (define-key evil-motion-state-map (kbd "C-b") nil)
-;; (define-key global-map (kbd "C-b") nil)
+;; Clear C-b of its normal duties
+(define-key evil-motion-state-map (kbd "C-b") nil)
+(define-key global-map (kbd "C-b") nil)
 
-;; ;; Set perspective mode loads to C-b
-;; (setq persp-keymap-prefix (kbd "C-b"))
+;; Set perspective mode loads to C-b
+(setq persp-keymap-prefix (kbd "C-b"))
 
-;; ;; After perspective mode loads, get rid of animations and stuff
-;; (use-package persp-mode
-;;     :ensure t)
+;; After perspective mode loads, get rid of animations and stuff
+(use-package persp-mode
+    :ensure t)
 
-;; (with-eval-after-load "persp-mode-autoloads"
-;;     (setq persp-autokill-buffer-on-remove 'kill-weak)
-;;     (add-hook 'window-setup-hook #'(lambda () (persp-mode 1))))
+(with-eval-after-load "persp-mode-autoloads"
+    (setq persp-autokill-buffer-on-remove 'kill-weak)
+    (add-hook 'window-setup-hook #'(lambda () (persp-mode 1))))
 
 
 
