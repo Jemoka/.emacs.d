@@ -251,7 +251,7 @@
 (use-package company
     :init
     (setq company-idle-delay 0)
-    (setq company-minimum-prefix-length 0)
+    (setq company-minimum-prefix-length 1)
     (setq company-tooltip-maximum-width 40)
     (setq company-format-margin-function nil)
     (setq company-transformers '(company-sort-by-backend-importance))
@@ -348,7 +348,7 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;        Chapter 8: LaTeX + AcuTeX + DocView        ;;;;
+;;;;        Chapter 7: LaTeX + AcuTeX + DocView        ;;;;
 ;;;;   @richardfeynmanrocks at least give me this one  ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -394,7 +394,7 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;        Chapter 9: Developer Niceties and Swag        ;;;;
+;;;;        Chapter 8: Developer Niceties and Swag        ;;;;
 ;;;;              Basically a misc. folder                ;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -419,7 +419,7 @@
 ;; Put the savefiles seperately
 (setq backup-directory-alist `(("." . "~/.saves")))
 
-;;;;  Chapter 9.p: python config!
+;;;;  Chapter 8.p: python config!
 ;; Use python3 already
 (setq py-shell-name "python3")
 (setq python-shell-interpreter "python3")
@@ -431,7 +431,7 @@
     (pyvenv-mode t))
 ;;;; END
 
-;;;;  Chapter 9.h: help mode config!
+;;;;  Chapter 8.h: help mode config!
 ;; First, once you press a key, you want to know what else to do
 (use-package which-key
     :ensure t
@@ -448,22 +448,6 @@
 (use-package magit
     :ensure t)
 
-;;;; Chapter 9.v: bad vim habits!
-;; Don't discriminate against Shift-Colon-W 
-(define-key evil-ex-map (kbd "W") 'evil-write)
-
-;; C-hjkl goes bye-bye...
-(global-unset-key (kbd "C-h"))
-(global-unset-key (kbd "C-j"))
-(global-unset-key (kbd "C-k"))
-(global-unset-key (kbd "C-l"))
-;; because instead, tmux keys!
-(global-set-key [(ctrl j)]  'windmove-down)
-(global-set-key [(ctrl k)]  'windmove-up)
-(global-set-key [(ctrl h)]  'windmove-left)
-(global-set-key [(ctrl l)]  'windmove-right)
-;;;; END
-
 ;; Open magit mode with leader-gt
 (evil-leader/set-key "gt" 'magit)
 
@@ -474,7 +458,7 @@
 (setf (cdr (assq 'continuation fringe-indicator-alist))
       '(nil nil))
 
-;;;; Chapter 9.m: multimedia stuff
+;;;; Chapter 8.m: multimedia stuff
 (use-package podcaster
     :ensure t
     :config
@@ -483,10 +467,10 @@
     (add-to-list 'podcaster-feeds-urls "http://www.hellointernet.fm/podcast?format=rss")
     (add-to-list 'podcaster-feeds-urls "https://www.relay.fm/connected/feed")
     (evil-leader/set-key
-	"pdc" 'podcaster
-	"pdp" 'podcaster-pause
-	"pdr" 'podcaster-resume
-	"pds" 'podcaster-stop)
+	"pcc" 'podcaster
+	"pcp" 'podcaster-pause
+	"pcr" 'podcaster-resume
+	"pcs" 'podcaster-stop)
     (setq podcaster-mp3-player (executable-find "ffplay")))
 ;;;; END
 
@@ -502,6 +486,32 @@
 
 ;; SPACES!!!
 (setq indent-tabs-mode nil)
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;     Chapter 9: custom keybinds    ;;;;
+;;;;  keybinds that are nice and misc  ;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Don't discriminate against Shift-Colon-W 
+(define-key evil-ex-map (kbd "W") 'evil-write)
+
+;; C-hjkl goes bye-bye...
+(global-unset-key (kbd "C-h"))
+(global-unset-key (kbd "C-j"))
+(global-unset-key (kbd "C-k"))
+(global-unset-key (kbd "C-l"))
+;; because instead, tmux keys!
+(global-set-key [(ctrl j)]  'windmove-down)
+(global-set-key [(ctrl k)]  'windmove-up)
+(global-set-key [(ctrl h)]  'windmove-left)
+(global-set-key [(ctrl l)]  'windmove-right)
+
+(evil-leader/set-key
+    "pe" 'pyvenv-activate
+    "pd" 'pyvenv-deactivate)
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
