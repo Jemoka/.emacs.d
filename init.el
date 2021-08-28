@@ -144,7 +144,6 @@ apps are not started from a shell."
 
 
 ;; ----autocomplete
-
 ;; Turns out the best way to do LSP is to not use it
 (use-package company
   :init
