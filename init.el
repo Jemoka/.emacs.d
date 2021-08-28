@@ -272,6 +272,9 @@ apps are not started from a shell."
   :config
   (persp-mode))
 
+;; CRDT
+(load-file "~/.emacs.d/crdt/crdt.el")
+
 
 
 ;; ----new languages
