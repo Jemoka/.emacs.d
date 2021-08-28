@@ -156,16 +156,29 @@ apps are not started from a shell."
   (define-key company-active-map (kbd "<backtab>") 'company-select-previous)
   (define-key company-active-map (kbd "RET") nil)
   (global-company-mode)
+
   :hook
   (after-init . company-tng-mode))
 
+;; Ya! SnipPpets
+(use-package yasnippet
+  :after company
+  :config
+  (yas-global-mode 1))
+
+;; LaTex
+(use-package company-auctex
+  :after company)
+
 ;; Python
 (use-package company-jedi
-  :config ;; we set company backends here so as to have jedi
+  :after company-auctex
+  :config ;; we set company backends here so as to have jedi and acutex
   (setq company-backends '((company-files company-jedi
-			    company-capf company-clang
-			    company-keywords company-dabbrev-code
-			    company-etags company-dabbrev company-semantic))))
+					  company-capf company-clang company-yasnippet
+					  company-keywords company-dabbrev-code
+					  company-etags company-dabbrev company-semantic)))
+  (company-auctex-init))
 
 ;; Python venvs
 (use-package pyvenv)
@@ -281,6 +294,34 @@ apps are not started from a shell."
 ;; cider
 (use-package cider)
 
+;; LaTeX
+(use-package tex
+  :ensure auctex
+  :init
+  (setq TeX-auto-save t)
+  (setq TeX-parse-self t)
+  (setq-default TeX-master nil)
+  (setq-default TeX-engine 'xetex)
+  (TeX-global-PDF-mode t)
+
+  :config
+  (setq TeX-view-program-selection '((output-pdf "PDF Tools"))
+	TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view))
+	TeX-source-correlate-start-server t)
+
+  :hook
+  (LaTeX-mode . visual-line-mode)
+  (LaTeX-mode . flyspell-mode)
+  (LaTeX-mode . LaTeX-math-mode)
+  (TeX-after-compilation-finished-functions . TeX-revert-document-buffer))
+
+;; PDFView
+(use-package pdf-tools
+  :init
+  (setq pdf-view-use-scaling t)
+  :config
+  (evil-set-initial-state 'pdf-view-mode 'normal))
+
 
 
 ;; ----random keybindings
@@ -317,6 +358,12 @@ apps are not started from a shell."
     "hk" 'cider-undef
     "hst" 'cider-jack-in
     "hsp" 'cider-quit
+
+    ;; LaTeX
+    "ra" 'TeX-command-run-all
+
+    ;; Eval
+    "ue" 'eval-last-sexp
 
     ;; Badly Broken Bit
     "<SPC>" 'keyboard-quit)
