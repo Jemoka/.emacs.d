@@ -109,10 +109,10 @@ apps are not started from a shell."
 (menu-bar-mode -1)
 (toggle-scroll-bar -1)
 (tool-bar-mode -1)
-(add-to-list 'default-frame-alist '(vertical-scroll-bars . nil))
 (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-(add-to-list 'default-frame-alist '(ns-appearance . dark)) 
-(setq frame-title-format '("\n emacs"))
+(add-to-list 'default-frame-alist '(ns-appearance . dark)) ;; assuming you are using a dark theme
+(setq ns-use-proxy-icon nil)
+(setq frame-title-format "\n emacs")
 
 ;; Doom theme
 (use-package doom-themes
@@ -235,27 +235,95 @@ apps are not started from a shell."
 
   ;; Emacs mode in term
   (evil-set-initial-state 'vterm-mode 'emacs)
-  (add-hook 'vterm-mode-hook 'evil-emacs-state)
-
-  ;; C-c
-  (define-key vterm-mode-map (kbd "C-c") nil)
-  (define-key vterm-mode-map (kbd "C-c") #'vterm-send-C-c))
+  (add-hook 'vterm-mode-hook 'evil-emacs-state))
 
 ;; Ido
 (require 'ido)
-(setq ido-enable-flex-matching t)
-(ido-everywhere t)
-(ido-mode t)
+
+(use-package flx-ido
+  :init
+  (setq ido-enable-flex-matching t)
+  (setq flx-ido-use-faces nil)
+  :config
+  (ido-everywhere t)
+  (ido-mode t)
+  (flx-ido-mode t))
 
 ;; Ido in even more places
 (use-package ido-completing-read+
   :config
   (ido-ubiquitous-mode 1))
 
+;; Help!
+(use-package which-key
+  :config
+  (which-key-mode))
+
+;; ----perspectives and projects
+;; Projectile project management
+(use-package projectile
+  :config
+  (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+  (projectile-mode))
+
+;; Perspectives
+(use-package persp-mode
+  :init
+  (setq persp-mode-prefix-key (kbd "C-b"))
+  :config
+  (persp-mode))
+
+
+
+;; ----new languages
+;; cider
+(use-package cider)
+
+
+
+;; ----random keybindings
+(evil-leader/set-key
+    ;; Buffer switching
+    "pl" 'list-buffers
+    "ps" 'ido-switch-buffer
+
+    ;; Project switch
+    "po" 'projectile-switch-project
+    "pr" 'projectile-find-file
+    "pd" 'projectile-find-dir
+    "pu" 'projectile-find-other-file
+
+    ;; File switching
+    "mn" 'ido-find-file
+    "mh" 'dired
+
+    ;; Git
+    "mg" 'magit
+
+    ;; Perspectives
+    "vs" 'persp-switch
+    "vd" 'persp-kill
+
+    ;; vterm
+    "vt" 'vterm
+
+    ;; cider
+    "ht" 'cider-eval-last-sexp
+    "hn" 'cider-eval-defun-at-point
+    "hb" 'cider-eval-buffer
+    "hd" 'cider-doc
+    "hk" 'cider-undef
+    "hst" 'cider-jack-in
+    "hsp" 'cider-quit
+
+    ;; Badly Broken Bit
+    "<SPC>" 'keyboard-quit)
+
 
 
 ;; ----misc
 (setq c-basic-offset 4)
+(setq shell-prompt-pattern '"^[^#$%>\n]*~?[#$%>] *")
 
 (provide 'init)
 ;;; init.el ends here
