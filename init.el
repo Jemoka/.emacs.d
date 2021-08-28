@@ -2,6 +2,24 @@
 ;; Probably not. But it's worth a try.
 
 
+;; ----Load PATH
+(defun set-exec-path-from-shell-PATH ()
+  "Set up Emacs' `exec-path' and PATH environment variable to match
+that used by the user's shell.
+
+This is particularly useful under Mac OS X and macOS, where GUI
+apps are not started from a shell."
+  (interactive)
+  (let ((path-from-shell (replace-regexp-in-string
+			  "[ \t\n]*$" "" (shell-command-to-string
+					  "$SHELL --login -c 'echo $PATH'"
+						    ))))
+    (setenv "PATH" path-from-shell)
+    (setq exec-path (split-string path-from-shell path-separator))))
+
+(set-exec-path-from-shell-PATH)
+
+
 
 ;; ----Shunning custom
 (setq custom-file (concat user-emacs-directory "custom.el"))
@@ -43,11 +61,11 @@
   ;; Evil mode
   (evil-mode 1)
 
-  ;; HJKL Navigation
-  (define-key evil-normal-state-map (kbd "C-h") #'evil-window-left)
-  (define-key evil-normal-state-map (kbd "C-j") #'evil-window-down)
-  (define-key evil-normal-state-map (kbd "C-k") #'evil-window-up)
-  (define-key evil-normal-state-map (kbd "C-l") #'evil-window-right))
+;; HJKL Navigation
+(define-key evil-normal-state-map (kbd "C-h") #'evil-window-left)
+(define-key evil-normal-state-map (kbd "C-j") #'evil-window-down)
+(define-key evil-normal-state-map (kbd "C-k") #'evil-window-up)
+(define-key evil-normal-state-map (kbd "C-l") #'evil-window-right))
 
 ;; More Evil
 (use-package evil-collection
@@ -91,6 +109,7 @@
 (menu-bar-mode -1)
 (toggle-scroll-bar -1)
 (tool-bar-mode -1)
+(add-to-list 'default-frame-alist '(vertical-scroll-bars . nil))
 (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
 (add-to-list 'default-frame-alist '(ns-appearance . dark)) 
 (setq frame-title-format '("\n emacs"))
@@ -100,7 +119,7 @@
   :config
   (setq doom-themes-enable-bold t 
 	doom-themes-enable-italic t)
-  (load-theme 'doom-opera t)
+  (load-theme 'doom-xcode t)
 
   (doom-themes-visual-bell-config)
   (doom-themes-neotree-config)
@@ -202,7 +221,36 @@
 
 
 ;; ----developer tools
+;; Git!
 (use-package magit)
+
+;; Term!
+(use-package vterm
+  :config
+  ;; HJKL Nav
+  (define-key vterm-mode-map (kbd "C-h") #'evil-window-left)
+  (define-key vterm-mode-map (kbd "C-j") #'evil-window-down)
+  (define-key vterm-mode-map (kbd "C-k") #'evil-window-up)
+  (define-key vterm-mode-map (kbd "C-l") #'evil-window-right)
+
+  ;; Emacs mode in term
+  (evil-set-initial-state 'vterm-mode 'emacs)
+  (add-hook 'vterm-mode-hook 'evil-emacs-state)
+
+  ;; C-c
+  (define-key vterm-mode-map (kbd "C-c") nil)
+  (define-key vterm-mode-map (kbd "C-c") #'vterm-send-C-c))
+
+;; Ido
+(require 'ido)
+(setq ido-enable-flex-matching t)
+(ido-everywhere t)
+(ido-mode t)
+
+;; Ido in even more places
+(use-package ido-completing-read+
+  :config
+  (ido-ubiquitous-mode 1))
 
 
 
