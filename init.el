@@ -61,12 +61,6 @@ apps are not started from a shell."
   ;; Evil mode
   (evil-mode 1)
 
-;; HJKL Navigation
-(define-key evil-normal-state-map (kbd "C-h") #'evil-window-left)
-(define-key evil-normal-state-map (kbd "C-j") #'evil-window-down)
-(define-key evil-normal-state-map (kbd "C-k") #'evil-window-up)
-(define-key evil-normal-state-map (kbd "C-l") #'evil-window-right))
-
 ;; More Evil
 (use-package evil-collection
   :config
@@ -339,8 +333,9 @@ apps are not started from a shell."
 (use-package pdf-tools
   :init
   (setq pdf-view-use-scaling t)
-  :config
-  (evil-set-initial-state 'pdf-view-mode 'normal))
+  (setq-default pdf-view-display-size 'fit-page)
+  (setq pdf-annot-activate-created-annotations t)
+  :mode  ("\\.pdf\\'" . pdf-view-mode))
 
 ;; Python
 ;; Interactive
@@ -360,6 +355,15 @@ apps are not started from a shell."
 	 ("\\.md\\'" . markdown-mode)
 	 ("\\.markdown\\'" . markdown-mode))
   :init (setq markdown-command "multimarkdown"))
+
+;; Writeroom
+(use-package writeroom-mode
+  :init
+  (setq writeroom-global-effects '(writeroom-set-alpha writeroom-set-menu-bar-lines writeroom-set-tool-bar-lines writeroom-set-vertical-scroll-bars writeroom-set-bottom-divider-width))
+  :config
+  (global-writeroom-mode)
+  :hook
+  (markdown-mode . writeroom-mode))
 
 ;; C++
 (use-package modern-cpp-font-lock
@@ -398,6 +402,9 @@ apps are not started from a shell."
     ;; LaTeX
     "ra" 'TeX-command-run-all
 
+    ;; Writeroom
+    "rt" 'global-writeroom-mode
+
     ;; Eval
     "ue" 'eval-last-sexp
 
@@ -419,6 +426,27 @@ apps are not started from a shell."
                     :height 120
                     :weight 'normal
                     :width 'normal)
+
+;; HJKL Navigation
+(global-unset-key (kbd "C-h"))
+(global-unset-key (kbd "C-j"))
+(global-unset-key (kbd "C-k"))
+(global-unset-key (kbd "C-l"))
+
+(global-set-key (kbd "C-h") #'evil-window-left)
+(global-set-key (kbd "C-j") #'evil-window-down)
+(global-set-key (kbd "C-k") #'evil-window-up)
+(global-set-key (kbd "C-l") #'evil-window-right))
+
+(define-key pdf-view-mode-map (kbd "C-h") #'evil-window-left)
+(define-key pdf-view-mode-map (kbd "C-j") #'evil-window-down)
+(define-key pdf-view-mode-map (kbd "C-k") #'evil-window-up)
+(define-key pdf-view-mode-map (kbd "C-l") #'evil-window-right)
+
+(define-key org-mode-map (kbd "C-h") #'evil-window-left)
+(define-key org-mode-map (kbd "C-j") #'evil-window-down)
+(define-key org-mode-map (kbd "C-k") #'evil-window-up)
+(define-key org-mode-map (kbd "C-l") #'evil-window-right)
 
 (provide 'init)
 ;;; init.el ends here
