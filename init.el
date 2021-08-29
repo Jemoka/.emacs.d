@@ -160,6 +160,11 @@ apps are not started from a shell."
   :hook
   (after-init . company-tng-mode))
 
+;; Staticstics
+(use-package company-statistics
+  :config
+  (company-statistics-mode))
+
 ;; <Begin a chain of package installs>
 ;; Ya! SnipPpets
 (use-package yasnippet
@@ -182,7 +187,7 @@ apps are not started from a shell."
 
 ;; After the chain of stuff intalling, set company backend
 (with-eval-after-load "company-anaconda"
-(setq company-backends '((company-files company-anaconda company-clang company-yasnippet company-capf company-keywords company-dabbrev-code company-semantic)))
+(setq company-backends '((company-files company-anaconda company-clang company-capf :separate company-yasnippet company-keywords) (company-dabbrev-code company-semantic)))
 (yas-global-mode 1)
 (company-auctex-init))
 ;; </Begin a chain of package installs>
@@ -356,6 +361,11 @@ apps are not started from a shell."
 	 ("\\.markdown\\'" . markdown-mode))
   :init (setq markdown-command "multimarkdown"))
 
+;; C++
+(use-package modern-cpp-font-lock
+  :config
+  (modern-c++-font-lock-global-mode t))
+
 
 
 ;; ----random keybindings
@@ -397,7 +407,18 @@ apps are not started from a shell."
 
 
 ;; ----misc
+;; C offset
 (setq c-basic-offset 4)
+
+;; Python offset
+(setq python-indent-offset 4)
+
+;; Set default font
+(set-face-attribute 'default nil
+                    :family "Hack"
+                    :height 120
+                    :weight 'normal
+                    :width 'normal)
 
 (provide 'init)
 ;;; init.el ends here
