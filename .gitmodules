@@ -1,3 +1,0 @@
-[submodule "crdt"]
-	path = crdt
-	url = https://code.librehq.com/qhong/crdt.el/

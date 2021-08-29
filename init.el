@@ -178,10 +178,8 @@ apps are not started from a shell."
 					  company-capf company-clang company-yasnippet
 					  company-keywords company-dabbrev-code
 					  company-etags company-dabbrev company-semantic)))
-  (company-auctex-init))
-
-;; Python venvs
-(use-package pyvenv)
+  (company-auctex-init)
+  (jedi-mode))
 
 ;; Flycheck
 (use-package flycheck
@@ -245,9 +243,8 @@ apps are not started from a shell."
   (define-key vterm-mode-map (kbd "C-k") #'evil-window-up)
   (define-key vterm-mode-map (kbd "C-l") #'evil-window-right)
 
-  ;; Emacs mode in term
-  (evil-set-initial-state 'vterm-mode 'emacs)
-  (add-hook 'vterm-mode-hook 'evil-emacs-state))
+  ;; Yank
+  :bind (:map vterm-mode-map ("C-y" . vterm-yank)))
 
 ;; Ido
 (require 'ido)
@@ -274,6 +271,8 @@ apps are not started from a shell."
 ;; ----perspectives and projects
 ;; Projectile project management
 (use-package projectile
+  :init
+  (setq projectile-mode-line "Projectile")
   :config
   (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
   (projectile-mode))
@@ -286,13 +285,22 @@ apps are not started from a shell."
   (persp-mode))
 
 ;; CRDT
-(load-file "~/.emacs.d/crdt/crdt.el")
+(use-package crdt)
 
 
 
 ;; ----new languages
 ;; cider
-(use-package cider)
+(use-package cider
+  :config
+  (evil-leader/set-key-for-mode 'clojure-mode
+    "ht" 'cider-eval-last-sexp
+    "hn" 'cider-eval-defun-at-point
+    "hb" 'cider-eval-buffer
+    "hd" 'cider-doc
+    "hk" 'cider-undef
+    "hst" 'cider-jack-in
+    "hsp" 'cider-quit))
 
 ;; LaTeX
 (use-package tex
@@ -315,12 +323,25 @@ apps are not started from a shell."
   (LaTeX-mode . LaTeX-math-mode)
   (TeX-after-compilation-finished-functions . TeX-revert-document-buffer))
 
-;; PDFView
+;; PDFs
 (use-package pdf-tools
   :init
   (setq pdf-view-use-scaling t)
   :config
   (evil-set-initial-state 'pdf-view-mode 'normal))
+
+;; Python
+;; Python venvs
+(use-package pyvenv
+  :config
+  (pyvenv-mode 1))
+
+;; Interactive
+(evil-leader/set-key-for-mode 'python-mode
+  "ht" 'python-shell-send-statement
+  "hn" 'python-shell-send-region
+  "hb" 'python-shell-send-buffer
+  "hst" 'run-python)
 
 
 
@@ -342,6 +363,7 @@ apps are not started from a shell."
 
     ;; Git
     "mg" 'magit
+    "gt" 'magit
 
     ;; Perspectives
     "vs" 'persp-switch
@@ -349,15 +371,6 @@ apps are not started from a shell."
 
     ;; vterm
     "vt" 'vterm
-
-    ;; cider
-    "ht" 'cider-eval-last-sexp
-    "hn" 'cider-eval-defun-at-point
-    "hb" 'cider-eval-buffer
-    "hd" 'cider-doc
-    "hk" 'cider-undef
-    "hst" 'cider-jack-in
-    "hsp" 'cider-quit
 
     ;; LaTeX
     "ra" 'TeX-command-run-all
@@ -372,7 +385,6 @@ apps are not started from a shell."
 
 ;; ----misc
 (setq c-basic-offset 4)
-(setq shell-prompt-pattern '"^[^#$%>\n]*~?[#$%>] *")
 
 (provide 'init)
 ;;; init.el ends here
