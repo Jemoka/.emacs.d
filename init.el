@@ -119,7 +119,7 @@ apps are not started from a shell."
   :config
   (setq doom-themes-enable-bold t 
 	doom-themes-enable-italic t)
-  (load-theme 'doom-xcode t)
+  (load-theme 'doom-henna t)
 
   (doom-themes-visual-bell-config)
   (doom-themes-neotree-config)
@@ -160,26 +160,32 @@ apps are not started from a shell."
   :hook
   (after-init . company-tng-mode))
 
+;; <Begin a chain of package installs>
 ;; Ya! SnipPpets
 (use-package yasnippet
-  :after company
-  :config
-  (yas-global-mode 1))
+  :after company)
 
 ;; LaTex
 (use-package company-auctex
-  :after company)
+  :after yasnippet)
 
-;; Python
-(use-package company-jedi
+;; Python anaconda
+(use-package anaconda-mode
   :after company-auctex
-  :config ;; we set company backends here so as to have jedi and acutex
-  (setq company-backends '((company-files company-jedi
-					  company-capf company-clang company-yasnippet
-					  company-keywords company-dabbrev-code
-					  company-etags company-dabbrev company-semantic)))
-  (company-auctex-init)
-  (jedi-mode))
+  :hook
+  (python-mode . anaconda-mode)
+  (python-mode . anaconda-eldoc-mode))
+
+;; Anaconda mode completions
+(use-package company-anaconda
+  :after anaconda-mode)
+
+;; After the chain of stuff intalling, set company backend
+(with-eval-after-load "company-anaconda"
+(setq company-backends '((company-files company-anaconda company-clang company-yasnippet company-capf company-keywords company-dabbrev-code company-semantic)))
+(yas-global-mode 1)
+(company-auctex-init))
+;; </Begin a chain of package installs>
 
 ;; Flycheck
 (use-package flycheck
@@ -299,6 +305,7 @@ apps are not started from a shell."
     "hb" 'cider-eval-buffer
     "hd" 'cider-doc
     "hk" 'cider-undef
+    "hsn" 'cider-eval-defun-to-comment
     "hst" 'cider-jack-in
     "hsp" 'cider-quit))
 
@@ -331,17 +338,23 @@ apps are not started from a shell."
   (evil-set-initial-state 'pdf-view-mode 'normal))
 
 ;; Python
-;; Python venvs
-(use-package pyvenv
-  :config
-  (pyvenv-mode 1))
-
 ;; Interactive
 (evil-leader/set-key-for-mode 'python-mode
   "ht" 'python-shell-send-statement
   "hn" 'python-shell-send-region
   "hb" 'python-shell-send-buffer
   "hst" 'run-python)
+
+;; ipynb
+(use-package ein)
+
+;; Markdown
+(use-package markdown-mode
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+	 ("\\.md\\'" . markdown-mode)
+	 ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
 
 
 
