@@ -294,6 +294,60 @@ apps are not started from a shell."
 
 
 
+;; ----markdown!
+;; Search the local directory and insert a file! or make one!
+(defun insert-file-name-as-wikilink (filename &optional args)
+    (interactive "*FInsert file name: \nP")
+    (kill-new (file-name-base buffer-file-name))
+    (insert (concat "[[" (file-name-sans-extension (file-relative-name
+						    filename)) "]] ")))
+
+;; Take the clipboard, paste it as a png, and insert it!
+(defun insert-clipboard-image-to-buffer (filename &optional args)
+    (interactive "*FSave image to: \n")
+    (shell-command (concat "~/.emacs.d/pasteimage.sh " (replace-regexp-in-string "\s" "\\\\ " filename)))
+    (insert (concat "![](" (file-relative-name filename) ")")))
+
+;; Markdown mode
+(use-package markdown-mode
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+	 ("\\.md\\'" . markdown-mode)
+	 ("\\.markdown\\'" . markdown-mode))
+  :init
+  (setq markdown-command "pandoc -s --mathjax")
+  (setq markdown-enable-math t)
+  (setq-default markdown-hide-markup nil)
+  :config
+  (define-key markdown-mode-map (kbd "[[") 'insert-file-name-as-wikilink)
+  (setq markdown-enable-wiki-links t)
+  (setq markdown-link-space-sub-char " ")
+  (set-face-attribute 'markdown-header-face-1 nil :foreground 'unspecified :inherit 'outline-1)
+  (set-face-attribute 'markdown-header-face-2 nil :foreground 'unspecified :inherit 'outline-2)
+  (set-face-attribute 'markdown-header-face-3 nil :foreground 'unspecified :inherit 'outline-3)
+  (set-face-attribute 'markdown-header-face-4 nil :foreground 'unspecified :inherit 'outline-4)
+  (set-face-attribute 'markdown-header-face-5 nil :foreground 'unspecified :inherit 'outline-5))
+
+;; Just another way of browsing the entire KB
+(use-package deft
+    :ensure t
+    :config
+    (setq deft-directory "~/Documents/School Work/taproot"
+	  deft-recursive t
+	  deft-default-extension "md"
+	  deft-text-mode 'org-mode
+	  deft-recursive-ignore-dir-regexp "\\..*"
+	  deft-use-filename-as-title t
+	  deft-use-filter-string-for-filename t))
+
+;; Keybinds
+(evil-leader/set-key-for-mode 'markdown-mode
+  "mu" 'insert-clipboard-image-to-buffer
+  "ml" 'markdown-follow-link-at-point
+  "mm" 'markdown-follow-wiki-link-at-point)
+
+
+
 ;; ----new languages
 ;; cider
 (use-package cider
@@ -348,20 +402,10 @@ apps are not started from a shell."
 ;; ipynb
 (use-package ein)
 
-;; Markdown
-(use-package markdown-mode
-  :commands (markdown-mode gfm-mode)
-  :mode (("README\\.md\\'" . gfm-mode)
-	 ("\\.md\\'" . markdown-mode)
-	 ("\\.markdown\\'" . markdown-mode))
-  :init (setq markdown-command "multimarkdown"))
-
 ;; Writeroom
 (use-package writeroom-mode
   :init
   (setq writeroom-global-effects '(writeroom-set-alpha writeroom-set-menu-bar-lines writeroom-set-tool-bar-lines writeroom-set-vertical-scroll-bars writeroom-set-bottom-divider-width))
-  :config
-  (global-writeroom-mode)
   :hook
   (markdown-mode . writeroom-mode))
 
@@ -407,6 +451,9 @@ apps are not started from a shell."
 
     ;; Eval
     "ue" 'eval-last-sexp
+
+    ;; Deft
+    "md" 'deft
 
     ;; Badly Broken Bit
     "<SPC>" 'keyboard-quit)
