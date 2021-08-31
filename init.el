@@ -343,6 +343,7 @@ apps are not started from a shell."
 ;; Keybinds
 (evil-leader/set-key-for-mode 'markdown-mode
   "mu" 'insert-clipboard-image-to-buffer
+  "ms" 'markdown-insert-link
   "ml" 'markdown-follow-link-at-point
   "mm" 'markdown-follow-wiki-link-at-point)
 
@@ -456,7 +457,7 @@ apps are not started from a shell."
     "md" 'deft
 
     ;; Badly Broken Bit
-    "<SPC>" 'keyboard-quit)
+    "<SPC>" 'execute-extended-command)
 
 
 
@@ -490,10 +491,23 @@ apps are not started from a shell."
 (define-key pdf-view-mode-map (kbd "C-k") #'evil-window-up)
 (define-key pdf-view-mode-map (kbd "C-l") #'evil-window-right)
 
+(define-key magit-mode-map (kbd "C-h") #'evil-window-left)
+(define-key magit-mode-map (kbd "C-j") #'evil-window-down)
+(define-key magit-mode-map (kbd "C-k") #'evil-window-up)
+(define-key magit-mode-map (kbd "C-l") #'evil-window-right)
+
 (define-key org-mode-map (kbd "C-h") #'evil-window-left)
 (define-key org-mode-map (kbd "C-j") #'evil-window-down)
 (define-key org-mode-map (kbd "C-k") #'evil-window-up)
 (define-key org-mode-map (kbd "C-l") #'evil-window-right)
+
+(define-key vterm-mode-map (kbd "C-h") #'evil-window-left)
+(define-key vterm-mode-map (kbd "C-j") #'evil-window-down)
+(define-key vterm-mode-map (kbd "C-k") #'evil-window-up)
+(define-key vterm-mode-map (kbd "C-l") #'evil-window-right)
+(define-key vterm-mode-map (kbd "C-c c") #'vterm-send-C-c)
+
+
 
 (provide 'init)
 ;;; init.el ends here
