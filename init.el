@@ -191,7 +191,7 @@ apps are not started from a shell."
   :init
   (global-flycheck-mode)
   :config
-  (setq flycheck-check-syntax-automatically '(mode-enabled save))
+  (setq flycheck-check-syntax-automatically '(mode-enabled save idle-change))
   (set-face-attribute 'flycheck-error nil :underline t)
   (set-face-attribute 'flycheck-warning nil :underline t)
   (set-face-attribute 'flycheck-info nil :underline t)
