@@ -417,8 +417,10 @@ apps are not started from a shell."
 
 ;; Org
 (with-eval-after-load 'org
-  (set-face-attribute 'org-table-header nil :foreground 'unspecified :background "labelColor" :inherit 'outline-1)
-  (set-face-attribute 'org-table nil :foreground 'unspecified :background "labelColor"))
+  (set-face-attribute 'org-table-header nil :foreground 'unspecified :background (doom-color 'bg) :inherit 'outline-1)
+  (set-face-attribute 'org-table nil :foreground 'unspecified :background (doom-color 'bg-alt))
+  (set-face-attribute 'org-quote nil :foreground 'unspecified :background (doom-color 'bg-alt))
+  (setq org-fontify-quote-and-verse-blocks t))
 
 
 
