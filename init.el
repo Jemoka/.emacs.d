@@ -496,16 +496,25 @@ apps are not started from a shell."
 (define-key magit-mode-map (kbd "C-k") #'evil-window-up)
 (define-key magit-mode-map (kbd "C-l") #'evil-window-right)
 
-(define-key org-mode-map (kbd "C-h") #'evil-window-left)
-(define-key org-mode-map (kbd "C-j") #'evil-window-down)
-(define-key org-mode-map (kbd "C-k") #'evil-window-up)
-(define-key org-mode-map (kbd "C-l") #'evil-window-right)
+(evil-define-key 'normal org-mode-map (kbd "C-h") nil)
+(evil-define-key 'normal org-mode-map (kbd "C-j") nil)
+(evil-define-key 'normal org-mode-map (kbd "C-k") nil)
+(evil-define-key 'normal org-mode-map (kbd "C-l") nil)
+(evil-define-key 'normal org-mode-map (kbd "C-h") #'evil-window-left)
+(evil-define-key 'normal org-mode-map (kbd "C-j") #'evil-window-down)
+(evil-define-key 'normal org-mode-map (kbd "C-k") #'evil-window-up)
+(evil-define-key 'normal org-mode-map (kbd "C-l") #'evil-window-right)
 
 (define-key vterm-mode-map (kbd "C-h") #'evil-window-left)
 (define-key vterm-mode-map (kbd "C-j") #'evil-window-down)
 (define-key vterm-mode-map (kbd "C-k") #'evil-window-up)
 (define-key vterm-mode-map (kbd "C-l") #'evil-window-right)
 (define-key vterm-mode-map (kbd "C-c c") #'vterm-send-C-c)
+
+(evil-define-key 'insert vterm-mode-map (kbd "C-c") nil)
+(evil-define-key 'normal vterm-mode-map (kbd "C-c") nil)
+(evil-define-key 'insert vterm-mode-map (kbd "C-c") #'vterm-send-C-c)
+(evil-define-key 'normal vterm-mode-map (kbd "C-c") #'vterm-send-C-c)
 
 
 
