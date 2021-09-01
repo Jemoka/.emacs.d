@@ -114,7 +114,6 @@ apps are not started from a shell."
   (setq doom-themes-enable-bold t 
 	doom-themes-enable-italic t)
   (load-theme 'doom-henna t)
-
   (doom-themes-visual-bell-config)
   (doom-themes-neotree-config)
   (setq doom-themes-treemacs-theme "doom-atom")
@@ -408,12 +407,18 @@ apps are not started from a shell."
   :init
   (setq writeroom-global-effects '(writeroom-set-alpha writeroom-set-menu-bar-lines writeroom-set-tool-bar-lines writeroom-set-vertical-scroll-bars writeroom-set-bottom-divider-width))
   :hook
-  (markdown-mode . writeroom-mode))
+  (markdown-mode . writeroom-mode)
+  (org-mode . writeroom-mode))
 
 ;; C++
 (use-package modern-cpp-font-lock
   :config
   (modern-c++-font-lock-global-mode t))
+
+;; Org
+(with-eval-after-load 'org
+  (set-face-attribute 'org-table-header nil :foreground 'unspecified :background "labelColor" :inherit 'outline-1)
+  (set-face-attribute 'org-table nil :foreground 'unspecified :background "labelColor"))
 
 
 
@@ -464,6 +469,10 @@ apps are not started from a shell."
 ;; ----misc
 ;; C offset
 (setq c-basic-offset 4)
+
+;; Visual lines, except for prog
+(global-visual-line-mode)
+(add-hook 'prog-mode-hook (lambda () (visual-line-mode -1)))
 
 ;; Python offset
 (setq python-indent-offset 4)
