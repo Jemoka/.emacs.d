@@ -236,7 +236,12 @@ apps are not started from a shell."
 
 ;; ----developer tools
 ;; Git!
-(use-package magit)
+(use-package magit
+  :config
+  (define-key magit-mode-map (kbd "C-h") #'evil-window-left)
+  (define-key magit-mode-map (kbd "C-j") #'evil-window-down)
+  (define-key magit-mode-map (kbd "C-k") #'evil-window-up)
+  (define-key magit-mode-map (kbd "C-l") #'evil-window-right))
 
 ;; Term!
 (use-package vterm
@@ -246,6 +251,12 @@ apps are not started from a shell."
   (define-key vterm-mode-map (kbd "C-j") #'evil-window-down)
   (define-key vterm-mode-map (kbd "C-k") #'evil-window-up)
   (define-key vterm-mode-map (kbd "C-l") #'evil-window-right)
+  (define-key vterm-mode-map (kbd "C-c c") #'vterm-send-C-c)
+
+  (evil-define-key 'insert vterm-mode-map (kbd "C-c") nil)
+  (evil-define-key 'normal vterm-mode-map (kbd "C-c") nil)
+  (evil-define-key 'insert vterm-mode-map (kbd "C-c") #'vterm-send-C-c)
+  (evil-define-key 'normal vterm-mode-map (kbd "C-c") #'vterm-send-C-c)
 
   ;; Yank
   :bind (:map vterm-mode-map ("C-y" . vterm-yank)))
@@ -389,6 +400,11 @@ apps are not started from a shell."
   (setq pdf-view-use-scaling t)
   (setq-default pdf-view-display-size 'fit-page)
   (setq pdf-annot-activate-created-annotations t)
+  :config
+  (define-key pdf-view-mode-map (kbd "C-h") #'evil-window-left)
+  (define-key pdf-view-mode-map (kbd "C-j") #'evil-window-down)
+  (define-key pdf-view-mode-map (kbd "C-k") #'evil-window-up)
+  (define-key pdf-view-mode-map (kbd "C-l") #'evil-window-right)
   :mode  ("\\.pdf\\'" . pdf-view-mode))
 
 ;; Python
@@ -402,13 +418,13 @@ apps are not started from a shell."
 ;; ipynb
 (use-package ein)
 
-;; Writeroom
-(use-package writeroom-mode
+;; Olivetti
+(use-package olivetti
   :init
-  (setq writeroom-global-effects '(writeroom-set-alpha writeroom-set-menu-bar-lines writeroom-set-tool-bar-lines writeroom-set-vertical-scroll-bars writeroom-set-bottom-divider-width))
+  (setq olivetti-body-width 80)
   :hook
-  (markdown-mode . writeroom-mode)
-  (org-mode . writeroom-mode))
+  (markdown-mode . olivetti-mode)
+  (org-mode . olivetti-mode))
 
 ;; C++
 (use-package modern-cpp-font-lock
@@ -420,7 +436,22 @@ apps are not started from a shell."
   (set-face-attribute 'org-table-header nil :foreground 'unspecified :background (doom-color 'bg) :inherit 'outline-1)
   (set-face-attribute 'org-table nil :foreground 'unspecified :background (doom-color 'bg-alt))
   (set-face-attribute 'org-quote nil :foreground 'unspecified :background (doom-color 'bg-alt))
-  (setq org-fontify-quote-and-verse-blocks t))
+  (setq org-fontify-quote-and-verse-blocks t)
+  (setq org-startup-indented t)
+  (evil-define-key 'normal org-mode-map (kbd "C-h") nil)
+  (evil-define-key 'normal org-mode-map (kbd "C-j") nil)
+  (evil-define-key 'normal org-mode-map (kbd "C-k") nil)
+  (evil-define-key 'normal org-mode-map (kbd "C-l") nil)
+  (evil-define-key 'normal org-mode-map (kbd "C-h") #'evil-window-left)
+  (evil-define-key 'normal org-mode-map (kbd "C-j") #'evil-window-down)
+  (evil-define-key 'normal org-mode-map (kbd "C-k") #'evil-window-up)
+  (evil-define-key 'normal org-mode-map (kbd "C-l") #'evil-window-right))
+
+(evil-leader/set-key-for-mode 'org-mode
+  "ocsk" 'org-move-subtree-up
+  "ocsj" 'org-move-subtree-down
+  "ocrk" 'org-move-item-up
+  "ocrj" 'org-move-item-down)
 
 
 
@@ -496,36 +527,6 @@ apps are not started from a shell."
 (global-set-key (kbd "C-j") #'evil-window-down)
 (global-set-key (kbd "C-k") #'evil-window-up)
 (global-set-key (kbd "C-l") #'evil-window-right))
-
-(define-key pdf-view-mode-map (kbd "C-h") #'evil-window-left)
-(define-key pdf-view-mode-map (kbd "C-j") #'evil-window-down)
-(define-key pdf-view-mode-map (kbd "C-k") #'evil-window-up)
-(define-key pdf-view-mode-map (kbd "C-l") #'evil-window-right)
-
-(define-key magit-mode-map (kbd "C-h") #'evil-window-left)
-(define-key magit-mode-map (kbd "C-j") #'evil-window-down)
-(define-key magit-mode-map (kbd "C-k") #'evil-window-up)
-(define-key magit-mode-map (kbd "C-l") #'evil-window-right)
-
-(evil-define-key 'normal org-mode-map (kbd "C-h") nil)
-(evil-define-key 'normal org-mode-map (kbd "C-j") nil)
-(evil-define-key 'normal org-mode-map (kbd "C-k") nil)
-(evil-define-key 'normal org-mode-map (kbd "C-l") nil)
-(evil-define-key 'normal org-mode-map (kbd "C-h") #'evil-window-left)
-(evil-define-key 'normal org-mode-map (kbd "C-j") #'evil-window-down)
-(evil-define-key 'normal org-mode-map (kbd "C-k") #'evil-window-up)
-(evil-define-key 'normal org-mode-map (kbd "C-l") #'evil-window-right)
-
-(define-key vterm-mode-map (kbd "C-h") #'evil-window-left)
-(define-key vterm-mode-map (kbd "C-j") #'evil-window-down)
-(define-key vterm-mode-map (kbd "C-k") #'evil-window-up)
-(define-key vterm-mode-map (kbd "C-l") #'evil-window-right)
-(define-key vterm-mode-map (kbd "C-c c") #'vterm-send-C-c)
-
-(evil-define-key 'insert vterm-mode-map (kbd "C-c") nil)
-(evil-define-key 'normal vterm-mode-map (kbd "C-c") nil)
-(evil-define-key 'insert vterm-mode-map (kbd "C-c") #'vterm-send-C-c)
-(evil-define-key 'normal vterm-mode-map (kbd "C-c") #'vterm-send-C-c)
 
 
 
