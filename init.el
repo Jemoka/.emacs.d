@@ -432,6 +432,10 @@ apps are not started from a shell."
   (modern-c++-font-lock-global-mode t))
 
 ;; Org
+(use-package org-fragtog
+  :hook
+  (org-mode . org-fragtog-mode))
+
 (with-eval-after-load 'org
   (set-face-attribute 'org-table-header nil :foreground 'unspecified :background (doom-color 'bg) :inherit 'outline-1)
   (set-face-attribute 'org-table nil :foreground 'unspecified :background (doom-color 'bg-alt))
@@ -445,7 +449,12 @@ apps are not started from a shell."
   (evil-define-key 'normal org-mode-map (kbd "C-h") #'evil-window-left)
   (evil-define-key 'normal org-mode-map (kbd "C-j") #'evil-window-down)
   (evil-define-key 'normal org-mode-map (kbd "C-k") #'evil-window-up)
-  (evil-define-key 'normal org-mode-map (kbd "C-l") #'evil-window-right))
+  (evil-define-key 'normal org-mode-map (kbd "C-l") #'evil-window-right)
+  (evil-define-key 'normal org-mode-map (kbd ">>") #'org-shiftmetaright)
+  (evil-define-key 'normal org-mode-map (kbd "<<") #'org-shiftmetaleft)
+  (define-key org-mode-map (kbd "[[") 'org-insert-link)
+  (setq org-latex-create-formula-image-program 'dvisvgm))
+  
 
 (evil-leader/set-key-for-mode 'org-mode
   "ocsk" 'org-move-subtree-up
@@ -454,7 +463,8 @@ apps are not started from a shell."
   "ocrj" 'org-move-item-down
   "os" 'org-insert-link
   "ol" 'org-open-at-point
-  "oy" 'org-store-link)
+  "oy" 'org-store-link
+  "oe" 'org-export-dispatch)
 
 
 
