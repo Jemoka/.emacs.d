@@ -451,7 +451,10 @@ apps are not started from a shell."
   "ocsk" 'org-move-subtree-up
   "ocsj" 'org-move-subtree-down
   "ocrk" 'org-move-item-up
-  "ocrj" 'org-move-item-down)
+  "ocrj" 'org-move-item-down
+  "os" 'org-insert-link
+  "ol" 'org-open-at-point
+  "oy" 'org-store-link)
 
 
 
