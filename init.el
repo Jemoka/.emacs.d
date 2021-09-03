@@ -284,6 +284,17 @@ apps are not started from a shell."
   :config
   (which-key-mode))
 
+;; Spelling
+(setenv "DICTIONARY" "en_US")
+(setenv "DICPATH" "~/.emacs.d/dictionaries")
+(setq ispell-program-name "hunspell")
+
+(add-hook 'markdown-mode-hook 'flyspell-mode)
+(add-hook 'org-mode-hook 'flyspell-mode)
+(add-hook 'text-mode-hook 'flyspell-mode)
+
+
+
 ;; ----perspectives and projects
 ;; Projectile project management
 (use-package projectile
@@ -360,7 +371,7 @@ apps are not started from a shell."
 
 
 
-;; ----new languages
+;; ----new languages 
 ;; cider
 (use-package cider
   :config
@@ -422,7 +433,7 @@ apps are not started from a shell."
 ;; Olivetti
 (use-package olivetti
   :init
-  (setq olivetti-body-width 80)
+  (setq olivetti-body-width 100)
   :hook
   (markdown-mode . olivetti-mode)
   (org-mode . olivetti-mode))
@@ -464,8 +475,10 @@ apps are not started from a shell."
   (define-key org-mode-map (kbd "[[") 'org-insert-link)
   (evil-define-key 'normal org-mode-map (kbd "gk") #'evil-previous-visual-line)
   (evil-define-key 'normal org-mode-map (kbd "gj") #'evil-next-visual-line)
-  (setq org-latex-create-formula-image-program 'dvisvgm))
-  
+  (setq org-latex-create-formula-image-program 'dvisvgm)
+  (add-hook 'org-mode-hook (lambda ()
+			     (setq mode-line-format nil)
+			     (olivetti-mode))))
 
 (evil-leader/set-key-for-mode 'org-mode
   "ocsk" 'org-move-subtree-up
@@ -479,7 +492,9 @@ apps are not started from a shell."
   "oo" 'org-insert-structure-template
   "opl" 'org-latex-preview
   "opi" 'org-toggle-inline-images
-  "odc" 'org-download-clipboard)
+  "odc" 'org-download-clipboard
+  "owl" 'olivetti-expand
+  "owh" 'olivetti-shrink)
 
 
 
