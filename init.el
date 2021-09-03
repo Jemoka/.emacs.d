@@ -38,6 +38,7 @@ apps are not started from a shell."
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
+(package-refresh-contents)
 
 
 
@@ -436,7 +437,15 @@ apps are not started from a shell."
   :hook
   (org-mode . org-fragtog-mode))
 
+(use-package org-download
+  :config
+  (setq org-download-method 'directory)
+  :hook
+  (org-mode . org-download-enable)
+  (dired-mode . org-download-enable))
+
 (with-eval-after-load 'org
+  (setq org-image-actual-width nil)
   (set-face-attribute 'org-table-header nil :foreground 'unspecified :background (doom-color 'bg) :inherit 'outline-1)
   (set-face-attribute 'org-table nil :foreground 'unspecified :background (doom-color 'bg-alt))
   (set-face-attribute 'org-quote nil :foreground 'unspecified :background (doom-color 'bg-alt))
@@ -468,7 +477,9 @@ apps are not started from a shell."
   "oy" 'org-store-link
   "oe" 'org-export-dispatch
   "oo" 'org-insert-structure-template
-  "opl" 'org-latex-preview)
+  "opl" 'org-latex-preview
+  "opi" 'org-toggle-inline-images
+  "odc" 'org-download-clipboard)
 
 
 
