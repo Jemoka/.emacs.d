@@ -453,6 +453,8 @@ apps are not started from a shell."
   (evil-define-key 'normal org-mode-map (kbd ">>") #'org-shiftmetaright)
   (evil-define-key 'normal org-mode-map (kbd "<<") #'org-shiftmetaleft)
   (define-key org-mode-map (kbd "[[") 'org-insert-link)
+  (evil-define-key 'normal org-mode-map (kbd "gk") #'evil-previous-visual-line)
+  (evil-define-key 'normal org-mode-map (kbd "gj") #'evil-next-visual-line)
   (setq org-latex-create-formula-image-program 'dvisvgm))
   
 
@@ -464,7 +466,9 @@ apps are not started from a shell."
   "os" 'org-insert-link
   "ol" 'org-open-at-point
   "oy" 'org-store-link
-  "oe" 'org-export-dispatch)
+  "oe" 'org-export-dispatch
+  "oo" 'org-insert-structure-template
+  "opl" 'org-latex-preview)
 
 
 
