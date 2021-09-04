@@ -1,0 +1,3 @@
+[submodule "site-lisp/gdoc.el"]
+	path = site-lisp/gdoc.el
+	url = git@github.com:Jemoka/gdoc.el.git

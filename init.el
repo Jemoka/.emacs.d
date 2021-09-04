@@ -369,6 +369,10 @@ apps are not started from a shell."
   "ml" 'markdown-follow-link-at-point
   "mm" 'markdown-follow-wiki-link-at-point)
 
+;; Google Docs
+(add-to-list 'load-path "~/.emacs.d/site-lisp/gdoc.el")
+(require 'gdoc)
+
 
 
 ;; ----new languages 
@@ -496,6 +500,7 @@ apps are not started from a shell."
   "owl" 'olivetti-expand
   "owh" 'olivetti-shrink)
 
+;; Google Docs
 
 
 ;; ----random keybindings
