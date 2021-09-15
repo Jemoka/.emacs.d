@@ -122,9 +122,16 @@ apps are not started from a shell."
   (doom-themes-org-config))
 
 ;; Powerline! POWER!
-(use-package powerline
+(use-package doom-modeline
+  :init
+  (setq doom-modeline-major-mode-icon nil)
+  (setq doom-modeline-minor-modes nil)
+  (setq all-the-icons-scale-factor 1.2)
+  (setq doom-modeline-height 10)
+  (setq doom-modeline-bar-width 4)
+  (setq doom-modeline-window-width-limit fill-column)
   :config
-  (powerline-default-theme))
+  (doom-modeline-mode 1))
 
 ;; Line numbers, relativity
 (add-hook 'prog-mode-hook (lambda ()
@@ -245,6 +252,7 @@ apps are not started from a shell."
   (define-key magit-mode-map (kbd "C-l") #'evil-window-right))
 
 ;; Term!
+;; The V one
 (use-package vterm
   :config
   ;; HJKL Nav
@@ -261,6 +269,18 @@ apps are not started from a shell."
 
   ;; Yank
   :bind (:map vterm-mode-map ("C-y" . vterm-yank)))
+
+;; The E one
+(with-eval-after-load 'eshell
+  (evil-define-key 'insert eshell-mode-map (kbd "C-c") #'evil-collection-eshell-interrupt-process)
+  (evil-define-key 'normal eshell-mode-map (kbd "C-c") #'evil-collection-eshell-interrupt-process)
+  (evil-define-key 'insert eshell-mode-map (kbd "C-k") #'evil-window-up)
+  (evil-define-key 'normal eshell-mode-map (kbd "C-k") #'evil-window-up)
+  (evil-define-key 'normal eshell-mode-map (kbd "C-j") #'evil-window-down)
+  (define-key eshell-mode-map (kbd "C-j") nil)
+  (define-key eshell-mode-map (kbd "C-k") nil)
+  (define-key eshell-mode-map (kbd "C-k") #'evil-window-up)
+  (define-key eshell-mode-map (kbd "C-j") #'evil-window-down))
 
 ;; Ido
 (require 'ido)
@@ -348,18 +368,23 @@ apps are not started from a shell."
   (set-face-attribute 'markdown-header-face-2 nil :foreground 'unspecified :inherit 'outline-2)
   (set-face-attribute 'markdown-header-face-3 nil :foreground 'unspecified :inherit 'outline-3)
   (set-face-attribute 'markdown-header-face-4 nil :foreground 'unspecified :inherit 'outline-4)
-  (set-face-attribute 'markdown-header-face-5 nil :foreground 'unspecified :inherit 'outline-5))
+  (set-face-attribute 'markdown-header-face-5 nil :foreground 'unspecified :inherit 'outline-5)
+  (add-hook 'markdown-mode-hook (lambda ()
+				  (setq mode-line-format nil)
+				  (olivetti-mode))))
 
 ;; Just another way of browsing the entire KB
 (use-package deft
     :ensure t
     :config
-    (setq deft-directory "~/Documents/School Work/taproot"
+    (setq deft-directory "~/Documents/taproot"
 	  deft-recursive t
-	  deft-default-extension "md"
+	  deft-default-extension "org"
 	  deft-text-mode 'org-mode
 	  deft-recursive-ignore-dir-regexp "\\..*"
 	  deft-use-filename-as-title t
+	  deft-text-mode 'org-mode
+	  deft-extensions '("org" "tex" "md")
 	  deft-use-filter-string-for-filename t))
 
 ;; Keybinds
@@ -381,6 +406,7 @@ apps are not started from a shell."
   :config
   (evil-leader/set-key-for-mode 'clojure-mode
     "ht" 'cider-eval-last-sexp
+    "ue" 'cider-eval-last-sexp
     "hn" 'cider-eval-defun-at-point
     "hb" 'cider-eval-buffer
     "hd" 'cider-doc
@@ -409,6 +435,15 @@ apps are not started from a shell."
   (LaTeX-mode . flyspell-mode)
   (LaTeX-mode . LaTeX-math-mode)
   (TeX-after-compilation-finished-functions . TeX-revert-document-buffer))
+
+(define-key LaTeX-mode-map (kbd "C-j") #'evil-window-down)
+(define-key LaTeX-mode-map (kbd "C-k") #'evil-window-up)
+(define-key LaTeX-mode-map (kbd "C-h") #'evil-window-left)
+(define-key LaTeX-mode-map (kbd "C-l") #'evil-window-right)
+
+(evil-define-key 'normal latex-mode-map (kbd "C-j") #'evil-window-down)
+(evil-define-key 'insert latex-mode-map (kbd "C-j") #'evil-window-down)
+
 
 ;; PDFs
 (use-package pdf-tools
@@ -455,9 +490,25 @@ apps are not started from a shell."
 (use-package org-download
   :config
   (setq org-download-method 'directory)
+  (setq-default org-download-heading-lvl nil)
   :hook
   (org-mode . org-download-enable)
   (dired-mode . org-download-enable))
+
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((python . t)
+   (clojure . t)
+   (ditaa . t)))
+
+(plist-put org-format-latex-options :scale 1.3)
+(setq org-src-tab-acts-natively t)
+(setq org-src-fontify-natively t)
+(setq org-confirm-babel-evaluate nil)
+(setq org-src-preserve-indentation t)
+(setq python-indent-guess-indent-offset t)
+(setq python-indent-guess-indent-offset-verbose nil)
+(setq org-ditaa-jar-path "/opt/homebrew/Cellar/ditaa/0.11.0_1/libexec/ditaa-0.11.0-standalone.jar")
 
 (with-eval-after-load 'org
   (setq org-image-actual-width nil)
@@ -476,7 +527,6 @@ apps are not started from a shell."
   (evil-define-key 'normal org-mode-map (kbd "C-l") #'evil-window-right)
   (evil-define-key 'normal org-mode-map (kbd ">>") #'org-shiftmetaright)
   (evil-define-key 'normal org-mode-map (kbd "<<") #'org-shiftmetaleft)
-  (define-key org-mode-map (kbd "[[") 'org-insert-link)
   (evil-define-key 'normal org-mode-map (kbd "gk") #'evil-previous-visual-line)
   (evil-define-key 'normal org-mode-map (kbd "gj") #'evil-next-visual-line)
   (setq org-latex-create-formula-image-program 'dvisvgm)
@@ -485,22 +535,22 @@ apps are not started from a shell."
 			     (olivetti-mode))))
 
 (evil-leader/set-key-for-mode 'org-mode
-  "ocsk" 'org-move-subtree-up
-  "ocsj" 'org-move-subtree-down
-  "ocrk" 'org-move-item-up
-  "ocrj" 'org-move-item-down
-  "os" 'org-insert-link
-  "ol" 'org-open-at-point
-  "oy" 'org-store-link
-  "oe" 'org-export-dispatch
-  "oo" 'org-insert-structure-template
-  "opl" 'org-latex-preview
-  "opi" 'org-toggle-inline-images
-  "odc" 'org-download-clipboard
+  "acsk" 'org-move-subtree-up
+  "acsj" 'org-move-subtree-down
+  "acrk" 'org-move-item-up
+  "acrj" 'org-move-item-down
+  "acrt" 'org-ctrl-c-minus
+  "as" 'org-insert-link
+  "aa" 'org-open-at-point
+  "ay" 'org-store-link
+  "ae" 'org-export-dispatch
+  "ao" 'org-insert-structure-template
+  "apl" 'org-latex-preview
+  "api" 'org-toggle-inline-images
+  "adc" 'org-download-clipboard
   "owl" 'olivetti-expand
   "owh" 'olivetti-shrink)
 
-;; Google Docs
 
 
 ;; ----random keybindings
@@ -528,7 +578,7 @@ apps are not started from a shell."
     "vd" 'persp-kill
 
     ;; vterm
-    "vt" 'vterm
+    "vt" 'eshell
 
     ;; LaTeX
     "ra" 'TeX-command-run-all
@@ -541,6 +591,10 @@ apps are not started from a shell."
 
     ;; Deft
     "md" 'deft
+    "mb" 'deft-find-file
+
+    ;; Universal argument
+    "uu" 'universal-argument
 
     ;; Badly Broken Bit
     "<SPC>" 'execute-extended-command)
@@ -548,15 +602,15 @@ apps are not started from a shell."
 
 
 ;; ----misc
-;; C offset
+;; offsets and tabs
+(setq indent-tabs-mode nil)
+(setq tab-width 4)
 (setq c-basic-offset 4)
+(setq python-indent-offset 4)
 
 ;; Visual lines, except for prog
 (global-visual-line-mode)
 (add-hook 'prog-mode-hook (lambda () (visual-line-mode -1)))
-
-;; Python offset
-(setq python-indent-offset 4)
 
 ;; Set default font
 (set-face-attribute 'default nil
@@ -576,6 +630,8 @@ apps are not started from a shell."
 (global-set-key (kbd "C-k") #'evil-window-up)
 (global-set-key (kbd "C-l") #'evil-window-right))
 
+;; No to clipboard abuse
+(setq x-select-enable-clipboard t)
 
 
 (provide 'init)
