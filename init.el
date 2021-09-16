@@ -122,16 +122,9 @@ apps are not started from a shell."
   (doom-themes-org-config))
 
 ;; Powerline! POWER!
-(use-package doom-modeline
-  :init
-  (setq doom-modeline-major-mode-icon nil)
-  (setq doom-modeline-minor-modes nil)
-  (setq all-the-icons-scale-factor 1.2)
-  (setq doom-modeline-height 10)
-  (setq doom-modeline-bar-width 4)
-  (setq doom-modeline-window-width-limit fill-column)
+(use-package powerline
   :config
-  (doom-modeline-mode 1))
+  (powerline-default-theme))
 
 ;; Line numbers, relativity
 (add-hook 'prog-mode-hook (lambda ()
@@ -499,9 +492,11 @@ apps are not started from a shell."
  'org-babel-load-languages
  '((python . t)
    (clojure . t)
+   (C . t)
    (ditaa . t)))
 
 (plist-put org-format-latex-options :scale 1.3)
+(setq org-babel-clojure-backend 'cider)
 (setq org-src-tab-acts-natively t)
 (setq org-src-fontify-natively t)
 (setq org-confirm-babel-evaluate nil)
@@ -529,6 +524,8 @@ apps are not started from a shell."
   (evil-define-key 'normal org-mode-map (kbd "<<") #'org-shiftmetaleft)
   (evil-define-key 'normal org-mode-map (kbd "gk") #'evil-previous-visual-line)
   (evil-define-key 'normal org-mode-map (kbd "gj") #'evil-next-visual-line)
+
+
   (setq org-latex-create-formula-image-program 'dvisvgm)
   (add-hook 'org-mode-hook (lambda ()
 			     (setq mode-line-format nil)
@@ -549,8 +546,13 @@ apps are not started from a shell."
   "api" 'org-toggle-inline-images
   "adc" 'org-download-clipboard
   "owl" 'olivetti-expand
-  "owh" 'olivetti-shrink)
+  "owh" 'olivetti-shrink
+  "ahs" 'org-edit-special)
 
+(evil-leader/set-key
+  "ahs" 'org-edit-src-exit
+  "ahk" 'org-edit-src-abort
+  "ahw" 'org-edit-src-save)
 
 
 ;; ----random keybindings
@@ -607,6 +609,11 @@ apps are not started from a shell."
 (setq tab-width 4)
 (setq c-basic-offset 4)
 (setq python-indent-offset 4)
+
+;; Flycheck vs. Modern C++
+(add-hook 'c++-mode-hook (lambda ()
+			   (setq flycheck-gcc-language-standard "c++11")
+			   (setq flycheck-clang-language-standard "c++11")))
 
 ;; Visual lines, except for prog
 (global-visual-line-mode)
