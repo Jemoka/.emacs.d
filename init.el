@@ -112,14 +112,20 @@ apps are not started from a shell."
 ;; Doom theme
 (use-package doom-themes
   :config
-  (setq doom-themes-enable-bold t 
-	doom-themes-enable-italic t)
-  (load-theme 'doom-henna t)
+  (setq doom-themes-enable-bold t
+        doom-themes-enable-italic t)
+  (load-theme 'doom-xcode t)
+
   (doom-themes-visual-bell-config)
   (doom-themes-neotree-config)
-  (setq doom-themes-treemacs-theme "doom-atom")
+  (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
   (doom-themes-treemacs-config)
   (doom-themes-org-config))
+
+;; Highlight them numbers
+(use-package highlight-numbers
+  :hook
+  (prog-mode . highlight-numbers-mode))
 
 ;; Powerline! POWER!
 (use-package powerline
@@ -162,7 +168,13 @@ apps are not started from a shell."
 ;; <Begin a chain of package installs>
 ;; Ya! SnipPpets
 (use-package yasnippet
-  :after company)
+  :after company
+  :config
+  (add-hook 'post-command-hook
+	    (lambda  ()
+	      (when (and (boundp 'yas-minor-mode) yas-minor-mode)
+		(let ((yas-buffer-local-condition ''(require-snippet-condition . auto)))
+		  (yas-expand))))))
 
 ;; LaTex
 (use-package company-auctex
@@ -530,6 +542,9 @@ apps are not started from a shell."
   (add-hook 'org-mode-hook (lambda ()
 			     (setq mode-line-format nil)
 			     (olivetti-mode))))
+
+(use-package scimax-inkscape
+  :load-path "~/.emacs.d/site-lisp/scimax/")
 
 (evil-leader/set-key-for-mode 'org-mode
   "acsk" 'org-move-subtree-up
