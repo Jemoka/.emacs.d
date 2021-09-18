@@ -107,7 +107,7 @@ apps are not started from a shell."
 (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
 (add-to-list 'default-frame-alist '(ns-appearance . dark)) ;; assuming you are using a dark theme
 (setq ns-use-proxy-icon nil)
-(setq frame-title-format "\n emacs")
+(setq frame-title-format "\n")
 
 ;; Doom theme
 (use-package doom-themes
@@ -615,6 +615,31 @@ apps are not started from a shell."
 
     ;; Badly Broken Bit
     "<SPC>" 'execute-extended-command)
+
+
+
+;; ----IRC
+(require 'erc)
+(require 'netrc)
+
+(defun get-authinfo (host port)
+  (let* ((netrc (netrc-parse (expand-file-name "~/.authinfo.gpg")))
+         (hostentry (netrc-machine netrc host port port)))
+    (when hostentry (netrc-get hostentry "password"))))
+
+(defun erc-libera ()
+  (interactive)
+  (erc-ssl :server "potato.sanity.gq" :port 3356 :password (get-authinfo "LiberaZNC" "3356") :nick "jemoka" :full-name "Houjun Liu"))
+
+(defun erc-bitlbee ()
+  (interactive)
+  (erc-ssl :server "potato.sanity.gq" :port 3356 :password (get-authinfo "BitlbeeZNC" "3356") :nick "jemoka" :full-name "Houjun Liu"))
+
+(setq erc-modules (nconc erc-modules '(spelling button stamp)))
+(erc-update-modules)
+
+(evil-leader/set-key
+  "rla" 'erc-track-switch-buffer)
 
 
 
