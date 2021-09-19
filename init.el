@@ -617,65 +617,6 @@ apps are not started from a shell."
     ;; Badly Broken Bit
     "<SPC>" 'execute-extended-command)
 
-
-
-;; ----ERC
-(require 'erc)
-(require 'netrc)
-
-(defun get-authinfo (host port)
-  (let* ((netrc (netrc-parse (expand-file-name "~/.authinfo.gpg")))
-         (hostentry (netrc-machine netrc host port port)))
-    (when hostentry (netrc-get hostentry "password"))))
-
-(advice-add #'erc-login :before (lambda ()
-                                  (erc-server-send "CAP REQ :znc.in/self-message")
-                                  (erc-server-send "CAP END")))
-
-(defun erc-libera ()
-  (interactive)
-  (erc-ssl :server "potato.sanity.gq" :port 3356 :password (get-authinfo "LiberaZNC" "3356") :nick "jemoka" :full-name "Houjun Liu"))
-
-(defun erc-bitlbee ()
-  (interactive)
-  (erc-ssl :server "potato.sanity.gq" :port 3356 :password (get-authinfo "BitlbeeZNC" "3356") :nick "jemoka" :full-name "Houjun Liu"))
-
-(setq erc-modules (nconc erc-modules '(spelling button stamp scrolltobottom)))
-(erc-update-modules)
-
-(defun reset-erc-track-mode ()
-  (interactive)
-  (setq erc-modified-channels-alist nil)
-  (erc-modified-channels-update))
-
-(setq erc-track-position-in-mode-line t)
-(setq erc-format-query-as-channel-p t
-    erc-track-priority-faces-only 'all
-    erc-track-faces-priority-list '(erc-current-nick-face
-				    erc-keyword-face
-				    erc-nick-msg-face
-				    erc-direct-msg-face
-				    erc-dangerous-host-face
-				    erc-notice-face
-				    erc-prompt-face))
-(setq erc-auto-query 'window-noselect)
-
-(defadvice erc-track-find-face (around erc-track-find-face-promote-query activate)
-  (if (erc-query-buffer-p) 
-      (setq ad-return-value (intern "erc-current-nick-face"))
-    ad-do-it))
-(defadvice erc-track-modified-channels (around erc-track-modified-channels-promote-query activate)
-  (if (erc-query-buffer-p) (setq erc-track-priority-faces-only 'nil))
-  ad-do-it
-  (if (erc-query-buffer-p) (setq erc-track-priority-faces-only 'all)))
-
-(evil-leader/set-key
-  "rla" 'erc-track-switch-buffer
-  "rlc" 'reset-erc-track-mode
-  "rlq" 'erc-cmd-QUERY)
-
-
-
 ;; ----misc
 ;; offsets and tabs
 (setq indent-tabs-mode nil)
@@ -712,6 +653,7 @@ apps are not started from a shell."
 
 ;; No to clipboard abuse
 (setq x-select-enable-clipboard t)
+
 
 
 (provide 'init)
