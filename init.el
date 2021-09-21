@@ -18,6 +18,7 @@ apps are not started from a shell."
     (setq exec-path (split-string path-from-shell path-separator))))
 
 (set-exec-path-from-shell-PATH)
+(setq package-enable-at-startup nil)
 
 
 
@@ -34,22 +35,27 @@ apps are not started from a shell."
 
 
 
-;; ----Package System
-(require 'package)
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-(package-initialize)
-(package-refresh-contents)
+;; ----Straight
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
 
 
 
 ;; ----use-package
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
-
-(require 'use-package)
-
-(require 'use-package-ensure)
-(setq use-package-always-ensure t)
+(straight-use-package 'use-package)
+(eval-when-compile
+  (require 'use-package))
+(setq straight-use-package-by-default t)
 
 
 
@@ -421,19 +427,19 @@ apps are not started from a shell."
     "hsp" 'cider-quit))
 
 ;; LaTeX
-(use-package tex
-  :ensure auctex
+(use-package auctex
   :init
   (setq TeX-auto-save t)
   (setq TeX-parse-self t)
   (setq-default TeX-master nil)
   (setq-default TeX-engine 'xetex)
+  (setq TeX-view-program-selection '((output-pdf "PDF Tools"))
+	TeX-source-correlate-start-server t)
   (TeX-global-PDF-mode t)
 
-  :config
-  (setq TeX-view-program-selection '((output-pdf "PDF Tools"))
-	TeX-view-program-list '(("PDF Tools" TeX-pdf-tools-sync-view))
-	TeX-source-correlate-start-server t)
+  ;; Update PDF buffers after successful LaTeX runs
+  (add-hook 'TeX-after-compilation-finished-functions
+	    #'TeX-revert-document-buffer)
 
   :hook
   (LaTeX-mode . visual-line-mode)
@@ -448,6 +454,9 @@ apps are not started from a shell."
 
 (evil-define-key 'normal latex-mode-map (kbd "C-j") #'evil-window-down)
 (evil-define-key 'insert latex-mode-map (kbd "C-j") #'evil-window-down)
+
+;; R
+(use-package ess)
 
 
 ;; PDFs
@@ -505,6 +514,7 @@ apps are not started from a shell."
  '((python . t)
    (clojure . t)
    (C . t)
+   (R . t)
    (ditaa . t)))
 
 (plist-put org-format-latex-options :scale 1.3)
@@ -518,7 +528,7 @@ apps are not started from a shell."
 (setq org-ditaa-jar-path "/opt/homebrew/Cellar/ditaa/0.11.0_1/libexec/ditaa-0.11.0-standalone.jar")
 
 (with-eval-after-load 'org
-  (setq org-image-actual-width nil)
+  (setq org-image-actual-width 300)
   (set-face-attribute 'org-table-header nil :foreground 'unspecified :background (doom-color 'bg) :inherit 'outline-1)
   (set-face-attribute 'org-table nil :foreground 'unspecified :background (doom-color 'bg-alt))
   (set-face-attribute 'org-quote nil :foreground 'unspecified :background (doom-color 'bg-alt))
@@ -543,8 +553,23 @@ apps are not started from a shell."
 			     (setq mode-line-format nil)
 			     (olivetti-mode))))
 
-(use-package scimax-inkscape
-  :load-path "~/.emacs.d/site-lisp/scimax/")
+(use-package org-noter)
+
+(evil-leader/set-key-for-mode 'pdf-view-mode
+  "an" 'org-noter-insert-note
+  "ap" 'org-noter-insert-precise-note
+  "aq" 'org-noter-kill-session
+  "aw" 'org-noter-sync-next-note
+  "ab" 'org-noter-sync-prev-note)
+
+(evil-leader/set-key-for-mode 'org-mode
+  "aq" 'org-noter-kill-session
+  "aw" 'org-noter-sync-next-note
+  "ab" 'org-noter-sync-prev-note)
+
+
+(load "~/.emacs.d/site-lisp/scimax/scimax-inkscape.el")
+(require 'scimax-inkscape)
 
 (evil-leader/set-key-for-mode 'org-mode
   "acsk" 'org-move-subtree-up
@@ -560,6 +585,7 @@ apps are not started from a shell."
   "apl" 'org-latex-preview
   "api" 'org-toggle-inline-images
   "adc" 'org-download-clipboard
+  "ans" 'org-noter
   "owl" 'olivetti-expand
   "owh" 'olivetti-shrink
   "ahs" 'org-edit-special)
