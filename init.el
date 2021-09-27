@@ -297,6 +297,8 @@
   (define-key eshell-mode-map (kbd "C-k") #'evil-window-up)
   (define-key eshell-mode-map (kbd "C-j") #'evil-window-down)
   (add-hook 'eshell-mode-hook (lambda ()
+				(evil-define-key 'normal eshell-mode-map (kbd "C-k") #'evil-window-up)
+				(evil-define-key 'normal eshell-mode-map (kbd "C-j") #'evil-window-down)
 				(company-mode -1))))
 
 ;; Ido
@@ -315,6 +317,8 @@
 (use-package ido-completing-read+
   :config
   (ido-ubiquitous-mode 1))
+(put 'dired-do-copy   'ido nil)
+(put 'dired-do-rename 'ido nil)
 
 ;; Help!
 (use-package which-key
@@ -728,7 +732,8 @@
 ;; No to clipboard abuse
 (setq x-select-enable-clipboard t)
 
-
+;; Human Dired 
+(setq dired-listing-switches "-alFh")
 
 (provide 'init)
 ;;; init.el ends here
