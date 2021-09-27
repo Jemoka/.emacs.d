@@ -5,15 +5,15 @@
 ;; ----Load PATH
 (defun set-exec-path-from-shell-PATH ()
   "Set up Emacs' `exec-path' and PATH environment variable to match
-that used by the user's shell.
+   that used by the user's shell.
 
-This is particularly useful under Mac OS X and macOS, where GUI
-apps are not started from a shell."
+   This is particularly useful under Mac OS X and macOS, where GUI
+   apps are not started from a shell."
   (interactive)
   (let ((path-from-shell (replace-regexp-in-string
-			  "[ \t\n]*$" "" (shell-command-to-string
-					  "$SHELL --login -c 'echo $PATH'"
-						    ))))
+                          "[ \t\n]*$" "" (shell-command-to-string
+                                          "$SHELL --login -c 'echo $PATH'"
+                                          ))))
     (setenv "PATH" path-from-shell)
     (setq exec-path (split-string path-from-shell path-separator))))
 
@@ -42,7 +42,7 @@ apps are not started from a shell."
       (bootstrap-version 5))
   (unless (file-exists-p bootstrap-file)
     (with-current-buffer
-        (url-retrieve-synchronously
+	(url-retrieve-synchronously
          "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
          'silent 'inhibit-cookies)
       (goto-char (point-max))
@@ -67,6 +67,10 @@ apps are not started from a shell."
   :config
   ;; Evil mode
   (evil-mode 1)
+  (with-eval-after-load 'evil
+    (defalias #'forward-evil-word #'forward-evil-symbol)
+    ;; make evil-search-word look for symbol rather than word boundaries
+    (setq-default evil-symbol-word-search t)))
 
 ;; More Evil
 (use-package evil-collection
@@ -156,7 +160,7 @@ apps are not started from a shell."
   (setq company-minimum-prefix-length 1)
   (setq company-idle-delay 0)
   (setq company-format-margin-function nil)
-  
+
   :config
   (define-key company-active-map (kbd "TAB") 'company-select-next)
   (define-key company-active-map (kbd "<backtab>") 'company-select-previous)
@@ -177,10 +181,10 @@ apps are not started from a shell."
   :after company
   :config
   (add-hook 'post-command-hook
-	    (lambda  ()
-	      (when (and (boundp 'yas-minor-mode) yas-minor-mode)
-		(let ((yas-buffer-local-condition ''(require-snippet-condition . auto)))
-		  (yas-expand))))))
+            (lambda  ()
+              (when (and (boundp 'yas-minor-mode) yas-minor-mode)
+                (let ((yas-buffer-local-condition ''(require-snippet-condition . auto)))
+                  (yas-expand))))))
 
 ;; LaTex
 (use-package company-auctex
@@ -199,9 +203,9 @@ apps are not started from a shell."
 
 ;; After the chain of stuff intalling, set company backend
 (with-eval-after-load "company-anaconda"
-(setq company-backends '((company-files company-anaconda company-clang company-capf :separate company-yasnippet company-keywords) (company-dabbrev-code company-semantic)))
-(yas-global-mode 1)
-(company-auctex-init))
+  (setq company-backends '((company-files company-anaconda company-clang company-capf :separate company-yasnippet company-keywords) (company-dabbrev-code company-semantic)))
+  (yas-global-mode 1)
+  (company-auctex-init))
 ;; </Begin a chain of package installs>
 
 ;; Flycheck
@@ -291,7 +295,9 @@ apps are not started from a shell."
   (define-key eshell-mode-map (kbd "C-j") nil)
   (define-key eshell-mode-map (kbd "C-k") nil)
   (define-key eshell-mode-map (kbd "C-k") #'evil-window-up)
-  (define-key eshell-mode-map (kbd "C-j") #'evil-window-down))
+  (define-key eshell-mode-map (kbd "C-j") #'evil-window-down)
+  (add-hook 'eshell-mode-hook (lambda ()
+				(company-mode -1))))
 
 ;; Ido
 (require 'ido)
@@ -350,23 +356,23 @@ apps are not started from a shell."
 ;; ----markdown!
 ;; Search the local directory and insert a file! or make one!
 (defun insert-file-name-as-wikilink (filename &optional args)
-    (interactive "*FInsert file name: \nP")
-    (kill-new (file-name-base buffer-file-name))
-    (insert (concat "[[" (file-name-sans-extension (file-relative-name
-						    filename)) "]] ")))
+  (interactive "*FInsert file name: \nP")
+  (kill-new (file-name-base buffer-file-name))
+  (insert (concat "[[" (file-name-sans-extension (file-relative-name
+                                                  filename)) "]] ")))
 
 ;; Take the clipboard, paste it as a png, and insert it!
 (defun insert-clipboard-image-to-buffer (filename &optional args)
-    (interactive "*FSave image to: \n")
-    (shell-command (concat "~/.emacs.d/pasteimage.sh " (replace-regexp-in-string "\s" "\\\\ " filename)))
-    (insert (concat "![](" (file-relative-name filename) ")")))
+  (interactive "*FSave image to: \n")
+  (shell-command (concat "~/.emacs.d/pasteimage.sh " (replace-regexp-in-string "\s" "\\\\ " filename)))
+  (insert (concat "![](" (file-relative-name filename) ")")))
 
 ;; Markdown mode
 (use-package markdown-mode
   :commands (markdown-mode gfm-mode)
   :mode (("README\\.md\\'" . gfm-mode)
-	 ("\\.md\\'" . markdown-mode)
-	 ("\\.markdown\\'" . markdown-mode))
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
   :init
   (setq markdown-command "pandoc -s --mathjax")
   (setq markdown-enable-math t)
@@ -381,22 +387,22 @@ apps are not started from a shell."
   (set-face-attribute 'markdown-header-face-4 nil :foreground 'unspecified :inherit 'outline-4)
   (set-face-attribute 'markdown-header-face-5 nil :foreground 'unspecified :inherit 'outline-5)
   (add-hook 'markdown-mode-hook (lambda ()
-				  (setq mode-line-format nil)
-				  (olivetti-mode))))
+                                  (setq mode-line-format nil)
+                                  (olivetti-mode))))
 
 ;; Just another way of browsing the entire KB
 (use-package deft
-    :ensure t
-    :config
-    (setq deft-directory "~/Documents/taproot"
-	  deft-recursive t
-	  deft-default-extension "org"
-	  deft-text-mode 'org-mode
-	  deft-recursive-ignore-dir-regexp "\\..*"
-	  deft-use-filename-as-title t
-	  deft-text-mode 'org-mode
-	  deft-extensions '("org" "tex" "md")
-	  deft-use-filter-string-for-filename t))
+  :ensure t
+  :config
+  (setq deft-directory "~/Documents/taproot"
+        deft-recursive t
+        deft-default-extension "org"
+        deft-text-mode 'org-mode
+        deft-recursive-ignore-dir-regexp "\\..*"
+        deft-use-filename-as-title t
+        deft-text-mode 'org-mode
+        deft-extensions '("org" "tex" "md")
+        deft-use-filter-string-for-filename t))
 
 ;; Keybinds
 (evil-leader/set-key-for-mode 'markdown-mode
@@ -434,12 +440,12 @@ apps are not started from a shell."
   (setq-default TeX-master nil)
   (setq-default TeX-engine 'xetex)
   (setq TeX-view-program-selection '((output-pdf "PDF Tools"))
-	TeX-source-correlate-start-server t)
+        TeX-source-correlate-start-server t)
   (TeX-global-PDF-mode t)
 
   ;; Update PDF buffers after successful LaTeX runs
   (add-hook 'TeX-after-compilation-finished-functions
-	    #'TeX-revert-document-buffer)
+            #'TeX-revert-document-buffer)
 
   :hook
   (LaTeX-mode . visual-line-mode)
@@ -464,7 +470,7 @@ apps are not started from a shell."
   :init
   (setq pdf-view-use-scaling t)
   (setq-default pdf-view-display-size 'fit-page)
-  (setq pdf-annot-activate-created-annotations t)
+  (setq pdf-annot-activate-created-annotations nil)
   :config
   (define-key pdf-view-mode-map (kbd "C-h") #'evil-window-left)
   (define-key pdf-view-mode-map (kbd "C-j") #'evil-window-down)
@@ -509,6 +515,22 @@ apps are not started from a shell."
   (org-mode . org-download-enable)
   (dired-mode . org-download-enable))
 
+(use-package md-roam
+  :straight (:type git :host github :repo "Jemoka/md-roam")
+  :init
+  (setq md-roam-file-extension-single "md")
+  (setq org-roam-file-extensions '("org" "md")))
+
+(use-package org-roam
+  :after md-roam
+  :straight (:type git :host github :repo "org-roam/org-roam-v1")
+  :init
+  (setq org-roam-title-sources '((mdtitle title mdheadline headline) (mdalias alias)))
+  :hook
+  (after-init . org-roam-mode)
+  :custom
+  (org-roam-directory (file-truename "~/Documents/taproot/")))
+
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((python . t)
@@ -550,26 +572,50 @@ apps are not started from a shell."
 
   (setq org-latex-create-formula-image-program 'dvisvgm)
   (add-hook 'org-mode-hook (lambda ()
-			     (setq mode-line-format nil)
-			     (olivetti-mode))))
+                             (setq mode-line-format nil)
+                             (olivetti-mode)))
+  (setq org-latex-packages-alist '(("margin=1in" "geometry")))
+  (setq org-latex-compiler "xelatex"))
 
 (use-package org-noter)
 
 (evil-leader/set-key-for-mode 'pdf-view-mode
-  "an" 'org-noter-insert-note
-  "ap" 'org-noter-insert-precise-note
+  "ap" 'org-noter-insert-note
+  "an" 'org-noter-insert-precise-note
   "aq" 'org-noter-kill-session
   "aw" 'org-noter-sync-next-note
-  "ab" 'org-noter-sync-prev-note)
+  "ab" 'org-noter-sync-prev-note
+  "ax" 'org-noter-sync-current-note
+  "ah" 'pdf-annot-add-highlight-markup-annotation
+  "ak" 'pdf-annot-delete
+  "oc" (lambda ()
+         (interactive)
+         (message "%s" "Performing OCR...")
+         (shell-command (format "ocrmypdf %s %s" buffer-file-name buffer-file-name))
+         (message "")
+         (revert-buffer)))
+
 
 (evil-leader/set-key-for-mode 'org-mode
   "aq" 'org-noter-kill-session
   "aw" 'org-noter-sync-next-note
-  "ab" 'org-noter-sync-prev-note)
+  "ab" 'org-noter-sync-prev-note
+  "ax" 'org-noter-sync-current-note)
+
 
 
 (load "~/.emacs.d/site-lisp/scimax/scimax-inkscape.el")
 (require 'scimax-inkscape)
+
+(evil-leader/set-key 
+  "aur" 'org-roam
+  "auu" 'org-roam-find-file
+  "aug" 'org-roam-graph)
+
+(evil-leader/set-key-for-mode 'org-mode
+  "auh"  'org-roam-insert-immediate
+  "aux" 'org-roam-find-file)
+
 
 (evil-leader/set-key-for-mode 'org-mode
   "acsk" 'org-move-subtree-up
@@ -593,55 +639,57 @@ apps are not started from a shell."
 (evil-leader/set-key
   "ahs" 'org-edit-src-exit
   "ahk" 'org-edit-src-abort
-  "ahw" 'org-edit-src-save)
+  "ahw" 'org-edit-src-save
+  "aur" 'org-roam)
 
 
 ;; ----random keybindings
 (evil-leader/set-key
-    ;; Buffer switching
-    "pl" 'list-buffers
-    "ps" 'ido-switch-buffer
-    "pk" 'kill-buffer
+  ;; Buffer switching
+  "pl" 'list-buffers
+  "ps" 'ido-switch-buffer
+  "pk" 'kill-buffer
 
-    ;; Project switch
-    "po" 'projectile-switch-project
-    "pr" 'projectile-find-file
-    "pd" 'projectile-find-dir
-    "pu" 'projectile-find-other-file
+  ;; Project switch
+  "po" 'projectile-switch-project
+  "pr" 'projectile-find-file
+  "pd" 'projectile-find-dir
+  "pu" 'projectile-find-other-file
 
-    ;; File switching
-    "mn" 'ido-find-file
-    "mh" 'dired
+  ;; File switching
+  "mn" 'ido-find-file
+  "mh" 'dired
+  "mgg" 'find-grep
+  "mgd" 'find-grep-dired
 
-    ;; Git
-    "mg" 'magit
-    "gt" 'magit
+  ;; Git
+  "gt" 'magit
 
-    ;; Perspectives
-    "vs" 'persp-switch
-    "vd" 'persp-kill
+  ;; Perspectives
+  "vs" 'persp-switch
+  "vd" 'persp-kill
 
-    ;; vterm
-    "vt" 'eshell
+  ;; vterm
+  "vt" 'eshell
 
-    ;; LaTeX
-    "ra" 'TeX-command-run-all
+  ;; LaTeX
+  "ra" 'TeX-command-run-all
 
-    ;; Writeroom
-    "rt" 'global-writeroom-mode
+  ;; Writeroom
+  "rt" 'global-writeroom-mode
 
-    ;; Eval
-    "ue" 'eval-last-sexp
+  ;; Eval
+  "ue" 'eval-last-sexp
 
-    ;; Deft
-    "md" 'deft
-    "mb" 'deft-find-file
+  ;; Deft
+  "md" 'deft
+  "mb" 'deft-find-file
 
-    ;; Universal argument
-    "uu" 'universal-argument
+  ;; Universal argument
+  "uu" 'universal-argument
 
-    ;; Badly Broken Bit
-    "<SPC>" 'execute-extended-command)
+  ;; Badly Broken Bit
+  "<SPC>" 'execute-extended-command)
 
 ;; ----misc
 ;; offsets and tabs
@@ -652,8 +700,8 @@ apps are not started from a shell."
 
 ;; Flycheck vs. Modern C++
 (add-hook 'c++-mode-hook (lambda ()
-			   (setq flycheck-gcc-language-standard "c++11")
-			   (setq flycheck-clang-language-standard "c++11")))
+                           (setq flycheck-gcc-language-standard "c++11")
+                           (setq flycheck-clang-language-standard "c++11")))
 
 ;; Visual lines, except for prog
 (global-visual-line-mode)
@@ -675,7 +723,7 @@ apps are not started from a shell."
 (global-set-key (kbd "C-h") #'evil-window-left)
 (global-set-key (kbd "C-j") #'evil-window-down)
 (global-set-key (kbd "C-k") #'evil-window-up)
-(global-set-key (kbd "C-l") #'evil-window-right))
+(global-set-key (kbd "C-l") #'evil-window-right)
 
 ;; No to clipboard abuse
 (setq x-select-enable-clipboard t)
