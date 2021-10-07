@@ -117,7 +117,7 @@
 (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
 (add-to-list 'default-frame-alist '(ns-appearance . dark)) ;; assuming you are using a dark theme
 (setq ns-use-proxy-icon nil)
-(setq frame-title-format "\n")
+(setq frame-title-format "\n emacs")
 
 ;; Doom theme
 (use-package doom-themes
@@ -301,24 +301,24 @@
 				(evil-define-key 'normal eshell-mode-map (kbd "C-j") #'evil-window-down)
 				(company-mode -1))))
 
-;; Ido
-(require 'ido)
-
-(use-package flx-ido
+;; Ivy
+(use-package ivy
   :init
-  (setq ido-enable-flex-matching t)
-  (setq flx-ido-use-faces nil)
+  (setq ivy-use-virtual-buffers t)
+  (setq enable-recursive-minibuffers t)
   :config
-  (ido-everywhere t)
-  (ido-mode t)
-  (flx-ido-mode t))
+  (ivy-mode)
+  (put 'dired-do-copy   'ivy nil)
+  (put 'dired-do-rename 'ivy nil))
 
-;; Ido in even more places
-(use-package ido-completing-read+
+(use-package counsel
   :config
-  (ido-ubiquitous-mode 1))
-(put 'dired-do-copy   'ido nil)
-(put 'dired-do-rename 'ido nil)
+  (evil-leader/set-key 
+    "ps" 'counsel-switch-buffer
+    "mn" 'counsel-find-file
+    "<SPC>" 'counsel-M-x))
+
+(use-package swiper)
 
 ;; Help!
 (use-package which-key
@@ -433,7 +433,17 @@
     "hd" 'cider-doc
     "hk" 'cider-undef
     "hsn" 'cider-eval-defun-to-comment
-    "hst" 'cider-jack-in
+    "hst" 'cider-jack-in-clj
+    "hsp" 'cider-quit)
+  (evil-leader/set-key-for-mode 'clojurescript-mode
+    "ht" 'cider-eval-last-sexp
+    "ue" 'cider-eval-last-sexp
+    "hn" 'cider-eval-defun-at-point
+    "hb" 'cider-eval-buffer
+    "hd" 'cider-doc
+    "hk" 'cider-undef
+    "hsn" 'cider-eval-defun-to-comment
+    "hst" 'cider-jack-in-cljs
     "hsp" 'cider-quit))
 
 ;; LaTeX
@@ -468,6 +478,16 @@
 ;; R
 (use-package ess)
 
+;; Dockerfile
+(use-package dockerfile-mode
+  :config
+  (add-to-list 'auto-mode-alist '("Dockerfile\\'" . dockerfile-mode)))
+
+;; Yaml
+(use-package yaml-mode
+  :config
+  (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode)))
+
 
 ;; PDFs
 (use-package pdf-tools
@@ -481,6 +501,10 @@
   (define-key pdf-view-mode-map (kbd "C-k") #'evil-window-up)
   (define-key pdf-view-mode-map (kbd "C-l") #'evil-window-right)
   :mode  ("\\.pdf\\'" . pdf-view-mode))
+
+(use-package pdfgrep
+  :config
+  (pdfgrep-mode))
 
 ;; Python
 ;; Interactive
@@ -519,21 +543,53 @@
   (org-mode . org-download-enable)
   (dired-mode . org-download-enable))
 
-(use-package md-roam
-  :straight (:type git :host github :repo "Jemoka/md-roam")
-  :init
-  (setq md-roam-file-extension-single "md")
-  (setq org-roam-file-extensions '("org" "md")))
+;; (use-package md-roam
+;;   :straight (:type git :host github :repo "Jemoka/md-roam")
+;;   :init
+;;   (setq md-roam-file-extension-single "md")
+;;   (setq org-roam-file-extensions '("org" "md")))
+
+;; (use-package org-roam
+;;   :after md-roam
+;;   :straight (:type git :host github :repo "org-roam/org-roam-v1")
+;;   :init
+;;   (setq org-roam-title-sources '((mdtitle title mdheadline headline) (mdalias alias)))
+;;   :hook
+;;   (after-init . org-roam-mode)
+;;   :custom
+;;   (org-roam-directory (file-truename "~/Documents/taproot/")))
 
 (use-package org-roam
-  :after md-roam
-  :straight (:type git :host github :repo "org-roam/org-roam-v1")
-  :init
-  (setq org-roam-title-sources '((mdtitle title mdheadline headline) (mdalias alias)))
-  :hook
-  (after-init . org-roam-mode)
   :custom
-  (org-roam-directory (file-truename "~/Documents/taproot/")))
+  (org-roam-directory (file-truename "~/Documents/taproot/"))
+  :init
+  (setq org-roam-v2-ack t)
+  (setq org-roam-capture-templates
+	`(("d" "default"
+	   plain "%?"
+	   :target (file+head "%(identity default-directory)/KBh${slug}.org" "#+title: ${title}\n#+author: Houjun Liu\n\n")
+	   :unnarrowed t)))
+  :config
+  (evil-leader/set-key 
+    "aur" 'org-roam-buffer-toggle
+    "auu" 'org-roam-node-find
+    "aug" 'org-roam-graph)
+  (evil-leader/set-key-for-mode 'org-mode
+    "auh" 'org-roam-node-insert
+    "aun" 'org-id-get-create
+    "auaa" 'org-roam-alias-add
+    "auad" 'org-roam-alias-remove)
+  (org-roam-db-autosync-mode))
+
+(use-package org-roam-ui
+  :straight
+    (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
+    :after org-roam
+    :config
+    (setq org-roam-ui-sync-theme t
+          org-roam-ui-follow t
+          org-roam-ui-update-on-save t
+          org-roam-ui-open-on-start t))
 
 (org-babel-do-load-languages
  'org-babel-load-languages
@@ -579,7 +635,10 @@
                              (setq mode-line-format nil)
                              (olivetti-mode)))
   (setq org-latex-packages-alist '(("margin=1in" "geometry")))
-  (setq org-latex-compiler "xelatex"))
+  (setq org-latex-compiler "xelatex")
+
+  (evil-define-key 'normal org-mode-map (kbd "TAB") #'org-cycle)
+  (setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id))
 
 (use-package org-noter)
 
@@ -611,16 +670,6 @@
 (load "~/.emacs.d/site-lisp/scimax/scimax-inkscape.el")
 (require 'scimax-inkscape)
 
-(evil-leader/set-key 
-  "aur" 'org-roam
-  "auu" 'org-roam-find-file
-  "aug" 'org-roam-graph)
-
-(evil-leader/set-key-for-mode 'org-mode
-  "auh"  'org-roam-insert-immediate
-  "aux" 'org-roam-find-file)
-
-
 (evil-leader/set-key-for-mode 'org-mode
   "acsk" 'org-move-subtree-up
   "acsj" 'org-move-subtree-down
@@ -638,20 +687,27 @@
   "ans" 'org-noter
   "owl" 'olivetti-expand
   "owh" 'olivetti-shrink
-  "ahs" 'org-edit-special)
+  "ahs" 'org-edit-special
+  "att" 'org-todo
+  "ats" 'org-show-todo-tree
+  "atl" 'org-todo-list)
 
 (evil-leader/set-key
   "ahs" 'org-edit-src-exit
   "ahk" 'org-edit-src-abort
-  "ahw" 'org-edit-src-save
-  "aur" 'org-roam)
+  "ahw" 'org-edit-src-save)
+
+;; Exec Path from Shell
+(use-package exec-path-from-shell
+  :config
+  (when (memq window-system '(mac ns))
+    (exec-path-from-shell-initialize)))
 
 
 ;; ----random keybindings
 (evil-leader/set-key
   ;; Buffer switching
   "pl" 'list-buffers
-  "ps" 'ido-switch-buffer
   "pk" 'kill-buffer
 
   ;; Project switch
@@ -661,10 +717,10 @@
   "pu" 'projectile-find-other-file
 
   ;; File switching
-  "mn" 'ido-find-file
   "mh" 'dired
   "mgg" 'find-grep
   "mgd" 'find-grep-dired
+  "mgp" 'pdfgrep
 
   ;; Git
   "gt" 'magit
@@ -690,10 +746,7 @@
   "mb" 'deft-find-file
 
   ;; Universal argument
-  "uu" 'universal-argument
-
-  ;; Badly Broken Bit
-  "<SPC>" 'execute-extended-command)
+  "uu" 'universal-argument)
 
 ;; ----misc
 ;; offsets and tabs
