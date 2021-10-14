@@ -320,6 +320,13 @@
 
 (use-package swiper)
 
+;; Autosave
+(use-package real-auto-save
+  :init
+  (setq real-auto-save-interval 0.5)
+  :hook
+  (prog-mode . real-auto-save-mode))
+
 ;; Help!
 (use-package which-key
   :config
@@ -475,6 +482,15 @@
 (evil-define-key 'normal latex-mode-map (kbd "C-j") #'evil-window-down)
 (evil-define-key 'insert latex-mode-map (kbd "C-j") #'evil-window-down)
 
+;; Typescript, JSX, TSX
+(use-package typescript-mode)
+
+(use-package web-mode)
+
+(use-package tide
+  :hook
+  (add-hook 'typescript-mode-hook #'tide-setup))
+
 ;; R
 (use-package ess)
 
@@ -530,6 +546,25 @@
   :config
   (modern-c++-font-lock-global-mode t))
 
+;; Rust
+(use-package rust-mode
+  :config
+  (evil-leader/set-key-for-mode 'rust-mode
+    "hs" 'rust-check
+    "ht" 'rust-test
+    "hn" 'rust-run
+    "hc" 'rust-compile)
+  :hook
+  (rust-mode . (lambda () (setq indent-tabs-mode nil))))
+
+(use-package flycheck-rust
+  :hook
+  (flycheck-mode . flycheck-rust-setup))
+
+(use-package racer
+  :hook
+  (rust-mode . racer-mode))
+
 ;; Org
 (use-package org-fragtog
   :hook
@@ -542,6 +577,8 @@
   :hook
   (org-mode . org-download-enable)
   (dired-mode . org-download-enable))
+
+(use-package calfw)
 
 ;; (use-package md-roam
 ;;   :straight (:type git :host github :repo "Jemoka/md-roam")
@@ -640,11 +677,20 @@
   (evil-define-key 'normal org-mode-map (kbd "TAB") #'org-cycle)
   (setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id))
 
-(use-package org-noter)
+(use-package org-noter
+  :init
+  (setq org-noter-insert-selected-text-inside-note t)
+  (defun org-noter-insert-selected-text-inside-note-content ()
+    (interactive)
+    (progn (setq currenb (buffer-name))
+	   (org-noter-insert-precise-note)
+	   (set-buffer currenb)
+	   (org-noter-insert-note))))
 
 (evil-leader/set-key-for-mode 'pdf-view-mode
   "ap" 'org-noter-insert-note
-  "an" 'org-noter-insert-precise-note
+  "ar" 'org-noter-insert-precise-note
+  "an" 'org-noter-insert-selected-text-inside-note-content
   "aq" 'org-noter-kill-session
   "aw" 'org-noter-sync-next-note
   "ab" 'org-noter-sync-prev-note
@@ -654,7 +700,7 @@
   "oc" (lambda ()
          (interactive)
          (message "%s" "Performing OCR...")
-         (shell-command (format "ocrmypdf %s %s" buffer-file-name buffer-file-name))
+         (shell-command (format "ocrmypdf '%s' '%s'" buffer-file-name buffer-file-name))
          (message "")
          (revert-buffer)))
 
@@ -690,7 +736,8 @@
   "ahs" 'org-edit-special
   "att" 'org-todo
   "ats" 'org-show-todo-tree
-  "atl" 'org-todo-list)
+  "atl" 'org-todo-list
+  "ati" 'org-time-stamp)
 
 (evil-leader/set-key
   "ahs" 'org-edit-src-exit
