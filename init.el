@@ -266,6 +266,10 @@
   (define-key magit-mode-map (kbd "C-k") #'evil-window-up)
   (define-key magit-mode-map (kbd "C-l") #'evil-window-right))
 
+;; Github!
+(use-package forge
+  :after magit)
+
 ;; Term!
 ;; The V one
 (use-package vterm
