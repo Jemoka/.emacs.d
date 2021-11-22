@@ -329,7 +329,7 @@
   :init
   (setq real-auto-save-interval 0.5)
   :hook
-  (prog-mode . real-auto-save-mode))
+  (rust-mode . real-auto-save-mode))
 
 ;; Help!
 (use-package which-key
@@ -694,7 +694,8 @@
 (evil-leader/set-key-for-mode 'pdf-view-mode
   "ap" 'org-noter-insert-note
   "ar" 'org-noter-insert-precise-note
-  "an" 'org-noter-insert-selected-text-inside-note-content
+  "an" 'org-noter-insert-precise-note
+  "ac" 'org-noter-insert-selected-text-inside-note-content
   "aq" 'org-noter-kill-session
   "aw" 'org-noter-sync-next-note
   "ab" 'org-noter-sync-prev-note
