@@ -632,13 +632,40 @@
           org-roam-ui-update-on-save t
           org-roam-ui-open-on-start t))
 
+
+;; Sage math
+(use-package sage-shell-mode)
+(setq org-startup-with-inline-images t)
+(use-package ob-sagemath)
+
+;; C-c c for asynchronous evaluating (only for SageMath code blocks).
+(with-eval-after-load "org"
+  (define-key org-mode-map (kbd "C-c c") 'ob-sagemath-execute-async))
+
+;; Do not confirm before evaluation
+(setq org-confirm-babel-evaluate nil)
+
+;; Do not evaluate code blocks when exporting.
+(setq org-export-babel-evaluate nil)
+
+;; Show images when opening a file.
+(setq org-startup-with-inline-images t)
+
+;; Show images after evaluating code blocks.
+(add-hook 'org-babel-after-execute-hook 'org-display-inline-images)
+
+;; Ob-sagemath supports only evaluating with a session.
+(setq org-babel-default-header-args:sage '((:session . t)
+                                           (:results . "output")))
+
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((python . t)
    (clojure . t)
    (C . t)
    (R . t)
-   (ditaa . t)))
+   (ditaa . t)
+   (sagemath . t)))
 
 (plist-put org-format-latex-options :scale 1.3)
 (setq org-babel-clojure-backend 'cider)
@@ -680,6 +707,7 @@
 
   (evil-define-key 'normal org-mode-map (kbd "TAB") #'org-cycle)
   (setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id))
+
 
 (use-package org-noter
   :init
