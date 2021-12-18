@@ -1,4 +1,4 @@
-;; So. so. so. Let's try this again. Will jack succeed this time?
+;a So. so. so. Let's try this again. Will jack succeed this time?
 ;; Probably not. But it's worth a try.
 
 
@@ -439,6 +439,7 @@
   (evil-leader/set-key-for-mode 'clojure-mode
     "ht" 'cider-eval-last-sexp
     "ue" 'cider-eval-last-sexp
+    "hr" 'cider-eval-last-sexp-to-repl
     "hn" 'cider-eval-defun-at-point
     "hb" 'cider-eval-buffer
     "hd" 'cider-doc
@@ -455,7 +456,9 @@
     "hk" 'cider-undef
     "hsn" 'cider-eval-defun-to-comment
     "hst" 'cider-jack-in-cljs
-    "hsp" 'cider-quit))
+    "hsp" 'cider-quit)
+  (evil-define-key 'insert cider-repl-mode-map (kbd "<up>") #'cider-repl-backward-input)
+  (evil-define-key 'insert cider-repl-mode-map (kbd "<down>") #'cider-repl-forward-input))
 
 ;; LaTeX
 (use-package auctex
