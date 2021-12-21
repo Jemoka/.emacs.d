@@ -446,7 +446,10 @@
     "hk" 'cider-undef
     "hsn" 'cider-eval-defun-to-comment
     "hst" 'cider-jack-in-clj
-    "hsp" 'cider-quit)
+    "hsp" 'cider-quit
+    "hh" 'cider-switch-to-repl-buffer)
+  (evil-leader/set-key-for-mode 'cider-repl-mode 
+    "hh" 'cider-switch-to-last-clojure-buffer)
   (evil-leader/set-key-for-mode 'clojurescript-mode
     "ht" 'cider-eval-last-sexp
     "ue" 'cider-eval-last-sexp
@@ -786,6 +789,150 @@
   (when (memq window-system '(mac ns))
     (exec-path-from-shell-initialize)))
 
+;; ----email
+(require 'mu4e)
+
+;; Sending Email
+(require 'smtpmail)
+
+;; Redefine mail-signature to stop inserting the dumbass dashes
+(defun message-insert-signature (&optional force)
+  "Insert a signature at the end of the buffer.
+See the documentation for the `message-signature' variable for
+more information.
+If FORCE is 0 (or when called interactively), the global values
+of the signature variables will be consulted if the local ones
+are null."
+  (interactive (list 0))
+  (let ((message-signature message-signature)
+	(message-signature-file message-signature-file))
+    ;; If called interactively and there's no signature to insert,
+    ;; consult the global values to see whether there's anything they
+    ;; have to say for themselves.  This can happen when using
+    ;; `gnus-posting-styles', for instance.
+    (when (and (null message-signature)
+	       (null message-signature-file)
+	       (eq force 0))
+      (setq message-signature (default-value 'message-signature)
+	    message-signature-file (default-value 'message-signature-file)))
+    (let* ((signature
+	    (cond
+	     ((and (null message-signature)
+		   (eq force 0))
+	      (save-excursion
+		(goto-char (point-max))
+		(not (re-search-backward message-signature-separator nil t))))
+	     ((and (null message-signature)
+		   force)
+	      t)
+	     ((functionp message-signature)
+	      (funcall message-signature))
+	     ((listp message-signature)
+	      (eval message-signature))
+	     (t message-signature)))
+	   signature-file)
+      (setq signature
+	    (cond ((stringp signature)
+		   signature)
+		  ((and (eq t signature) message-signature-file)
+		   (setq signature-file
+			 (if (and message-signature-directory
+				  ;; don't actually use the signature directory
+				  ;; if message-signature-file contains a path.
+				  (not (file-name-directory
+					message-signature-file)))
+			     (expand-file-name message-signature-file
+					       message-signature-directory)
+			   message-signature-file))
+		   (file-exists-p signature-file))))
+      (when signature
+	(goto-char (point-max))
+	;; Insert the signature.
+	(unless (bolp)
+	  (newline))
+	(when message-signature-insert-empty-line
+	  (newline))
+	;; (insert "-- ")
+	(newline)
+	(if (eq signature t)
+	    (insert-file-contents signature-file)
+	  (insert signature))
+	(goto-char (point-max))
+	(or (bolp) (newline))))))
+
+;; I have my "default" parameters from Personal
+(setq mu4e-sent-folder "/Personal/Sent"
+      mu4e-drafts-folder "/Personal/Drafts"
+      mu4e-trash-folder "/Personal/Deleted"
+      user-mail-address "kmliuhoujun@outlook.com")
+
+(setq smtpmail-auth-credentials (expand-file-name "~/.authinfo.gpg")
+      message-send-mail-function 'smtpmail-send-it)
+
+(defvar my-mu4e-account-alist
+  '(("Personal"
+     (mu4e-sent-folder "/Personal/Sent")
+     (mu4e-drafts-folder "/Personal/Drafts")
+     (mu4e-trash-folder "/Personal/Deleted")
+     (mu4e-refile-folder "/Personal/Archive")
+     (user-mail-address "kmliuhoujun@outlook.com")
+     (smtpmail-smtp-user "kmliuhoujun@outlook.com")
+     (smtpmail-stream-type starttls)
+     (smtpmail-local-domain "outlook.com")
+     (smtpmail-default-smtp-server "smtp.office365.com")
+     (smtpmail-smtp-server "smtp.office365.com")
+     (smtpmail-smtp-service 587))
+    ("Work"
+     (mu4e-sent-folder "/Work/[Gmail].Sent Mail")
+     (mu4e-drafts-folder "/Work/[Gmail].Drafts")
+     (mu4e-trash-folder "/Work/[Gmail].Trash")
+     (mu4e-refile-folder "/Work/[Gmail].All Mail")
+     (user-mail-address "hliu.shabanglandpoint0@gmail.com")
+     (smtpmail-smtp-user "hliu.shabanglandpoint0")
+     (smtpmail-local-domain "gmail.com")
+     (smtpmail-default-smtp-server "smtp.gmail.com")
+     (smtpmail-smtp-server "smtp.gmail.com")
+     (smtpmail-smtp-service 587))))
+
+(defun my-mu4e-set-account ()
+  "Set the account for composing a message."
+  (let* ((account
+	  (if mu4e-compose-parent-message
+	      (let ((maildir (mu4e-message-field mu4e-compose-parent-message :maildir)))
+		(string-match "/\\(.*?\\)/" maildir)
+		(match-string 1 maildir))
+	    (completing-read (format "Compose with account: (%s) "
+				     (mapconcat #'(lambda (var) (car var))
+						my-mu4e-account-alist "/"))
+			     (mapcar #'(lambda (var) (car var)) my-mu4e-account-alist)
+			     nil t nil nil (caar my-mu4e-account-alist))))
+	 (account-vars (cdr (assoc account my-mu4e-account-alist))))
+    (if account-vars
+	(mapc #'(lambda (var)
+		  (set (car var) (cadr var)))
+	      account-vars)
+      (error "No email account found"))))
+(add-hook 'mu4e-compose-pre-hook 'my-mu4e-set-account)
+
+;; Recieving Email
+(setq mu4e-get-mail-command "offlineimap")
+;; (use-package mu4e-alert
+;;   :ensure t
+;;   :after mu4e
+;;   :init
+;;   (setq mu4e-alert-interesting-mail-query
+;;     (concat
+;;      "flag:unread maildir:/Personal/Inbox"
+;;      "OR "
+;;      "flag:unread maildir:/Work/INBOX"
+;;      ))
+;;   (mu4e-alert-enable-mode-line-display)
+;;   (defun gjstein-refresh-mu4e-alert-mode-line ()
+;;     (interactive)
+;;     (mu4e~proc-kill)
+;;     (mu4e-alert-enable-mode-line-display)
+;;     )
+;;   (run-with-timer 0 60 'gjstein-refresh-mu4e-alert-mode-line) )
 
 ;; ----random keybindings
 (evil-leader/set-key
