@@ -34,6 +34,10 @@
 (setq create-lockfiles nil)
 
 
+;; ----eaf
+(add-to-list 'load-path "~/.emacs.d/site-lisp/emacs-application-framework/")
+
+
 
 ;; ----Straight
 (defvar bootstrap-version)
@@ -499,7 +503,13 @@
 
 (use-package tide
   :hook
-  (add-hook 'typescript-mode-hook #'tide-setup))
+  (typescript-mode . tide-setup)
+  (web-mode . tide-setup))
+
+(use-package rjsx-mode
+  :config
+  (add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode))
+  (add-to-list 'auto-mode-alist '("pages\\/.*\\.js\\'" . rjsx-mode)))
 
 ;; R
 (use-package ess)
@@ -644,6 +654,10 @@
 (setq org-startup-with-inline-images t)
 (use-package ob-sagemath)
 
+(use-package ob-sml
+  :straight
+    (:host github :repo "swannodette/ob-sml" :branch "master" :files ("*.el" "out")))
+
 ;; C-c c for asynchronous evaluating (only for SageMath code blocks).
 (with-eval-after-load "org"
   (define-key org-mode-map (kbd "C-c c") 'ob-sagemath-execute-async))
@@ -671,7 +685,8 @@
    (C . t)
    (R . t)
    (ditaa . t)
-   (sagemath . t)))
+   (sagemath . t)
+   (sml . t)))
 
 (plist-put org-format-latex-options :scale 1.3)
 (setq org-babel-clojure-backend 'cider)
@@ -934,6 +949,20 @@ are null."
 ;;     )
 ;;   (run-with-timer 0 60 'gjstein-refresh-mu4e-alert-mode-line) )
 
+;; ----eaf
+;; (setq eaf-python-command "/usr/local/bin/python3")
+(require 'eaf)
+(require 'eaf-browser)
+(require 'eaf-file-manager)
+(require 'eaf-evil)
+(setq eaf--mac-enable-rosetta t)
+(setq eaf-python-command "/usr/local/bin/python3")
+(setq eaf-browser-dark-mode t)
+;; (evil-define
+;; (eaf-browser-continue-where-left-off t)
+;; (eaf-browser-enable-adblocker t)
+;; (browse-url-browser-function 'eaf-open-browser)
+ 
 ;; ----random keybindings
 (evil-leader/set-key
   ;; Buffer switching
@@ -974,6 +1003,10 @@ are null."
   ;; Deft
   "md" 'deft
   "mb" 'deft-find-file
+
+  ;; browser
+  "ob" 'eaf-open-browser
+  "oh" 'eaf-open-browser-with-history
 
   ;; Universal argument
   "uu" 'universal-argument)
