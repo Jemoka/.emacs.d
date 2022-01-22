@@ -154,6 +154,24 @@
 ;; Scroll line by line
 (setq scroll-step            1
       scroll-conservatively  10000)
+;; Typescript, JSX, TSX
+(use-package typescript-mode)
+
+(use-package web-mode)
+
+(use-package tide
+  :hook
+  (typescript-mode . tide-setup)
+  (web-mode . tide-setup))
+
+(use-package rjsx-mode
+  :config
+  (add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode))
+  (add-to-list 'auto-mode-alist '("pages\\/.*\\.js\\'" . rjsx-mode)))
+
+(add-hook 'js-mode-hook (lambda () (setq indent-tabs-mode nil)))
+(add-hook 'typescript-mode-hook (lambda () (setq indent-tabs-mode nil)))
+
 
 
 
@@ -170,9 +188,36 @@
   (define-key company-active-map (kbd "<backtab>") 'company-select-previous)
   (define-key company-active-map (kbd "RET") nil)
   (global-company-mode)
+  
 
   :hook
   (after-init . company-tng-mode))
+
+(use-package lsp-mode
+  :init
+  (setq lsp-auto-configure nil)
+  (setq read-process-output-max (* 1024 1024)) ;; 1mb
+  (setq gc-cons-threshold 100000000)
+  :config
+  (require 'lsp-clangd)
+  (require 'lsp-javascript)
+
+  (require 'lsp-completion)
+  (lsp-completion--enable)
+
+  (add-hook 'lsp-completion-mode-hook (lambda ()
+					(setq company-backends '((company-files company-anaconda company-capf :separate company-yasnippet company-keywords) (company-dabbrev-code company-semantic)))))
+  :hook
+  (lsp-mode . lsp-completion-mode)
+  (c++-mode . lsp)
+  (typescript-mode . lsp)
+  (javascript-mode . lsp)
+  (rjsx-mode . lsp))
+
+(use-package lsp-tailwindcss
+  :straight (:type git :host github :repo "merrickluo/lsp-tailwindcss")
+  :init
+  (setq lsp-tailwindcss-add-on-mode t))
 
 ;; Staticstics
 (use-package company-statistics
@@ -207,9 +252,10 @@
 
 ;; After the chain of stuff intalling, set company backend
 (with-eval-after-load "company-anaconda"
-  (setq company-backends '((company-files company-anaconda company-clang company-capf :separate company-yasnippet company-keywords) (company-dabbrev-code company-semantic)))
-  (yas-global-mode 1)
-  (company-auctex-init))
+  (setq company-backends '((company-files company-anaconda company-capf :separate company-yasnippet company-keywords) (company-dabbrev-code company-semantic)))
+  
+	    (yas-global-mode 1)
+	    (company-auctex-init))
 ;; </Begin a chain of package installs>
 
 ;; Flycheck
@@ -495,21 +541,6 @@
 
 (evil-define-key 'normal latex-mode-map (kbd "C-j") #'evil-window-down)
 (evil-define-key 'insert latex-mode-map (kbd "C-j") #'evil-window-down)
-
-;; Typescript, JSX, TSX
-(use-package typescript-mode)
-
-(use-package web-mode)
-
-(use-package tide
-  :hook
-  (typescript-mode . tide-setup)
-  (web-mode . tide-setup))
-
-(use-package rjsx-mode
-  :config
-  (add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode))
-  (add-to-list 'auto-mode-alist '("pages\\/.*\\.js\\'" . rjsx-mode)))
 
 ;; R
 (use-package ess)
@@ -957,7 +988,13 @@ are null."
 (require 'eaf-evil)
 (setq eaf--mac-enable-rosetta t)
 (setq eaf-python-command "/usr/local/bin/python3")
-(setq eaf-browser-dark-mode t)
+(setq eaf-browser-dark-mode nil)
+
+;; (define-key eaf-mode-map (kbd "C-h") #'evil-window-left)
+;; (define-key eaf-mode-map (kbd "C-j") #'evil-window-down)
+;; (define-key eaf-mode-map (kbd "C-k") #'evil-window-up)
+;; (define-key eaf-mode-map (kbd "C-l") #'evil-window-right)
+
 ;; (evil-define
 ;; (eaf-browser-continue-where-left-off t)
 ;; (eaf-browser-enable-adblocker t)
