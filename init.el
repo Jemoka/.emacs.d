@@ -156,9 +156,12 @@
 ;; Powerline! POWER!
 (use-package powerline
   :config
-  (powerline-default-theme))
+  (powerline-default-theme)
+  (display-time-mode))
 
-
+(use-package fancy-battery
+  :config
+  (fancy-battery-mode))
 
 ;; Line numbers, relativity
 (add-hook 'prog-mode-hook (lambda ()
