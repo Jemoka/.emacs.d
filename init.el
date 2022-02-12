@@ -76,13 +76,25 @@
     ;; make evil-search-word look for symbol rather than word boundaries
     (setq-default evil-symbol-word-search t)))
 
+;; diminish
+(use-package diminish
+  :config
+  (add-hook 'auto-revert-mode-hook (lambda () (diminish 'auto-revert-mode)))
+  (add-hook 'eldoc-mode-hook (lambda () (diminish 'eldoc-mode)))
+  (add-hook 'eldoc-mode-hook (lambda () (diminish 'eldoc-mode)))
+  (add-hook 'org-indent-mode-hook (lambda () (diminish 'org-indent-mode)))
+  (add-hook 'flyspell-mode-hook (lambda () (diminish 'flyspell-mode)))
+  (add-hook 'visual-line-mode-hook (lambda () (diminish 'visual-line-mode))))
+
 ;; More Evil
 (use-package evil-collection
+  :diminish evil-collection-unimpaired-mode
   :config
   (evil-collection-init))
 
 ;; Undo
 (use-package undo-tree
+  :diminish undo-tree-mode
   :after evil
   :config
   (global-undo-tree-mode)
@@ -146,6 +158,8 @@
   :config
   (powerline-default-theme))
 
+
+
 ;; Line numbers, relativity
 (add-hook 'prog-mode-hook (lambda ()
 			    (display-line-numbers-mode)
@@ -178,6 +192,7 @@
 ;; ----autocomplete
 ;; Turns out the best way to do LSP is to not use it
 (use-package company
+  :diminish company-mode
   :init
   (setq company-minimum-prefix-length 1)
   (setq company-idle-delay 0)
@@ -189,7 +204,6 @@
   (define-key company-active-map (kbd "RET") nil)
   (global-company-mode)
   
-
   :hook
   (after-init . company-tng-mode))
 
@@ -206,13 +220,15 @@
   (lsp-completion--enable)
 
   (add-hook 'lsp-completion-mode-hook (lambda ()
+					(eldoc-mode -1)
 					(setq company-backends '((company-files company-anaconda company-capf :separate company-yasnippet company-keywords) (company-dabbrev-code company-semantic)))))
   :hook
   (lsp-mode . lsp-completion-mode)
   (c++-mode . lsp)
   (typescript-mode . lsp)
   (javascript-mode . lsp)
-  (rjsx-mode . lsp))
+  (rjsx-mode . lsp)
+  (css-mode . lsp))
 
 (use-package lsp-tailwindcss
   :straight (:type git :host github :repo "merrickluo/lsp-tailwindcss")
@@ -260,6 +276,7 @@
 
 ;; Flycheck
 (use-package flycheck
+  :diminish flycheck-mode
   :init
   (global-flycheck-mode)
   :config
@@ -357,6 +374,7 @@
 
 ;; Ivy
 (use-package ivy
+  :diminish ivy-mode
   :init
   (setq ivy-use-virtual-buffers t)
   (setq enable-recursive-minibuffers t)
@@ -364,6 +382,9 @@
   (ivy-mode)
   (put 'dired-do-copy   'ivy nil)
   (put 'dired-do-rename 'ivy nil))
+
+;; Ranger dired?
+(use-package ranger)
 
 (use-package counsel
   :config
@@ -383,8 +404,23 @@
 
 ;; Help!
 (use-package which-key
+  :diminish which-key-mode
   :config
   (which-key-mode))
+
+;; Everywhere!
+(use-package emacs-everywhere)
+
+;; Stack Exchange
+(use-package sx
+  :config
+  (evil-leader/set-key 
+    "ss" 'sx-search
+    "sa" 'sx-ask
+    "so" 'sx-open-link
+    "si" 'sx-inbox
+    "sq" 'sx-tab-all-questions)
+  (define-key sx-question-list-mode-map (kbd "<RET>") 'sx-display))
 
 ;; Spelling
 (setenv "DICTIONARY" "en_US")
@@ -400,6 +436,7 @@
 ;; ----perspectives and projects
 ;; Projectile project management
 (use-package projectile
+  :diminish projectile-mode
   :init
   (setq projectile-mode-line "Projectile")
   :config
@@ -586,6 +623,7 @@
 
 ;; Olivetti
 (use-package olivetti
+  :diminish olivetti-mode
   :init
   (setq olivetti-body-width 100)
   :hook
@@ -752,7 +790,6 @@
 
   (setq org-latex-create-formula-image-program 'dvisvgm)
   (add-hook 'org-mode-hook (lambda ()
-                             (setq mode-line-format nil)
                              (olivetti-mode)))
   (setq org-latex-packages-alist '(("margin=1in" "geometry")))
   (setq org-latex-compiler "xelatex")
