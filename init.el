@@ -2,7 +2,7 @@
 ;; Probably not. But it's worth a try.
 
 
-;; ----Load PATH
+;;; ----Load PATH
 (defun set-exec-path-from-shell-PATH ()
   "Set up Emacs' `exec-path' and PATH environment variable to match
    that used by the user's shell.
@@ -22,24 +22,24 @@
 
 
 
-;; ----Shunning custom
+;;; ----Shunning custom
 (setq custom-file (concat user-emacs-directory "custom.el"))
 (when (file-exists-p custom-file)
   (load custom-file))
 
 
 
-;; ----Litter in one place
+;;; ----Litter in one place
 (setq backup-directory-alist `(("." . "~/.saves")))
 (setq create-lockfiles nil)
 
 
-;; ----eaf
+;;; ----eaf
 (add-to-list 'load-path "~/.emacs.d/site-lisp/emacs-application-framework/")
 
 
 
-;; ----Straight
+;;; ----Straight
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
@@ -55,7 +55,7 @@
 
 
 
-;; ----use-package
+;;; ----use-package
 (straight-use-package 'use-package)
 (eval-when-compile
   (require 'use-package))
@@ -63,8 +63,8 @@
 
 
 
-;; ----evil
-;; OG Evil
+;;; ----evil
+;;;; OG Evil
 (use-package evil
   :init
   (setq evil-want-keybinding nil)
@@ -76,7 +76,7 @@
     ;; make evil-search-word look for symbol rather than word boundaries
     (setq-default evil-symbol-word-search t)))
 
-;; diminish
+;;;; diminish
 (use-package diminish
   :config
   (add-hook 'auto-revert-mode-hook (lambda () (diminish 'auto-revert-mode)))
@@ -86,13 +86,13 @@
   (add-hook 'flyspell-mode-hook (lambda () (diminish 'flyspell-mode)))
   (add-hook 'visual-line-mode-hook (lambda () (diminish 'visual-line-mode))))
 
-;; More Evil
+;;;; More Evil
 (use-package evil-collection
   :diminish evil-collection-unimpaired-mode
   :config
   (evil-collection-init))
 
-;; Undo
+;;;; Undo
 (use-package undo-tree
   :diminish undo-tree-mode
   :after evil
@@ -246,6 +246,7 @@
 ;; <Begin a chain of package installs>
 ;; Ya! SnipPpets
 (use-package yasnippet
+  :diminish yas-minor-mode
   :after company
   :config
   (add-hook 'post-command-hook
@@ -258,7 +259,7 @@
 (use-package company-auctex
   :after yasnippet)
 
-;; Python anaconda
+;; Python anacond
 (use-package anaconda-mode
   :after company-auctex
   :hook
@@ -375,6 +376,10 @@
 				(evil-define-key 'normal eshell-mode-map (kbd "C-j") #'evil-window-down)
 				(company-mode -1))))
 
+;;; Outshine Mode
+(use-package outshine
+  :diminish outshine-mode)
+
 ;; Ivy
 (use-package ivy
   :diminish ivy-mode
@@ -400,6 +405,7 @@
 
 ;; Autosave
 (use-package real-auto-save
+  :diminish real-auto-save-mode
   :init
   (setq real-auto-save-interval 0.5)
   :hook
@@ -532,7 +538,7 @@
     "hr" 'cider-eval-last-sexp-to-repl
     "hn" 'cider-eval-defun-at-point
     "hb" 'cider-eval-buffer
-    "hd" 'cider-doc
+    "hd" 'cider-clojuredocs
     "hk" 'cider-undef
     "hsn" 'cider-eval-defun-to-comment
     "hst" 'cider-jack-in-clj
@@ -545,11 +551,20 @@
     "ue" 'cider-eval-last-sexp
     "hn" 'cider-eval-defun-at-point
     "hb" 'cider-eval-buffer
-    "hd" 'cider-doc
+    "hd" 'cider-clojuredocs
     "hk" 'cider-undef
     "hsn" 'cider-eval-defun-to-comment
     "hst" 'cider-jack-in-cljs
     "hsp" 'cider-quit)
+
+  ;; redefine this so cider doesn't freak out when looking up
+  ;; a built in native symbol
+  (defun cider-clojuredocs-lookup (sym)
+    "Look up the ClojureDocs documentation for SYM."
+    (let ((docs (cider-sync-request:clojuredocs-lookup (cider-current-ns) sym)))
+      (pop-to-buffer (cider-create-clojuredocs-buffer (cider-clojuredocs--content docs)))
+      ;; highlight the symbol in question in the docs buffer
+      (highlight-regexp sym 'bold)))
   (evil-define-key 'insert cider-repl-mode-map (kbd "<up>") #'cider-repl-backward-input)
   (evil-define-key 'insert cider-repl-mode-map (kbd "<down>") #'cider-repl-forward-input))
 
@@ -654,6 +669,7 @@
   (flycheck-mode . flycheck-rust-setup))
 
 (use-package racer
+  :diminish racer-mode
   :hook
   (rust-mode . racer-mode))
 
