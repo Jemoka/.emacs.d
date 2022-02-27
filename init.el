@@ -380,6 +380,7 @@
 (use-package ledger-mode
   :init
   (setq ledger-schedule-file "~/Documents/Personal/Finances/subscriptions.ledger")
+  :config
   (setq ledger-reports
 	'(("bal" "%(binary) -f %(ledger-file) bal not Equity")
 	  ("reg" "%(binary) -f %(ledger-file) reg not Equity")
