@@ -376,6 +376,17 @@
 				(evil-define-key 'normal eshell-mode-map (kbd "C-j") #'evil-window-down)
 				(company-mode -1))))
 
+;; Monies
+(use-package ledger-mode
+  :init
+  (setq ledger-schedule-file "~/Documents/Personal/Finances/subscriptions.ledger")
+  (setq ledger-reports
+	'(("bal" "%(binary) -f %(ledger-file) bal not Equity")
+	  ("reg" "%(binary) -f %(ledger-file) reg not Equity")
+	  ("payee" "%(binary) -f %(ledger-file) reg @%(payee)")
+	  ("account" "%(binary) -f %(ledger-file) reg %(account)")
+	  ("monthly account" "%(binary) -f %(ledger-file) reg %(account) -p \"this month\""))))
+
 ;;; Outshine Mode
 (use-package outshine
   :diminish outshine-mode)
@@ -573,7 +584,6 @@
   :init
   (setq TeX-auto-save t)
   (setq TeX-parse-self t)
-  (setq-default TeX-master nil)
   (setq-default TeX-engine 'xetex)
   (setq TeX-view-program-selection '((output-pdf "PDF Tools"))
         TeX-source-correlate-start-server t)
