@@ -276,6 +276,13 @@
   
 	    (yas-global-mode 1)
 	    (company-auctex-init))
+
+(add-hook 'org-mode-hook (lambda ()
+			   (setq completion-ignore-case t)
+			   (setq company-backends '((company-files company-anaconda company-capf :separate company-yasnippet company-keywords) (company-dabbrev-code company-semantic)))
+			   (add-hook 'company-completion-finished-hook '(lambda (canidate) (org-roam-link-replace-all)))))
+
+
 ;; </Begin a chain of package installs>
 
 ;; Flycheck
@@ -338,8 +345,8 @@
   (define-key magit-mode-map (kbd "C-l") #'evil-window-right))
 
 ;; Github!
-(use-package forge
-  :after magit)
+;; (use-package forge
+;;   :after magit)
 
 ;; Term!
 ;; The V one
@@ -382,11 +389,12 @@
   (setq ledger-schedule-file "~/Documents/Personal/Finances/subscriptions.ledger")
   :config
   (setq ledger-reports
-	'(("bal" "%(binary) -f %(ledger-file) bal not Equity")
-	  ("reg" "%(binary) -f %(ledger-file) reg not Equity")
-	  ("payee" "%(binary) -f %(ledger-file) reg @%(payee)")
-	  ("account" "%(binary) -f %(ledger-file) reg %(account)")
-	  ("monthly account" "%(binary) -f %(ledger-file) reg %(account) -p \"this month\""))))
+	'(("monthly personal running" "%(binary) -f %(ledger-file) reg ^Assets:Personal:Banking -p \"this month\"")
+          ("yearly personal running" "%(binary) -f %(ledger-file) reg ^Assets:Personal:Banking -p \"this year\"")
+	  ("monthly shabang running" "%(binary) -f %(ledger-file) reg ^Assets:Shabang:Banking -p \"this month\"")
+	  ("yearly shabang running" "%(binary) -f %(ledger-file) reg ^Assets:Shabang:Banking -p \"this year\"")
+	  ("monthly account" "%(binary) -f %(ledger-file) reg %(account) -p \"this month\"")
+	  ("yearly account" "%(binary) -f %(ledger-file) reg %(account) -p \"this year\""))))
 
 ;;; Outshine Mode
 (use-package outshine
@@ -720,6 +728,7 @@
   (org-roam-directory (file-truename "~/Documents/taproot/"))
   :init
   (setq org-roam-v2-ack t)
+  (setq org-roam-completion-everywhere t)
   (setq org-roam-capture-templates
 	`(("d" "default"
 	   plain "%?"
@@ -734,8 +743,10 @@
     "auh" 'org-roam-node-insert
     "aun" 'org-id-get-create
     "auaa" 'org-roam-alias-add
-    "auad" 'org-roam-alias-remove)
-  (org-roam-db-autosync-mode))
+    "auad" 'org-roam-alias-remove
+    "auta" 'org-roam-tag-add
+    "autr" 'org-roam-tag-remove)
+  (org-roam-db-autosync-mode 1))
 
 (use-package org-roam-ui
   :straight
@@ -1111,6 +1122,10 @@ are null."
   ;; browser
   "ob" 'eaf-open-browser
   "oh" 'eaf-open-browser-with-history
+
+  ;; open
+  "okb" (lambda () (interactive) (find-file "~/Documents/knowledgebase/KBhrandom.org"))
+  "otr" (lambda () (interactive) (find-file "~/Documents/taproot/index.org"))
 
   ;; Universal argument
   "uu" 'universal-argument)
