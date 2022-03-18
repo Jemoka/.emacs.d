@@ -279,8 +279,9 @@
 
 (add-hook 'org-mode-hook (lambda ()
 			   (setq completion-ignore-case t)
-			   (setq company-backends '((company-files company-anaconda company-capf :separate company-yasnippet company-keywords) (company-dabbrev-code company-semantic)))
-			   (add-hook 'company-completion-finished-hook '(lambda (canidate) (org-roam-link-replace-all)))))
+			   (setq company-backends '((company-files company-anaconda company-capf :separate company-yasnippet company-keywords) (company-dabbrev-code company-semantic)))))
+(add-hook 'company-after-completion-hook (lambda (canidate)
+					      (org-roam-link-replace-all)))
 
 
 ;; </Begin a chain of package installs>
