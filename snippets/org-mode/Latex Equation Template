@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: Latex Equation Template	
+# key: lteqn
+# --
+\begin{equation}
+    $1
+\end{equation}
+

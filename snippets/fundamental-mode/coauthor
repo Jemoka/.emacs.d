@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: coauthor
+# key: coauthor
+# --
+
+co-authored-by: $1 <$2>
+

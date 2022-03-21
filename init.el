@@ -670,7 +670,8 @@
   (setq cmake-ide-make-command "make run -j4 --no-print-directory")
   (evil-leader/set-key-for-mode 'c++-mode
     "hc" 'cmake-ide-run-cmake
-    "hn" 'cmake-ide-compile))
+    "hn" 'cmake-ide-compile
+    "ht" 'cmake-ide-compile))
 
 (require 'cmake-mode)
 

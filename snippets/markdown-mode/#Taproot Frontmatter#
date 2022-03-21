@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Taproot Frontmatter
+# key: ^fmt
+# --
+
+---
+title: $1
+author: $2
+course: $3
+source: `(yank-pop)`
+---
+
+$5
+

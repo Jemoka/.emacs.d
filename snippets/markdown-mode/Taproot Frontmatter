@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Taproot Frontmatter
+# key: ~fmt
+# --
+
+---
+title: $1
+author: $2
+course: $3
+source: `(current-kill 0)`
+---
+
+$5
+
