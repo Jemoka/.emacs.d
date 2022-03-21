@@ -36,6 +36,7 @@
 
 ;;; ----eaf
 (add-to-list 'load-path "~/.emacs.d/site-lisp/emacs-application-framework/")
+(add-to-list 'load-path "~/.emacs.d/site-lisp/")
 
 
 
@@ -279,6 +280,7 @@
 
 (add-hook 'org-mode-hook (lambda ()
 			   (setq completion-ignore-case t)
+			   (setq company-minimum-prefix-length 3)
 			   (setq company-backends '((company-files company-anaconda company-capf :separate company-yasnippet company-keywords) (company-dabbrev-code company-semantic)))))
 (add-hook 'company-after-completion-hook (lambda (canidate)
 					      (org-roam-link-replace-all)))
@@ -337,6 +339,9 @@
 
 
 ;; ----developer tools
+;; flooo
+(use-package floobits)
+
 ;; Git!
 (use-package magit
   :config
@@ -656,6 +661,19 @@
   "hb" 'python-shell-send-buffer
   "hst" 'run-python)
 
+;; CMake
+(use-package cmake-ide
+  :config
+  (cmake-ide-setup)
+  (setq cmake-ide-build-pool-dir "~/.emacs.d/cmake-builds")
+  (setq cmake-ide-build-pool-use-persistent-naming t)
+  (setq cmake-ide-make-command "make run -j4 --no-print-directory")
+  (evil-leader/set-key-for-mode 'c++-mode
+    "hc" 'cmake-ide-run-cmake
+    "hn" 'cmake-ide-compile))
+
+(require 'cmake-mode)
+
 ;; ipynb
 (use-package ein)
 
@@ -735,6 +753,12 @@
 	   plain "%?"
 	   :target (file+head "%(identity default-directory)/KBh${slug}.org" "#+title: ${title}\n#+author: Houjun Liu\n\n")
 	   :unnarrowed t)))
+  (defun org-roam-node-insert-immediate (arg &rest args)
+    (interactive "P")
+    (let ((args (cons arg args))
+	  (org-roam-capture-templates (list (append (car org-roam-capture-templates)
+						    '(:immediate-finish t)))))
+      (apply #'org-roam-node-insert args)))
   :config
   (evil-leader/set-key 
     "aur" 'org-roam-buffer-toggle
@@ -746,13 +770,18 @@
     "auaa" 'org-roam-alias-add
     "auad" 'org-roam-alias-remove
     "auta" 'org-roam-tag-add
-    "autr" 'org-roam-tag-remove)
+    "autr" 'org-roam-tag-remove
+    "auss" 'org-roam-dailies-capture-today
+    "auso" 'org-roam-dailies-goto-today)
+  (evil-define-key 'insert org-mode-map (kbd "C-SPC") 'org-roam-node-insert-immediate)
+  (evil-define-key 'insert org-mode-map (kbd "C-S-SPC") 'org-roam-node-insert)
   (org-roam-db-autosync-mode 1))
 
 (use-package org-roam-ui
   :straight
     (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
     :after org-roam
+    :hook (after-init . org-roam-ui-mode)
     :config
     (setq org-roam-ui-sync-theme t
           org-roam-ui-follow t
