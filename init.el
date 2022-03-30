@@ -219,20 +219,39 @@
   :config
   (require 'lsp-clangd)
   (require 'lsp-javascript)
-
   (require 'lsp-completion)
   (lsp-completion--enable)
 
   (add-hook 'lsp-completion-mode-hook (lambda ()
 					(eldoc-mode -1)
-					(setq company-backends '((company-files company-anaconda company-capf :separate company-yasnippet company-keywords) (company-dabbrev-code company-semantic)))))
+					(setq company-backends '((company-files  company-capf :separate company-yasnippet company-keywords) (company-dabbrev-code company-semantic)))))
   :hook
   (lsp-mode . lsp-completion-mode)
   (c++-mode . lsp)
   (typescript-mode . lsp)
   (javascript-mode . lsp)
   (rjsx-mode . lsp)
-  (css-mode . lsp))
+  (css-mode . lsp)
+  (java-mode . lsp))
+
+(use-package lsp-pyright
+  :init
+  (setq lsp-pyright-python-executable-cmd "python3")
+  (setq python-shell-interpreter "python3")
+  (require 'lsp-pyright)
+  :hook
+  (python-mode . lsp))
+
+(use-package quickrun
+  :config
+  (evil-leader/set-key-for-mode 'java-mode
+    "hc" 'quickrun-compile-only
+    "hn" 'quickrun
+    "ht" 'quickrun))
+
+(use-package all-the-icons)
+
+(use-package lsp-java)
 
 (use-package lsp-tailwindcss
   :straight (:type git :host github :repo "merrickluo/lsp-tailwindcss")
@@ -260,28 +279,15 @@
 (use-package company-auctex
   :after yasnippet)
 
-;; Python anacond
-(use-package anaconda-mode
-  :after company-auctex
-  :hook
-  (python-mode . anaconda-mode)
-  (python-mode . anaconda-eldoc-mode))
 
-;; Anaconda mode completions
-(use-package company-anaconda
-  :after anaconda-mode)
-
-;; After the chain of stuff intalling, set company backend
-(with-eval-after-load "company-anaconda"
-  (setq company-backends '((company-files company-anaconda company-capf :separate company-yasnippet company-keywords) (company-dabbrev-code company-semantic)))
-  
-	    (yas-global-mode 1)
-	    (company-auctex-init))
+(setq company-backends '((company-files company-capf :separate company-yasnippet company-keywords) (company-dabbrev-code company-semantic)))
+(yas-global-mode 1)
+(company-auctex-init)
 
 (add-hook 'org-mode-hook (lambda ()
 			   (setq completion-ignore-case t)
-			   (setq company-minimum-prefix-length 3)
-			   (setq company-backends '((company-files company-anaconda company-capf :separate company-yasnippet company-keywords) (company-dabbrev-code company-semantic)))))
+			   (setq company-minimum-prefix-length 1)
+			   (setq company-backends '((company-files  company-capf :separate company-yasnippet company-keywords) (company-dabbrev-code company-semantic)))))
 (add-hook 'company-after-completion-hook (lambda (canidate)
 					      (org-roam-link-replace-all)))
 
@@ -745,10 +751,11 @@
 
 (use-package org-roam
   :custom
-  (org-roam-directory (file-truename "~/Documents/taproot/"))
+  (org-roam-directory (file-truename "~/Documents/knowledgebase/"))
   :init
   (setq org-roam-v2-ack t)
   (setq org-roam-completion-everywhere t)
+  (setq org-roam-extract-new-file-path "KBh${slug}.org")
   (setq org-roam-capture-templates
 	`(("d" "default"
 	   plain "%?"
@@ -764,8 +771,12 @@
   (evil-leader/set-key 
     "aur" 'org-roam-buffer-toggle
     "auu" 'org-roam-node-find
+    "auss" 'org-roam-dailies-capture-today
+    "auso" 'org-roam-dailies-goto-today
     "aug" 'org-roam-graph)
   (evil-leader/set-key-for-mode 'org-mode
+    "aumm" 'org-roam-refile
+    "aumn" 'org-roam-extract-subtree
     "auh" 'org-roam-node-insert
     "aun" 'org-id-get-create
     "auaa" 'org-roam-alias-add
@@ -778,7 +789,13 @@
   (evil-define-key 'insert org-mode-map (kbd "C-S-SPC") 'org-roam-node-insert)
   (org-roam-db-autosync-mode 1))
 
+(use-package ox-hugo
+  :ensure t   ;Auto-install the package from Melpa
+  :after ox)
+
 (use-package org-roam-ui
+  :diminish org-roam-ui-mode
+  :diminish org-roam-ui-follow-mode
   :straight
     (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
     :after org-roam
@@ -1164,6 +1181,7 @@ are null."
 ;; ----misc
 ;; offsets and tabs
 (setq indent-tabs-mode nil)
+(setq-default indent-tabs-mode nil)
 (setq tab-width 4)
 (setq c-basic-offset 4)
 (setq python-indent-offset 4)
