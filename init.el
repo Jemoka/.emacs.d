@@ -141,7 +141,7 @@
   :config
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t)
-  (load-theme 'doom-xcode t)
+  (load-theme 'doom-dracula t)
 
   (doom-themes-visual-bell-config)
   (doom-themes-neotree-config)
@@ -241,6 +241,39 @@
   (require 'lsp-pyright)
   :hook
   (python-mode . lsp))
+
+(use-package pythonic)
+
+(lsp-register-client
+     (make-lsp-client
+       :new-connection (lsp-tramp-connection (lambda ()
+				       (cons "pyright-langserver"
+					     lsp-pyright-langserver-command-args)))
+       :major-modes '(python-mode)
+       :remote? t
+       :server-id 'pyright-remote
+       :multi-root nil
+       :priority 3
+:initialization-options (lambda () (ht-merge (lsp-configuration-section "pyright")
+                                                    (lsp-configuration-section "python")))
+       :initialized-fn (lambda (workspace)
+                         (with-lsp-workspace workspace
+                           (lsp--set-configuration
+                           (ht-merge (lsp-configuration-section "pyright")
+                                     (lsp-configuration-section "python")))))
+       :download-server-fn (lambda (_client callback error-callback _update?)
+			     (lsp-package-ensure 'pyright callback error-callback))
+       :notification-handlers (lsp-ht ("pyright/beginProgress" 'lsp-pyright--begin-progress-callback)
+				     ("pyright/reportProgress" 'lsp-pyright--report-progress-callback)
+				     ("pyright/endProgress" 'lsp-pyright--end-progress-callback))))
+
+
+(evil-define-key 'normal inferior-python-mode-map (kbd "C-j") #'evil-window-down)
+(evil-define-key 'normal inferior-python-mode-map (kbd "C-k") #'evil-window-up)
+
+(evil-define-key 'insert inferior-python-mode-map (kbd "C-j") #'evil-window-down)
+(evil-define-key 'insert inferior-python-mode-map (kbd "C-k") #'evil-window-up)
+
 
 (use-package quickrun
   :config
@@ -935,7 +968,9 @@
   "acrt" 'org-ctrl-c-minus
   "as" 'org-insert-link
   "aa" 'org-open-at-point
-  "ay" 'org-store-link
+  "ay" '(lambda () (interactive)
+          (call-interactively 'org-store-link)
+          (org-set-property "ROAM_EXCLUDE" "t"))
   "ae" 'org-export-dispatch
   "ao" 'org-insert-structure-template
   "apl" 'org-latex-preview
@@ -1170,6 +1205,9 @@ are null."
   ;; browser
   "ob" 'eaf-open-browser
   "oh" 'eaf-open-browser-with-history
+
+  ;; global link store
+  "osl" 'org-store-link
 
   ;; open
   "okb" (lambda () (interactive) (find-file "~/Documents/knowledgebase/KBhrandom.org"))
