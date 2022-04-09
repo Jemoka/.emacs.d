@@ -822,9 +822,23 @@
   (evil-define-key 'insert org-mode-map (kbd "C-S-SPC") 'org-roam-node-insert)
   (org-roam-db-autosync-mode 1))
 
+(defun org-rebuild-cache ()
+  "Rebuild the `org-mode' and `org-roam' cache."
+  (interactive)
+  (org-id-update-id-locations)
+  ;; Note: you may need `org-roam-db-clear-all'
+  ;; followed by `org-roam-db-sync'
+  (org-roam-db-sync)
+  (org-roam-update-org-id-locations))
+
+(use-package org-pdftools
+  :hook (org-mode . org-pdftools-setup-link))
+
 (use-package ox-hugo
   :ensure t   ;Auto-install the package from Melpa
-  :after ox)
+  :after ox
+  :hook
+  (org-mode . org-hugo-auto-export-mode))
 
 (use-package org-roam-ui
   :diminish org-roam-ui-mode
