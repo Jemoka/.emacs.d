@@ -378,6 +378,9 @@
 
 
 ;; ----developer tools
+;; edit
+(use-package sudo-edit)
+
 ;; flooo
 (use-package floobits)
 
@@ -933,6 +936,12 @@
   (evil-define-key 'normal org-mode-map (kbd "TAB") #'org-cycle)
   (setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id))
 
+(add-hook 'org-export-before-parsing-hook
+          (lambda (bach-end) 
+            (goto-char 0)
+            (insert "#+SETUPFILE: ~/.emacs.d/templates/default.org\n")))
+
+(setq org-export-with-drawers nil)
 
 (use-package org-noter
   :init
