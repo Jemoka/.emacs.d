@@ -1,0 +1,10 @@
+;;;; Emacs Bookmark Format Version 1;;;; -*- coding: no-conversion; mode: lisp-data -*-
+;;; This format is meant to be slightly human-readable;
+;;; nevertheless, you probably don't want to edit it.
+;;; -*- End Of Bookmark File Format Version Stamp -*-
+(("org-capture-last-stored"
+ (filename . "~/Documents/knowledgebase/KBhpcp_april_checkin.org")
+ (front-context-string)
+ (rear-context-string . "hor: Houjun Liu\n")
+ (position . 116))
+)
