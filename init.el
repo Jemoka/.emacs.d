@@ -1,4 +1,4 @@
-;a So. so. so. Let's try this again. Will jack succeed this time?
+;upaa So. so. so. Let's try this again. Will jack succeed this time?
 ;; Probably not. But it's worth a try.
 
 
@@ -245,27 +245,24 @@
 (use-package pythonic)
 
 (lsp-register-client
-     (make-lsp-client
-       :new-connection (lsp-tramp-connection (lambda ()
-				       (cons "pyright-langserver"
-					     lsp-pyright-langserver-command-args)))
-       :major-modes '(python-mode)
-       :remote? t
-       :server-id 'pyright-remote
-       :multi-root nil
-       :priority 3
-:initialization-options (lambda () (ht-merge (lsp-configuration-section "pyright")
-                                                    (lsp-configuration-section "python")))
-       :initialized-fn (lambda (workspace)
-                         (with-lsp-workspace workspace
-                           (lsp--set-configuration
-                           (ht-merge (lsp-configuration-section "pyright")
-                                     (lsp-configuration-section "python")))))
-       :download-server-fn (lambda (_client callback error-callback _update?)
-			     (lsp-package-ensure 'pyright callback error-callback))
-       :notification-handlers (lsp-ht ("pyright/beginProgress" 'lsp-pyright--begin-progress-callback)
-				     ("pyright/reportProgress" 'lsp-pyright--report-progress-callback)
-				     ("pyright/endProgress" 'lsp-pyright--end-progress-callback))))
+ (make-lsp-client
+  :new-connection (lsp-tramp-connection (lambda ()
+                                          (cons "pyright-langserver"
+                                                lsp-pyright-langserver-command-args)))
+  :major-modes '(python-mode)
+  :remote? t
+  :server-id 'pyright-remote
+  :multi-root lsp-pyright-multi-root
+  :priority 3
+  :initialized-fn (lambda (workspace)
+                    (with-lsp-workspace workspace
+                      (lsp--set-configuration
+                       (make-hash-table :test 'equal))))
+  :download-server-fn (lambda (_client callback error-callback _update?)
+                        (lsp-package-ensure 'pyright callback error-callback))
+  :notification-handlers (lsp-ht ("pyright/beginProgress" 'lsp-pyright--begin-progress-callback)
+                                 ("pyright/reportProgress" 'lsp-pyright--report-progress-callback)
+                                 ("pyright/endProgress" 'lsp-pyright--end-progress-callback))))
 
 
 (evil-define-key 'normal inferior-python-mode-map (kbd "C-j") #'evil-window-down)
@@ -324,7 +321,6 @@
 (add-hook 'company-after-completion-hook (lambda (canidate)
 					      (org-roam-link-replace-all)))
 
-
 ;; </Begin a chain of package installs>
 
 ;; Flycheck
@@ -380,6 +376,11 @@
 ;; ----developer tools
 ;; edit
 (use-package sudo-edit)
+
+;; Telga
+(use-package telega
+  :config
+  (setq telega-server-libs-prefix "/opt/homebrew"))
 
 ;; flooo
 (use-package floobits)
@@ -443,6 +444,10 @@
 	  ("yearly shabang running" "%(binary) -f %(ledger-file) reg ^Assets:Shabang:Banking -p \"this year\"")
 	  ("monthly account" "%(binary) -f %(ledger-file) reg %(account) -p \"this month\"")
 	  ("yearly account" "%(binary) -f %(ledger-file) reg %(account) -p \"this year\""))))
+
+;; cmus
+(load-file "~/.emacs.d/site-lisp/cmus.el")
+(setq cmus-command (executable-find "cmus-remote"))
 
 ;;; Outshine Mode
 (use-package outshine
@@ -809,6 +814,7 @@
     "auu" 'org-roam-node-find
     "auss" 'org-roam-dailies-capture-today
     "auso" 'org-roam-dailies-goto-today
+    "ausc" 'kb-commit
     "aug" 'org-roam-graph)
   (evil-leader/set-key-for-mode 'org-mode
     "aumm" 'org-roam-refile
@@ -840,8 +846,15 @@
 (use-package ox-hugo
   :ensure t   ;Auto-install the package from Melpa
   :after ox
+  :config
+  (add-hook 'org-mode-hook 'org-hugo-auto-export-mode)
   :hook
   (org-mode . org-hugo-auto-export-mode))
+
+
+(defun kb-commit ()
+  (interactive)
+  (shell-command "pushd ~/Documents/knowledgebase/site && git add --all && git commit -m \"kb autocommit\" && git push && popd"))
 
 (use-package org-roam-ui
   :diminish org-roam-ui-mode
@@ -940,6 +953,7 @@
           (lambda (bach-end) 
             (goto-char 0)
             (insert "#+SETUPFILE: ~/.emacs.d/templates/default.org\n")))
+
 
 (setq org-export-with-drawers nil)
 
@@ -1183,6 +1197,8 @@ are null."
 ;; (eaf-browser-continue-where-left-off t)
 ;; (eaf-browser-enable-adblocker t)
 ;; (browse-url-browser-function 'eaf-open-browser)
+
+
  
 ;; ----random keybindings
 (evil-leader/set-key
@@ -1233,7 +1249,7 @@ are null."
   "osl" 'org-store-link
 
   ;; open
-  "okb" (lambda () (interactive) (find-file "~/Documents/knowledgebase/KBhrandom.org"))
+  "okb" (lambda () (interactive) (find-file "~/Documents/knowledgebase/KBhindex.org"))
   "otr" (lambda () (interactive) (find-file "~/Documents/taproot/index.org"))
 
   ;; Universal argument
