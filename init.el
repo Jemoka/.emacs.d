@@ -141,7 +141,7 @@
   :config
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t)
-  (load-theme 'doom-dracula t)
+  (load-theme 'doom-tomorrow-night t)
 
   (doom-themes-visual-bell-config)
   (doom-themes-neotree-config)
@@ -228,6 +228,7 @@
   :hook
   (lsp-mode . lsp-completion-mode)
   (c++-mode . lsp)
+  (c-mode . lsp)
   (typescript-mode . lsp)
   (javascript-mode . lsp)
   (rjsx-mode . lsp)
@@ -243,6 +244,12 @@
   (python-mode . lsp))
 
 (use-package pythonic)
+(use-package pyvenv
+  :diminish pyvenv-mode
+  :init
+  (setenv "WORKON_HOME" "/opt/homebrew/Caskroom/miniforge/base/envs")
+  :config
+  (pyvenv-mode 1))
 
 (lsp-register-client
  (make-lsp-client
@@ -373,12 +380,98 @@
 
 
 
+
 ;; ----developer tools
 ;; edit
 (use-package sudo-edit)
 
+;; mpv
+(use-package mpv)
+
+;; Elfeed
+(use-package elfeed)
+
+;; Elfeed tube
+(use-package elfeed-tube
+  :straight (:host github :repo "karthink/elfeed-tube")
+  :after elfeed
+  :demand t
+  :config
+  ;; (setq elfeed-tube-auto-save-p nil) ;; t is auto-save (not default)
+  ;; (setq elfeed-tube-auto-fetch-p t) ;;  t is auto-fetch (default)
+  (elfeed-tube-setup)
+
+  :config
+  (setq elfeed-tube-captions-languages
+      '("en" "zh-cn" "zh" "cn" "english (auto generated)"))
+
+  :bind (:map elfeed-show-mode-map
+         ("F" . elfeed-tube-fetch)
+         ([remap save-buffer] . elfeed-tube-save)
+         :map elfeed-search-mode-map
+         ("F" . elfeed-tube-fetch)
+         ([remap save-buffer] . elfeed-tube-save)))
+
+
+;;mpv
+(use-package elfeed-tube-mpv
+  :straight (:host github :repo "karthink/elfeed-tube")
+  :bind (:map elfeed-show-mode-map
+              ("C-c C-f" . elfeed-tube-mpv-follow-mode)
+              ("C-c C-w" . elfeed-tube-mpv-where))
+  :config
+  (evil-leader/set-key-for-mode 'elfeed-show-mode
+    "oe" 'elfeed-tube-mpv-follow-mode))
+
+(use-package emms
+  :diminish emms
+  :config
+  (require 'emms-setup)
+  (emms-all)
+  (emms-default-players))
+
+(defun track-title-from-file-name (file)
+  "For using with EMMS description functions. Extracts the track
+title from the file name FILE, which just means a) taking only
+the file component at the end of the path, and b) removing any
+file extension."
+  (with-temp-buffer
+    (save-excursion (insert (file-name-nondirectory (directory-file-name file))))
+    (ignore-error 'search-failed
+      (search-forward-regexp (rx "." (+ alnum) eol))
+      (delete-region (match-beginning 0) (match-end 0)))
+    (buffer-string)))
+
+(defun my-emms-track-description (track)
+  "Return a description of TRACK, for EMMS, but try to cut just
+the track name from the file name, and just use the file name too
+rather than the whole path."
+  (let ((artist (emms-track-get track 'info-artist))
+        (title (emms-track-get track 'info-title)))
+    (cond ((and artist title)
+           ;; Converting the artist/title to a string works around a bug in `emms-info-exiftool'
+           ;; where, if your track name is a number, e.g. "1999" by Jeroen Tel, then it will be an
+           ;; integer type here, confusing everything.
+           ;;
+           ;; I would fix the bug properly and submit a patch but I just cannot be bothered to
+           ;; figure out how to do that.
+           (concat (format "%s" artist) " - " (format "%s" title)))
+          (title title)
+          ((eq (emms-track-type track) 'file)
+           (track-title-from-file-name (emms-track-name track)))
+          (t (emms-track-simple-description track)))))
+
+(setq emms-track-description-function 'my-emms-track-description)
+
+(evil-leader/set-key-for-mode 'elfeed-show-mode
+  "oe" 'elfeed-tube-mpv-follow-mode)
+
+(setq shr-use-fonts nil)
+
 ;; Telga
 (use-package telega
+  :init
+  (setq telega-use-images t)
   :config
   (setq telega-server-libs-prefix "/opt/homebrew"))
 
@@ -718,6 +811,10 @@
   (evil-leader/set-key-for-mode 'c++-mode
     "hc" 'cmake-ide-run-cmake
     "hn" 'cmake-ide-compile
+    "ht" 'cmake-ide-compile)
+  (evil-leader/set-key-for-mode 'c-mode
+    "hc" 'cmake-ide-run-cmake
+    "hn" 'cmake-ide-compile
     "ht" 'cmake-ide-compile))
 
 (require 'cmake-mode)
@@ -840,8 +937,8 @@
   (org-roam-db-sync)
   (org-roam-update-org-id-locations))
 
-(use-package org-pdftools
-  :hook (org-mode . org-pdftools-setup-link))
+;; (use-package org-pdftools
+;;   :hook (org-mode . org-pdftools-setup-link))
 
 (use-package ox-hugo
   :ensure t   ;Auto-install the package from Melpa
@@ -850,6 +947,7 @@
   (add-hook 'org-mode-hook 'org-hugo-auto-export-mode)
   :hook
   (org-mode . org-hugo-auto-export-mode))
+(add-hook 'org-mode-hook 'org-hugo-auto-export-mode)
 
 
 (defun kb-commit ()
@@ -906,6 +1004,7 @@
    (C . t)
    (R . t)
    (ditaa . t)
+   (shell . t)
    (sagemath . t)
    (sml . t)))
 
@@ -1034,161 +1133,161 @@
     (exec-path-from-shell-initialize)))
 
 ;; ----email
-(require 'mu4e)
+;(require 'mu4e)
 
 ;; Sending Email
-(require 'smtpmail)
+;(require 'smtpmail)
 
-;; Redefine mail-signature to stop inserting the dumbass dashes
-(defun message-insert-signature (&optional force)
-  "Insert a signature at the end of the buffer.
-See the documentation for the `message-signature' variable for
-more information.
-If FORCE is 0 (or when called interactively), the global values
-of the signature variables will be consulted if the local ones
-are null."
-  (interactive (list 0))
-  (let ((message-signature message-signature)
-	(message-signature-file message-signature-file))
-    ;; If called interactively and there's no signature to insert,
-    ;; consult the global values to see whether there's anything they
-    ;; have to say for themselves.  This can happen when using
-    ;; `gnus-posting-styles', for instance.
-    (when (and (null message-signature)
-	       (null message-signature-file)
-	       (eq force 0))
-      (setq message-signature (default-value 'message-signature)
-	    message-signature-file (default-value 'message-signature-file)))
-    (let* ((signature
-	    (cond
-	     ((and (null message-signature)
-		   (eq force 0))
-	      (save-excursion
-		(goto-char (point-max))
-		(not (re-search-backward message-signature-separator nil t))))
-	     ((and (null message-signature)
-		   force)
-	      t)
-	     ((functionp message-signature)
-	      (funcall message-signature))
-	     ((listp message-signature)
-	      (eval message-signature))
-	     (t message-signature)))
-	   signature-file)
-      (setq signature
-	    (cond ((stringp signature)
-		   signature)
-		  ((and (eq t signature) message-signature-file)
-		   (setq signature-file
-			 (if (and message-signature-directory
-				  ;; don't actually use the signature directory
-				  ;; if message-signature-file contains a path.
-				  (not (file-name-directory
-					message-signature-file)))
-			     (expand-file-name message-signature-file
-					       message-signature-directory)
-			   message-signature-file))
-		   (file-exists-p signature-file))))
-      (when signature
-	(goto-char (point-max))
-	;; Insert the signature.
-	(unless (bolp)
-	  (newline))
-	(when message-signature-insert-empty-line
-	  (newline))
-	;; (insert "-- ")
-	(newline)
-	(if (eq signature t)
-	    (insert-file-contents signature-file)
-	  (insert signature))
-	(goto-char (point-max))
-	(or (bolp) (newline))))))
+;;; Redefine mail-signature to stop inserting the dumbass dashes
+;(defun message-insert-signature (&optional force)
+  ;"Insert a signature at the end of the buffer.
+;See the documentation for the `message-signature' variable for
+;more information.
+;If FORCE is 0 (or when called interactively), the global values
+;of the signature variables will be consulted if the local ones
+;are null."
+  ;(interactive (list 0))
+  ;(let ((message-signature message-signature)
+	;(message-signature-file message-signature-file))
+    ;;; If called interactively and there's no signature to insert,
+    ;;; consult the global values to see whether there's anything they
+    ;;; have to say for themselves.  This can happen when using
+    ;;; `gnus-posting-styles', for instance.
+    ;(when (and (null message-signature)
+		   ;(null message-signature-file)
+		   ;(eq force 0))
+      ;(setq message-signature (default-value 'message-signature)
+		;message-signature-file (default-value 'message-signature-file)))
+    ;(let* ((signature
+		;(cond
+		 ;((and (null message-signature)
+		   ;(eq force 0))
+		  ;(save-excursion
+		;(goto-char (point-max))
+		;(not (re-search-backward message-signature-separator nil t))))
+		 ;((and (null message-signature)
+		   ;force)
+		  ;t)
+		 ;((functionp message-signature)
+		  ;(funcall message-signature))
+		 ;((listp message-signature)
+		  ;(eval message-signature))
+		 ;(t message-signature)))
+	   ;signature-file)
+      ;(setq signature
+		;(cond ((stringp signature)
+		   ;signature)
+		  ;((and (eq t signature) message-signature-file)
+		   ;(setq signature-file
+			 ;(if (and message-signature-directory
+				  ;;; don't actually use the signature directory
+				  ;;; if message-signature-file contains a path.
+				  ;(not (file-name-directory
+					;message-signature-file)))
+				 ;(expand-file-name message-signature-file
+						   ;message-signature-directory)
+			   ;message-signature-file))
+		   ;(file-exists-p signature-file))))
+      ;(when signature
+	;(goto-char (point-max))
+	;;; Insert the signature.
+	;(unless (bolp)
+	  ;(newline))
+	;(when message-signature-insert-empty-line
+	  ;(newline))
+	;;; (insert "-- ")
+	;(newline)
+	;(if (eq signature t)
+		;(insert-file-contents signature-file)
+	  ;(insert signature))
+	;(goto-char (point-max))
+	;(or (bolp) (newline))))))
 
-;; I have my "default" parameters from Personal
-(setq mu4e-sent-folder "/Personal/Sent"
-      mu4e-drafts-folder "/Personal/Drafts"
-      mu4e-trash-folder "/Personal/Deleted"
-      user-mail-address "kmliuhoujun@outlook.com")
+;;; I have my "default" parameters from Personal
+;(setq mu4e-sent-folder "/Personal/Sent"
+      ;mu4e-drafts-folder "/Personal/Drafts"
+      ;mu4e-trash-folder "/Personal/Deleted"
+      ;user-mail-address "kmliuhoujun@outlook.com")
 
-(setq smtpmail-auth-credentials (expand-file-name "~/.authinfo.gpg")
-      message-send-mail-function 'smtpmail-send-it)
+;(setq smtpmail-auth-credentials (expand-file-name "~/.authinfo.gpg")
+      ;message-send-mail-function 'smtpmail-send-it)
 
-(defvar my-mu4e-account-alist
-  '(("Personal"
-     (mu4e-sent-folder "/Personal/Sent")
-     (mu4e-drafts-folder "/Personal/Drafts")
-     (mu4e-trash-folder "/Personal/Deleted")
-     (mu4e-refile-folder "/Personal/Archive")
-     (user-mail-address "kmliuhoujun@outlook.com")
-     (smtpmail-smtp-user "kmliuhoujun@outlook.com")
-     (smtpmail-stream-type starttls)
-     (smtpmail-local-domain "outlook.com")
-     (smtpmail-default-smtp-server "smtp.office365.com")
-     (smtpmail-smtp-server "smtp.office365.com")
-     (smtpmail-smtp-service 587))
-    ("Work"
-     (mu4e-sent-folder "/Work/[Gmail].Sent Mail")
-     (mu4e-drafts-folder "/Work/[Gmail].Drafts")
-     (mu4e-trash-folder "/Work/[Gmail].Trash")
-     (mu4e-refile-folder "/Work/[Gmail].All Mail")
-     (user-mail-address "hliu.shabanglandpoint0@gmail.com")
-     (smtpmail-smtp-user "hliu.shabanglandpoint0")
-     (smtpmail-local-domain "gmail.com")
-     (smtpmail-default-smtp-server "smtp.gmail.com")
-     (smtpmail-smtp-server "smtp.gmail.com")
-     (smtpmail-smtp-service 587))))
+;(defvar my-mu4e-account-alist
+  ;'(("Personal"
+     ;(mu4e-sent-folder "/Personal/Sent")
+     ;(mu4e-drafts-folder "/Personal/Drafts")
+     ;(mu4e-trash-folder "/Personal/Deleted")
+     ;(mu4e-refile-folder "/Personal/Archive")
+     ;(user-mail-address "kmliuhoujun@outlook.com")
+     ;(smtpmail-smtp-user "kmliuhoujun@outlook.com")
+     ;(smtpmail-stream-type starttls)
+     ;(smtpmail-local-domain "outlook.com")
+     ;(smtpmail-default-smtp-server "smtp.office365.com")
+     ;(smtpmail-smtp-server "smtp.office365.com")
+     ;(smtpmail-smtp-service 587))
+    ;("Work"
+     ;(mu4e-sent-folder "/Work/[Gmail].Sent Mail")
+     ;(mu4e-drafts-folder "/Work/[Gmail].Drafts")
+     ;(mu4e-trash-folder "/Work/[Gmail].Trash")
+     ;(mu4e-refile-folder "/Work/[Gmail].All Mail")
+     ;(user-mail-address "hliu.shabanglandpoint0@gmail.com")
+     ;(smtpmail-smtp-user "hliu.shabanglandpoint0")
+     ;(smtpmail-local-domain "gmail.com")
+     ;(smtpmail-default-smtp-server "smtp.gmail.com")
+     ;(smtpmail-smtp-server "smtp.gmail.com")
+     ;(smtpmail-smtp-service 587))))
 
-(defun my-mu4e-set-account ()
-  "Set the account for composing a message."
-  (let* ((account
-	  (if mu4e-compose-parent-message
-	      (let ((maildir (mu4e-message-field mu4e-compose-parent-message :maildir)))
-		(string-match "/\\(.*?\\)/" maildir)
-		(match-string 1 maildir))
-	    (completing-read (format "Compose with account: (%s) "
-				     (mapconcat #'(lambda (var) (car var))
-						my-mu4e-account-alist "/"))
-			     (mapcar #'(lambda (var) (car var)) my-mu4e-account-alist)
-			     nil t nil nil (caar my-mu4e-account-alist))))
-	 (account-vars (cdr (assoc account my-mu4e-account-alist))))
-    (if account-vars
-	(mapc #'(lambda (var)
-		  (set (car var) (cadr var)))
-	      account-vars)
-      (error "No email account found"))))
-(add-hook 'mu4e-compose-pre-hook 'my-mu4e-set-account)
+;(defun my-mu4e-set-account ()
+  ;"Set the account for composing a message."
+  ;(let* ((account
+	  ;(if mu4e-compose-parent-message
+		  ;(let ((maildir (mu4e-message-field mu4e-compose-parent-message :maildir)))
+		;(string-match "/\\(.*?\\)/" maildir)
+		;(match-string 1 maildir))
+		;(completing-read (format "Compose with account: (%s) "
+					 ;(mapconcat #'(lambda (var) (car var))
+						;my-mu4e-account-alist "/"))
+				 ;(mapcar #'(lambda (var) (car var)) my-mu4e-account-alist)
+				 ;nil t nil nil (caar my-mu4e-account-alist))))
+	 ;(account-vars (cdr (assoc account my-mu4e-account-alist))))
+    ;(if account-vars
+	;(mapc #'(lambda (var)
+		  ;(set (car var) (cadr var)))
+		  ;account-vars)
+      ;(error "No email account found"))))
+;(add-hook 'mu4e-compose-pre-hook 'my-mu4e-set-account)
 
-;; Recieving Email
-(setq mu4e-get-mail-command "offlineimap")
-;; (use-package mu4e-alert
-;;   :ensure t
-;;   :after mu4e
-;;   :init
-;;   (setq mu4e-alert-interesting-mail-query
-;;     (concat
-;;      "flag:unread maildir:/Personal/Inbox"
-;;      "OR "
-;;      "flag:unread maildir:/Work/INBOX"
-;;      ))
-;;   (mu4e-alert-enable-mode-line-display)
-;;   (defun gjstein-refresh-mu4e-alert-mode-line ()
-;;     (interactive)
-;;     (mu4e~proc-kill)
-;;     (mu4e-alert-enable-mode-line-display)
-;;     )
-;;   (run-with-timer 0 60 'gjstein-refresh-mu4e-alert-mode-line) )
+;;; Recieving Email
+;(setq mu4e-get-mail-command "offlineimap")
+;;; (use-package mu4e-alert
+;;;   :ensure t
+;;;   :after mu4e
+;;;   :init
+;;;   (setq mu4e-alert-interesting-mail-query
+;;;     (concat
+;;;      "flag:unread maildir:/Personal/Inbox"
+;;;      "OR "
+;;;      "flag:unread maildir:/Work/INBOX"
+;;;      ))
+;;;   (mu4e-alert-enable-mode-line-display)
+;;;   (defun gjstein-refresh-mu4e-alert-mode-line ()
+;;;     (interactive)
+;;;     (mu4e~proc-kill)
+;;;     (mu4e-alert-enable-mode-line-display)
+;;;     )
+;;;   (run-with-timer 0 60 'gjstein-refresh-mu4e-alert-mode-line) )
 
-;; ----eaf
-;; (setq eaf-python-command "/usr/local/bin/python3")
-(require 'eaf)
-(require 'eaf-browser)
-(require 'eaf-file-manager)
-(require 'eaf-evil)
-(setq eaf--mac-enable-rosetta t)
-(setq eaf-python-command "/usr/local/bin/python3")
-(setq eaf-browser-dark-mode nil)
+;;; ----eaf
+;;; (setq eaf-python-command "/usr/local/bin/python3")
+;(require 'eaf)
+;(require 'eaf-browser)
+;(require 'eaf-file-manager)
+;(require 'eaf-evil)
+;(setq eaf--mac-enable-rosetta t)
+;(setq eaf-python-command "/usr/local/bin/python3")
+;(setq eaf-browser-dark-mode nil)
 
-;; (define-key eaf-mode-map (kbd "C-h") #'evil-window-left)
+;;; (define-key eaf-mode-map (kbd "C-h") #'evil-window-left)
 ;; (define-key eaf-mode-map (kbd "C-j") #'evil-window-down)
 ;; (define-key eaf-mode-map (kbd "C-k") #'evil-window-up)
 ;; (define-key eaf-mode-map (kbd "C-l") #'evil-window-right)
@@ -1244,6 +1343,24 @@ are null."
   ;; browser
   "ob" 'eaf-open-browser
   "oh" 'eaf-open-browser-with-history
+  "of" 'elfeed
+
+  ;; emms
+  "omm" 'emms-pause
+  "oms" 'emms-start
+  "ome" 'emms-stop
+  "om>" 'emms-seek-forward
+  "om<" 'emms-seek-backward
+  "omt" 'emms-seek-to
+  "omo" 'emms
+  "om=" 'emms-volume-raise
+  "om+" 'emms-volume-raise
+  "om-" 'emms-volume-lower
+  "omn" 'emms-next
+  "omp" 'emms-previous
+
+  ;; Python
+  "owo" 'pyvenv-workon
 
   ;; global link store
   "osl" 'org-store-link
