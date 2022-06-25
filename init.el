@@ -883,6 +883,11 @@ rather than the whole path."
   (org-mode . org-download-enable)
   (dired-mode . org-download-enable))
 
+(use-package zotxt
+  :diminish org-zotxt-mode
+  :hook
+  (org-mode . org-zotxt-mode))
+
 (use-package calfw)
 
 ;; (use-package md-roam
@@ -1217,7 +1222,24 @@ are null."
 	(or (bolp) (newline))))))
 
 ;; notmuch
-(use-package notmuch)
+(use-package notmuch
+  :config
+  (setq notmuch-show-logo nil)
+  (add-hook 'notmuch-hello-refresh-hook
+            (lambda ()
+              (if (and (eq (point) (point-min))
+                       (search-forward "Saved searches:" nil t))
+                  (progn
+                    (forward-line)
+                    (widget-forward 1))
+                (if (eq (widget-type (widget-at)) 'editable-field)
+                    (beginning-of-line)))))
+  (setq notmuch-saved-searches '((:name "inbox" :query "tag:inbox" :key "i")
+                                 (:name "unread" :query "tag:unread" :key "u")
+                                 (:name "flagged" :query "tag:flagged" :key "f")
+                                 (:name "sent" :query "tag:sent" :key "t")
+                                 (:name "drafts" :query "tag:draft" :key "d")
+                                 (:name "all mail" :query "*" :key "a"))))
 
 ;; Fixing notmuch behavior
 ;; https://notmuchmail.org/pipermail/notmuch/2017/024647.html
@@ -1230,9 +1252,10 @@ are null."
 	(when (memq buffer-mode '(notmuch-show-mode
 				  notmuch-tree-mode
 				  notmuch-search-mode
-				  notmuch-hello-mode
-				  notmuch-message-mode))
+				  notmuch-hello-mode))
 	  (throw 'get-notmuch-buffer (switch-to-buffer buffer)))))))
+
+
 (defun notmuch-draft-postpone ()
  "Save the draft message in the notmuch database, exit buffer, and select the previous notmuch buffer."
   (interactive)
@@ -1344,6 +1367,9 @@ are null."
 
   ;; global link store
   "osl" 'org-store-link
+
+  ;; email
+  "ooe" 'notmuch-hello
 
   ;; open
   "okb" (lambda () (interactive) (find-file "~/Documents/knowledgebase/KBhindex.org"))

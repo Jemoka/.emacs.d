@@ -1,0 +1,31 @@
+# key: glib
+# name: cmake glib template
+# --
+cmake_minimum_required(VERSION 3.13)  # CMake version check
+
+project($1)                           # Create project "$1"
+set(CMAKE_C_STANDARD 17)              # Enable c17 standard
+
+# Add main.cpp file of project root directory as source file
+set(SOURCE_FILES main.c)
+
+# Find glib
+find_package(PkgConfig REQUIRED)
+pkg_check_modules (GLIB REQUIRED glib-2.0)
+
+# Add executable target with source files listed in SOURCE_FILES variable
+add_executable($1 \${SOURCE_FILES})
+
+message(${GLIB_LIBRARIES})
+
+# Add glib
+target_include_directories($1 PRIVATE \${GLIB_INCLUDE_DIRS})
+target_link_directories($1 PRIVATE \${GLIB_LIBRARY_DIRS})
+target_compile_definitions($1 PRIVATE \${GLIB_CFLAGS_OTHER})
+target_link_libraries($1 PRIVATE \${GLIB_LIBRARIES})
+
+# Create the run command for cmake
+add_custom_target(run
+  COMMAND $1
+  DEPENDS $1
+  WORKING_DIRECTORY \${CMAKE_PROJECT_DIR})
