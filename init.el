@@ -389,7 +389,18 @@
 (use-package mpv)
 
 ;; Elfeed
-(use-package elfeed)
+(use-package elfeed
+  :init
+  (setq-default elfeed-search-filter "-hide +unread "))
+
+(defun file-notify-rm-all-watches ()
+  "Remove all existing file notification watches from Emacs."
+  (interactive)
+  (maphash
+   (lambda (key _value)
+     (file-notify-rm-watch key))
+   file-notify-descriptors))
+
 
 ;; Elfeed tube
 (use-package elfeed-tube
@@ -425,6 +436,8 @@
 
 (use-package emms
   :diminish emms
+  :init
+  (setq emms-mode-line-format "")
   :config
   (require 'emms-setup)
   (emms-all)
@@ -554,6 +567,7 @@ rather than the whole path."
   (setq enable-recursive-minibuffers t)
   :config
   (ivy-mode)
+  (define-key ivy-minibuffer-map (kbd "C-M-<return>") 'ivy-immediate-done)
   (put 'dired-do-copy   'ivy nil)
   (put 'dired-do-rename 'ivy nil))
 
@@ -996,6 +1010,7 @@ rather than the whole path."
 ;; Ob-sagemath supports only evaluating with a session.
 (setq org-babel-default-header-args:sage '((:session . t)
                                            (:results . "output")))
+(require 'org-inlinetask)
 
 (org-babel-do-load-languages
  'org-babel-load-languages
@@ -1007,6 +1022,8 @@ rather than the whole path."
    (shell . t)
    (sagemath . t)
    (sml . t)))
+
+
 
 (plist-put org-format-latex-options :scale 1.3)
 (setq org-babel-clojure-backend 'cider)
@@ -1042,7 +1059,13 @@ rather than the whole path."
   (setq org-latex-create-formula-image-program 'dvisvgm)
   (add-hook 'org-mode-hook (lambda ()
                              (olivetti-mode)))
+;; code highlightin
   (setq org-latex-packages-alist '(("margin=1in" "geometry")))
+    (add-to-list 'org-latex-packages-alist '("" "minted"))
+    (setq org-latex-pdf-process '("latexmk -f -pdf -%latex -shell-escape -interaction=nonstopmode -output-directory=%o %f"))
+
+
+(setq org-latex-listings 'minted)
   (setq org-latex-compiler "xelatex")
 
   (evil-define-key 'normal org-mode-map (kbd "TAB") #'org-cycle)
@@ -1117,6 +1140,7 @@ rather than the whole path."
   "owh" 'olivetti-shrink
   "ahs" 'org-edit-special
   "att" 'org-todo
+  "ath" 'org-inlinetask-insert-task
   "ats" 'org-show-todo-tree
   "atl" 'org-todo-list
   "ati" 'org-time-stamp)
@@ -1126,179 +1150,135 @@ rather than the whole path."
   "ahk" 'org-edit-src-abort
   "ahw" 'org-edit-src-save)
 
+;; ---email
+;; Redefine mail-signature to stop inserting the dumbass dashes
+(defun message-insert-signature (&optional force)
+  "Insert a signature at the end of the buffer.
+See the documentation for the `message-signature' variable for
+more information.
+If FORCE is 0 (or when called interactively), the global values
+of the signature variables will be consulted if the local ones
+are null."
+  (interactive (list 0))
+  (let ((message-signature message-signature)
+	(message-signature-file message-signature-file))
+    ;; If called interactively and there's no signature to insert,
+    ;; consult the global values to see whether there's anything they
+    ;; have to say for themselves.  This can happen when using
+    ;; `gnus-posting-styles', for instance.
+    (when (and (null message-signature)
+	       (null message-signature-file)
+	       (eq force 0))
+      (setq message-signature (default-value 'message-signature)
+	    message-signature-file (default-value 'message-signature-file)))
+    (let* ((signature
+	    (cond
+	     ((and (null message-signature)
+		   (eq force 0))
+	      (save-excursion
+		(goto-char (point-max))
+		(not (re-search-backward message-signature-separator nil t))))
+	     ((and (null message-signature)
+		   force)
+	      t)
+	     ((functionp message-signature)
+	      (funcall message-signature))
+	     ((listp message-signature)
+	      (eval message-signature))
+	     (t message-signature)))
+	   signature-file)
+      (setq signature
+	    (cond ((stringp signature)
+		   signature)
+		  ((and (eq t signature) message-signature-file)
+		   (setq signature-file
+			 (if (and message-signature-directory
+				  ;; don't actually use the signature directory
+				  ;; if message-signature-file contains a path.
+				  (not (file-name-directory
+					message-signature-file)))
+			     (expand-file-name message-signature-file
+					       message-signature-directory)
+			   message-signature-file))
+		   (file-exists-p signature-file))))
+      (when signature
+	(goto-char (point-max))
+	;; Insert the signature.
+	(unless (bolp)
+	  (newline))
+	(when message-signature-insert-empty-line
+	  (newline))
+	;; (insert "-- ")
+	(newline)
+	(if (eq signature t)
+	    (insert-file-contents signature-file)
+	  (insert signature))
+	(goto-char (point-max))
+	(or (bolp) (newline))))))
+
+;; notmuch
+(use-package notmuch)
+
+;; Fixing notmuch behavior
+;; https://notmuchmail.org/pipermail/notmuch/2017/024647.html
+
+(defun notmuch-select-previous-notmuch-buffer ()
+  "Select the previous notmuch buffer."
+  (catch 'get-notmuch-buffer
+    (dolist (buffer (buffer-list))
+      (let ((buffer-mode (buffer-local-value 'major-mode buffer)))
+	(when (memq buffer-mode '(notmuch-show-mode
+				  notmuch-tree-mode
+				  notmuch-search-mode
+				  notmuch-hello-mode
+				  notmuch-message-mode))
+	  (throw 'get-notmuch-buffer (switch-to-buffer buffer)))))))
+(defun notmuch-draft-postpone ()
+ "Save the draft message in the notmuch database, exit buffer, and select the previous notmuch buffer."
+  (interactive)
+  (notmuch-draft-save)
+  (kill-buffer)
+  (notmuch-select-previous-notmuch-buffer))
+
+ (defun notmuch-bury-or-kill-this-buffer ()
+   "Undisplay the current buffer."
+   (interactive)
+   (if (> (length (get-buffer-window-list nil nil t)) 1)
+       (bury-buffer)
+    (kill-buffer))
+  (notmuch-select-previous-notmuch-buffer))
+
+(defun notmuch-mua-send-and-exit (&optional arg)
+  (interactive "P")
+  (notmuch-mua-send-common arg 't)
+  (notmuch-select-previous-notmuch-buffer))
+
+(defun notmuch-tree-quit ()
+  "Close the split view or exit tree."
+  (interactive)
+  (unless (notmuch-tree-close-message-window)
+    (kill-buffer (current-buffer))
+    (notmuch-select-previous-notmuch-buffer)))
+  
+
+;; something 
+(setq message-sendmail-f-is-evil 't)
+(setq-default notmuch-search-oldest-first nil)
+;;need to tell msmtp which account we're using
+
+(setq send-mail-function 'sendmail-send-it
+      sendmail-program "msmtp"
+      mail-specify-envelope-from t
+      message-sendmail-envelope-from 'header
+      mail-envelope-from 'header)
+
+
 ;; Exec Path from Shell
 (use-package exec-path-from-shell
   :config
   (when (memq window-system '(mac ns))
     (exec-path-from-shell-initialize)))
 
-;; ----email
-;(require 'mu4e)
-
-;; Sending Email
-;(require 'smtpmail)
-
-;;; Redefine mail-signature to stop inserting the dumbass dashes
-;(defun message-insert-signature (&optional force)
-  ;"Insert a signature at the end of the buffer.
-;See the documentation for the `message-signature' variable for
-;more information.
-;If FORCE is 0 (or when called interactively), the global values
-;of the signature variables will be consulted if the local ones
-;are null."
-  ;(interactive (list 0))
-  ;(let ((message-signature message-signature)
-	;(message-signature-file message-signature-file))
-    ;;; If called interactively and there's no signature to insert,
-    ;;; consult the global values to see whether there's anything they
-    ;;; have to say for themselves.  This can happen when using
-    ;;; `gnus-posting-styles', for instance.
-    ;(when (and (null message-signature)
-		   ;(null message-signature-file)
-		   ;(eq force 0))
-      ;(setq message-signature (default-value 'message-signature)
-		;message-signature-file (default-value 'message-signature-file)))
-    ;(let* ((signature
-		;(cond
-		 ;((and (null message-signature)
-		   ;(eq force 0))
-		  ;(save-excursion
-		;(goto-char (point-max))
-		;(not (re-search-backward message-signature-separator nil t))))
-		 ;((and (null message-signature)
-		   ;force)
-		  ;t)
-		 ;((functionp message-signature)
-		  ;(funcall message-signature))
-		 ;((listp message-signature)
-		  ;(eval message-signature))
-		 ;(t message-signature)))
-	   ;signature-file)
-      ;(setq signature
-		;(cond ((stringp signature)
-		   ;signature)
-		  ;((and (eq t signature) message-signature-file)
-		   ;(setq signature-file
-			 ;(if (and message-signature-directory
-				  ;;; don't actually use the signature directory
-				  ;;; if message-signature-file contains a path.
-				  ;(not (file-name-directory
-					;message-signature-file)))
-				 ;(expand-file-name message-signature-file
-						   ;message-signature-directory)
-			   ;message-signature-file))
-		   ;(file-exists-p signature-file))))
-      ;(when signature
-	;(goto-char (point-max))
-	;;; Insert the signature.
-	;(unless (bolp)
-	  ;(newline))
-	;(when message-signature-insert-empty-line
-	  ;(newline))
-	;;; (insert "-- ")
-	;(newline)
-	;(if (eq signature t)
-		;(insert-file-contents signature-file)
-	  ;(insert signature))
-	;(goto-char (point-max))
-	;(or (bolp) (newline))))))
-
-;;; I have my "default" parameters from Personal
-;(setq mu4e-sent-folder "/Personal/Sent"
-      ;mu4e-drafts-folder "/Personal/Drafts"
-      ;mu4e-trash-folder "/Personal/Deleted"
-      ;user-mail-address "kmliuhoujun@outlook.com")
-
-;(setq smtpmail-auth-credentials (expand-file-name "~/.authinfo.gpg")
-      ;message-send-mail-function 'smtpmail-send-it)
-
-;(defvar my-mu4e-account-alist
-  ;'(("Personal"
-     ;(mu4e-sent-folder "/Personal/Sent")
-     ;(mu4e-drafts-folder "/Personal/Drafts")
-     ;(mu4e-trash-folder "/Personal/Deleted")
-     ;(mu4e-refile-folder "/Personal/Archive")
-     ;(user-mail-address "kmliuhoujun@outlook.com")
-     ;(smtpmail-smtp-user "kmliuhoujun@outlook.com")
-     ;(smtpmail-stream-type starttls)
-     ;(smtpmail-local-domain "outlook.com")
-     ;(smtpmail-default-smtp-server "smtp.office365.com")
-     ;(smtpmail-smtp-server "smtp.office365.com")
-     ;(smtpmail-smtp-service 587))
-    ;("Work"
-     ;(mu4e-sent-folder "/Work/[Gmail].Sent Mail")
-     ;(mu4e-drafts-folder "/Work/[Gmail].Drafts")
-     ;(mu4e-trash-folder "/Work/[Gmail].Trash")
-     ;(mu4e-refile-folder "/Work/[Gmail].All Mail")
-     ;(user-mail-address "hliu.shabanglandpoint0@gmail.com")
-     ;(smtpmail-smtp-user "hliu.shabanglandpoint0")
-     ;(smtpmail-local-domain "gmail.com")
-     ;(smtpmail-default-smtp-server "smtp.gmail.com")
-     ;(smtpmail-smtp-server "smtp.gmail.com")
-     ;(smtpmail-smtp-service 587))))
-
-;(defun my-mu4e-set-account ()
-  ;"Set the account for composing a message."
-  ;(let* ((account
-	  ;(if mu4e-compose-parent-message
-		  ;(let ((maildir (mu4e-message-field mu4e-compose-parent-message :maildir)))
-		;(string-match "/\\(.*?\\)/" maildir)
-		;(match-string 1 maildir))
-		;(completing-read (format "Compose with account: (%s) "
-					 ;(mapconcat #'(lambda (var) (car var))
-						;my-mu4e-account-alist "/"))
-				 ;(mapcar #'(lambda (var) (car var)) my-mu4e-account-alist)
-				 ;nil t nil nil (caar my-mu4e-account-alist))))
-	 ;(account-vars (cdr (assoc account my-mu4e-account-alist))))
-    ;(if account-vars
-	;(mapc #'(lambda (var)
-		  ;(set (car var) (cadr var)))
-		  ;account-vars)
-      ;(error "No email account found"))))
-;(add-hook 'mu4e-compose-pre-hook 'my-mu4e-set-account)
-
-;;; Recieving Email
-;(setq mu4e-get-mail-command "offlineimap")
-;;; (use-package mu4e-alert
-;;;   :ensure t
-;;;   :after mu4e
-;;;   :init
-;;;   (setq mu4e-alert-interesting-mail-query
-;;;     (concat
-;;;      "flag:unread maildir:/Personal/Inbox"
-;;;      "OR "
-;;;      "flag:unread maildir:/Work/INBOX"
-;;;      ))
-;;;   (mu4e-alert-enable-mode-line-display)
-;;;   (defun gjstein-refresh-mu4e-alert-mode-line ()
-;;;     (interactive)
-;;;     (mu4e~proc-kill)
-;;;     (mu4e-alert-enable-mode-line-display)
-;;;     )
-;;;   (run-with-timer 0 60 'gjstein-refresh-mu4e-alert-mode-line) )
-
-;;; ----eaf
-;;; (setq eaf-python-command "/usr/local/bin/python3")
-;(require 'eaf)
-;(require 'eaf-browser)
-;(require 'eaf-file-manager)
-;(require 'eaf-evil)
-;(setq eaf--mac-enable-rosetta t)
-;(setq eaf-python-command "/usr/local/bin/python3")
-;(setq eaf-browser-dark-mode nil)
-
-;;; (define-key eaf-mode-map (kbd "C-h") #'evil-window-left)
-;; (define-key eaf-mode-map (kbd "C-j") #'evil-window-down)
-;; (define-key eaf-mode-map (kbd "C-k") #'evil-window-up)
-;; (define-key eaf-mode-map (kbd "C-l") #'evil-window-right)
-
-;; (evil-define
-;; (eaf-browser-continue-where-left-off t)
-;; (eaf-browser-enable-adblocker t)
-;; (browse-url-browser-function 'eaf-open-browser)
-
-
- 
 ;; ----random keybindings
 (evil-leader/set-key
   ;; Buffer switching
