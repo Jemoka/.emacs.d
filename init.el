@@ -947,6 +947,29 @@ rather than the whole path."
   (evil-define-key 'insert org-mode-map (kbd "C-S-SPC") 'org-roam-node-insert)
   (org-roam-db-autosync-mode 1))
 
+(use-package org-ref
+  :init
+  (setq bibtex-completion-bibliography '("~/Documents/knowledgebase/documents/refs.bib")
+        bibtex-completion-notes-path "~/Documents/knowledgebase"
+        bibtex-completion-additional-search-fields '(keywords)
+        bibtex-autokey-year-length 4
+        bibtex-autokey-name-year-separator "-"
+        bibtex-autokey-year-title-separator "-"
+        bibtex-autokey-titleword-separator "-"
+        bibtex-autokey-titlewords 2
+        bibtex-autokey-titlewords-stretch 1
+        bibtex-autokey-titleword-length 5
+        bibtex-completion-notes-template-multiple-files "#+title: ${author-abbrev} ${year}\n#+author: Houjun Liu\n\nDOI: ${doi}\n\n* One-Liner\n\n* Novelty\n\n* Notable Methods\n\n* Key Figs\n\n* New Concepts\n\n* Notes")
+  :config
+  (evil-leader/set-key 
+    "aui" 'org-ref-insert-link)
+  (add-function :after bibtex-completion-edit-notes-function (lambda (keys)
+                                                               (goto-char (point-min))
+                                                               (org-id-get-create))))
+
+(use-package ivy-bibtex
+  :after org-ref)
+
 (defun org-rebuild-cache ()
   "Rebuild the `org-mode' and `org-roam' cache."
   (interactive)
@@ -1067,7 +1090,7 @@ rather than the whole path."
 ;; code highlightin
   (setq org-latex-packages-alist '(("margin=1in" "geometry")))
     (add-to-list 'org-latex-packages-alist '("" "minted"))
-    (setq org-latex-pdf-process '("latexmk -f -pdf -%latex -shell-escape -interaction=nonstopmode -output-directory=%o %f"))
+    (setq org-latex-pdf-process '("latexmk -f -pdf -%latex -bibtex -f -shell-escape -interaction=nonstopmode -output-directory=%o %f"))
 
 
 (setq org-latex-listings 'minted)
