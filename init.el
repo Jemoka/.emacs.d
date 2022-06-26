@@ -959,10 +959,31 @@ rather than the whole path."
         bibtex-autokey-titlewords 2
         bibtex-autokey-titlewords-stretch 1
         bibtex-autokey-titleword-length 5
+        bibtex-dialect 'biblatex
         bibtex-completion-notes-template-multiple-files "#+title: ${author-abbrev} ${year}\n#+author: Houjun Liu\n\nDOI: ${doi}\n\n* One-Liner\n\n* Novelty\n\n* Notable Methods\n\n* Key Figs\n\n* New Concepts\n\n* Notes")
+  (with-eval-after-load 'ox
+    (defun buffer-contains-substring (string)
+      (save-excursion
+        (save-match-data
+          (goto-char (point-min))
+          (search-forward string nil t))))
+    (defun my/org-ref-process-buffer--html (backend)
+      "Preprocess `org-ref' citations to HTML format.
+
+Do this only if the export backend is `html' or a derivative of
+that."
+      ;; `ox-hugo' is derived indirectly from `ox-html'.
+      ;; ox-hugo <- ox-blackfriday <- ox-md <- ox-html
+      (when (org-export-derived-backend-p backend 'html)
+        (goto-char (max-char))
+        (if (buffer-contains-substring "printbibliography")
+            (insert "\n[[bibliography:~/Documents/knowledgebase/documents/refs.bib]]"))
+        (org-ref-process-buffer 'html)))
+    (add-to-list 'org-export-before-parsing-hook #'my/org-ref-process-buffer--html))
   :config
   (evil-leader/set-key 
     "aui" 'org-ref-insert-link)
+  (evil-define-key 'insert org-mode-map (kbd "C-<escape>") 'org-ref-insert-link)
   (add-function :after bibtex-completion-edit-notes-function (lambda (keys)
                                                                (goto-char (point-min))
                                                                (org-id-get-create))))
@@ -1090,7 +1111,7 @@ rather than the whole path."
 ;; code highlightin
   (setq org-latex-packages-alist '(("margin=1in" "geometry")))
     (add-to-list 'org-latex-packages-alist '("" "minted"))
-    (setq org-latex-pdf-process '("latexmk -f -pdf -%latex -bibtex -f -shell-escape -interaction=nonstopmode -output-directory=%o %f"))
+    (setq org-latex-pdf-process '("latexmk -bibtex -f -pdf -%latex -shell-escape -interaction=nonstopmode -output-directory=%o %f"))
 
 
 (setq org-latex-listings 'minted)
