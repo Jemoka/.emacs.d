@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: Org Hugo Layout
+# key: ~huglo
+# --
+#+hugo_custom_front_matter: :layout $1

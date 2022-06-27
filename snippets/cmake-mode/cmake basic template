@@ -4,6 +4,7 @@
 cmake_minimum_required(VERSION 3.13)  # CMake version check
 project($1)                           # Create project "$1"
 set(CMAKE_CXX_STANDARD 20)            # Enable c++20 standard
+set(CMAKE_C_STANDARD 17)              # Enable c17 standard
 
 # Add main.cpp file of project root directory as source file
 set(SOURCE_FILES main.cpp)
