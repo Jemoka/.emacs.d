@@ -238,7 +238,8 @@
 (use-package lsp-pyright
   :init
   (setq lsp-pyright-python-executable-cmd "python3")
-  (setq python-shell-interpreter "python3")
+  (setq python-shell-interpreter "ipython"
+        python-shell-interpreter-args "--simple-prompt --pprint")
   (require 'lsp-pyright)
   :hook
   (python-mode . lsp))
@@ -379,7 +380,10 @@
       :fringe-face 'flycheck-fringe-info)))
 
 
-
+(with-eval-after-load "flycheck"
+    (setq flycheck-clang-warnings `(,@flycheck-clang-warnings
+                                    "no-pragma-once-outside-header")))
+(setq flycheck-relevant-error-other-file-show nil)
 
 ;; ----developer tools
 ;; edit
@@ -680,6 +684,8 @@ rather than the whole path."
   (add-hook 'markdown-mode-hook (lambda ()
                                   (setq mode-line-format nil)
                                   (olivetti-mode))))
+
+
 
 ;; Just another way of browsing the entire KB
 (use-package deft
@@ -988,6 +994,9 @@ that."
                                                                (goto-char (point-min))
                                                                (org-id-get-create))))
 
+(add-hook 'org-mode-hook (lambda ()
+                           (setq mode-line-format nil)))
+
 (use-package ivy-bibtex
   :after org-ref)
 
@@ -1283,7 +1292,10 @@ are null."
                                  (:name "flagged" :query "tag:flagged" :key "f")
                                  (:name "sent" :query "tag:sent" :key "t")
                                  (:name "drafts" :query "tag:draft" :key "d")
-                                 (:name "all mail" :query "*" :key "a"))))
+                                 (:name "all mail" :query "*" :key "a")))
+  (setq notmuch-show-only-matching-messages t))
+
+
 
 ;; Fixing notmuch behavior
 ;; https://notmuchmail.org/pipermail/notmuch/2017/024647.html
