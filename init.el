@@ -224,7 +224,7 @@
 
   (add-hook 'lsp-completion-mode-hook (lambda ()
 					(eldoc-mode -1)
-					(setq company-backends '((company-files  company-capf :separate company-yasnippet company-keywords) (company-dabbrev-code company-semantic)))))
+					(setq company-backends '((company-files company-capf :separate company-yasnippet company-keywords) (company-dabbrev-code company-semantic)))))
   :hook
   (lsp-mode . lsp-completion-mode)
   (c++-mode . lsp)
@@ -232,6 +232,7 @@
   (typescript-mode . lsp)
   (javascript-mode . lsp)
   (rjsx-mode . lsp)
+  (rust-mode . lsp)
   (css-mode . lsp)
   (java-mode . lsp))
 
@@ -272,6 +273,13 @@
                                  ("pyright/reportProgress" 'lsp-pyright--report-progress-callback)
                                  ("pyright/endProgress" 'lsp-pyright--end-progress-callback))))
 
+(lsp-register-client
+    (make-lsp-client :new-connection (lsp-tramp-connection "rust-analyzer")
+                     :major-modes '(rust-mode)
+                     :remote? t
+                     :server-id 'rust-analyzer-remote))
+
+
 
 (evil-define-key 'normal inferior-python-mode-map (kbd "C-j") #'evil-window-down)
 (evil-define-key 'normal inferior-python-mode-map (kbd "C-k") #'evil-window-up)
@@ -295,11 +303,6 @@
   :straight (:type git :host github :repo "merrickluo/lsp-tailwindcss")
   :init
   (setq lsp-tailwindcss-add-on-mode t))
-
-;; Staticstics
-(use-package company-statistics
-  :config
-  (company-statistics-mode))
 
 ;; <Begin a chain of package installs>
 ;; Ya! SnipPpets
@@ -388,6 +391,18 @@
 ;; ----developer tools
 ;; edit
 (use-package sudo-edit)
+
+;; blamer for git
+(use-package blamer
+  :config
+  (setq blamer-idle-time 1)
+  (setq blamer-min-offset 10)
+  (setq blamer-author-formatter "%s, ")
+  (setq blamer-datetime-formatter "%s")
+  (setq blamer-commit-formatter nil)
+  (setq blamer-type 'both)
+  :config
+  (global-blamer-mode 1))
 
 ;; mpv
 (use-package mpv)
@@ -527,7 +542,14 @@ rather than the whole path."
   :bind (:map vterm-mode-map ("C-y" . vterm-yank)))
 
 ;; The E one
+
+(use-package eshell-syntax-highlighting
+  :config
+  ;; Enable in all Eshell buffers.
+  (eshell-syntax-highlighting-global-mode))
+
 (with-eval-after-load 'eshell
+  (setq eshell-cmpl-cycle-completions nil)
   (evil-define-key 'insert eshell-mode-map (kbd "C-c") #'evil-collection-eshell-interrupt-process)
   (evil-define-key 'normal eshell-mode-map (kbd "C-c") #'evil-collection-eshell-interrupt-process)
   (evil-define-key 'insert eshell-mode-map (kbd "C-k") #'evil-window-up)
@@ -538,9 +560,8 @@ rather than the whole path."
   (define-key eshell-mode-map (kbd "C-k") #'evil-window-up)
   (define-key eshell-mode-map (kbd "C-j") #'evil-window-down)
   (add-hook 'eshell-mode-hook (lambda ()
-				(evil-define-key 'normal eshell-mode-map (kbd "C-k") #'evil-window-up)
-				(evil-define-key 'normal eshell-mode-map (kbd "C-j") #'evil-window-down)
-				(company-mode -1))))
+                                (evil-define-key 'normal eshell-mode-map (kbd "C-k") #'evil-window-up)
+                                (evil-define-key 'normal eshell-mode-map (kbd "C-j") #'evil-window-down))))
 
 ;; Monies
 (use-package ledger-mode
@@ -591,9 +612,7 @@ rather than the whole path."
 (use-package real-auto-save
   :diminish real-auto-save-mode
   :init
-  (setq real-auto-save-interval 0.5)
-  :hook
-  (rust-mode . real-auto-save-mode))
+  (setq real-auto-save-interval 0.5))
 
 ;; Help!
 (use-package which-key
@@ -858,6 +877,7 @@ rather than the whole path."
 
 ;; Rust
 (use-package rust-mode
+  :straight (:type git :host github :repo "rust-lang/rust-mode")
   :config
   (evil-leader/set-key-for-mode 'rust-mode
     "hs" 'rust-check
@@ -1420,6 +1440,9 @@ are null."
 
   ;; Python
   "owo" 'pyvenv-workon
+
+  ;; blamer
+  "ogi" 'blamer-show-commit-info
 
   ;; global link store
   "osl" 'org-store-link
