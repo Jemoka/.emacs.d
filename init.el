@@ -200,7 +200,11 @@
   :init
   (setq company-minimum-prefix-length 1)
   (setq company-idle-delay 0)
+  (setq company-dabbrev-minimum-length 1)
   (setq company-format-margin-function nil)
+  (setq company-dabbrev-code-other-buffers nil)
+  (setq company-dabbrev-code-ignore-case t)
+  (setq company-dabbrev-code-time-limit 0.01)
 
   :config
   (define-key company-active-map (kbd "TAB") 'company-select-next)
@@ -216,15 +220,23 @@
   (setq lsp-auto-configure nil)
   (setq read-process-output-max (* 1024 1024)) ;; 1mb
   (setq gc-cons-threshold 100000000)
+  (setq lsp-idle-delay 0.100)
+  (setq lsp-log-io t)
   :config
   (require 'lsp-clangd)
   (require 'lsp-javascript)
+  (require 'lsp-css)
   (require 'lsp-completion)
   (lsp-completion--enable)
 
   (add-hook 'lsp-completion-mode-hook (lambda ()
 					(eldoc-mode -1)
-					(setq company-backends '((company-files company-capf :separate company-yasnippet company-keywords) (company-dabbrev-code company-semantic)))))
+					(setq company-backends '((company-files company-capf :with company-dabbrev-code :separate company-yasnippet) (company-semantic)))))
+  (lsp-register-client
+    (make-lsp-client :new-connection (lsp-tramp-connection "rust-analyzer")
+                     :major-modes '(rust-mode)
+                     :remote? t
+                     :server-id 'rust-analyzer-remote))
   :hook
   (lsp-mode . lsp-completion-mode)
   (c++-mode . lsp)
@@ -236,14 +248,39 @@
   (css-mode . lsp)
   (java-mode . lsp))
 
+
 (use-package lsp-pyright
-  :init
-  (setq lsp-pyright-python-executable-cmd "python3")
-  (setq python-shell-interpreter "ipython"
-        python-shell-interpreter-args "--simple-prompt --pprint")
-  (require 'lsp-pyright)
-  :hook
-  (python-mode . lsp))
+             :init
+             (setq lsp-pyright-python-executable-cmd "python")
+             (setq python-shell-interpreter "ipython"
+                   python-shell-interpreter-args "--simple-prompt --pprint")
+             (zsp-register-custom-settings
+               '(("pyls.plugins.pyls_mypy.enabled" t t)
+                 ("pyls.plugins.pyls_mypy.live_mode" nil t)
+                 ("pyls.plugins.pyls_black.enabled" t t)
+                 ("pyls.plugins.pyls_isort.enabled" t t)))
+             (require 'lsp-pyright)
+             (lsp-register-client
+               (make-lsp-client
+                 :new-connection (lsp-tramp-connection (lambda ()
+                                                         (cons "pyright-langserver"
+                                                               lsp-pyright-langserver-command-args)))
+                 :major-modes '(python-mode)
+                 :remote? t
+                 :server-id 'pyright-remote
+                 :multi-root lsp-pyright-multi-root
+                 :priority 3
+                 :initialized-fn (lambda (workspace)
+                                   (with-lsp-workspace workspace
+                                                       (lsp--set-configuration
+                                                         (make-hash-table :test 'equal))))
+                 :download-server-fn (lambda (_client callback error-callback _update?)
+                                       (lsp-package-ensure 'pyright callback error-callback))
+                 :notification-handlers (lsp-ht ("pyright/beginProgress" 'lsp-pyright--begin-progress-callback)
+                                                ("pyright/reportProgress" 'lsp-pyright--report-progress-callback)
+                                                ("pyright/endProgress" 'lsp-pyright--end-progress-callback))))
+             :hook
+             (python-mode . lsp))
 
 (use-package pythonic)
 (use-package pyvenv
@@ -253,31 +290,8 @@
   :config
   (pyvenv-mode 1))
 
-(lsp-register-client
- (make-lsp-client
-  :new-connection (lsp-tramp-connection (lambda ()
-                                          (cons "pyright-langserver"
-                                                lsp-pyright-langserver-command-args)))
-  :major-modes '(python-mode)
-  :remote? t
-  :server-id 'pyright-remote
-  :multi-root lsp-pyright-multi-root
-  :priority 3
-  :initialized-fn (lambda (workspace)
-                    (with-lsp-workspace workspace
-                      (lsp--set-configuration
-                       (make-hash-table :test 'equal))))
-  :download-server-fn (lambda (_client callback error-callback _update?)
-                        (lsp-package-ensure 'pyright callback error-callback))
-  :notification-handlers (lsp-ht ("pyright/beginProgress" 'lsp-pyright--begin-progress-callback)
-                                 ("pyright/reportProgress" 'lsp-pyright--report-progress-callback)
-                                 ("pyright/endProgress" 'lsp-pyright--end-progress-callback))))
 
-(lsp-register-client
-    (make-lsp-client :new-connection (lsp-tramp-connection "rust-analyzer")
-                     :major-modes '(rust-mode)
-                     :remote? t
-                     :server-id 'rust-analyzer-remote))
+
 
 
 
@@ -302,7 +316,8 @@
 (use-package lsp-tailwindcss
   :straight (:type git :host github :repo "merrickluo/lsp-tailwindcss")
   :init
-  (setq lsp-tailwindcss-add-on-mode t))
+  (setq lsp-tailwindcss-add-on-mode t)
+  (setq lsp-tailwindcss-experimental-class-regex ["tw`([^`]*)" "tw=\"([^\"]*)" "tw={\"([^\"}]*)" "tw\\.\\w+`([^`]*)" "tw\\(.*?\\)`([^`]*)"]))
 
 ;; <Begin a chain of package installs>
 ;; Ya! SnipPpets
@@ -321,14 +336,14 @@
   :after yasnippet)
 
 
-(setq company-backends '((company-files company-capf :separate company-yasnippet company-keywords) (company-dabbrev-code company-semantic)))
+(setq company-backends '((company-files company-capf :with company-dabbrev-code :separate company-yasnippet) (company-dabbrev-code company-semantic)))
 (yas-global-mode 1)
 (company-auctex-init)
 
 (add-hook 'org-mode-hook (lambda ()
 			   (setq completion-ignore-case t)
 			   (setq company-minimum-prefix-length 1)
-			   (setq company-backends '((company-files  company-capf :separate company-yasnippet company-keywords) (company-dabbrev-code company-semantic)))))
+			   (setq company-backends '((company-files company-capf :with company-dabbrev-code :separate company-yasnippet) (company-dabbrev-code company-semantic)))))
 (add-hook 'company-after-completion-hook (lambda (canidate)
 					      (org-roam-link-replace-all)))
 
