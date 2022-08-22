@@ -1,7 +1,6 @@
 ;upaa So. so. so. Let's try this again. Will jack succeed this time?
 ;; Probably not. But it's worth a try.
 
-
 ;;; ----Load PATH
 (defun set-exec-path-from-shell-PATH ()
   "Set up Emacs' `exec-path' and PATH environment variable to match
@@ -37,8 +36,15 @@
 ;;; ----eaf
 (add-to-list 'load-path "~/.emacs.d/site-lisp/emacs-application-framework/")
 (add-to-list 'load-path "~/.emacs.d/site-lisp/")
+(require 'eaf)
+(require 'eaf-browser)
 
 
+;;; ---tramp remote
+(add-to-list 'tramp-remote-path "/usr/bin")
+(add-to-list 'tramp-remote-path "/usr/local/bin")
+(add-to-list 'tramp-remote-path "/opt/bin")
+(add-to-list 'tramp-remote-path "~/.cargo/bin")
 
 ;;; ----Straight
 (defvar bootstrap-version)
@@ -221,22 +227,21 @@
   (setq read-process-output-max (* 1024 1024)) ;; 1mb
   (setq gc-cons-threshold 100000000)
   (setq lsp-idle-delay 0.100)
-  (setq lsp-log-io t)
+  (setq lsp-log-io nil)
+  (setq lsp-enable-snippet t)
   :config
   (require 'lsp-clangd)
   (require 'lsp-javascript)
   (require 'lsp-css)
+  (require 'lsp-html)
   (require 'lsp-completion)
   (lsp-completion--enable)
-
+  (setq lsp-enable-snippet t)
+  (add-hook 'c-mode-hook (lambda() (setq-local lsp-enable-snippet nil)))
+  (add-hook 'c++-mode-hook (lambda() (setq-local lsp-enable-snippet nil)))
   (add-hook 'lsp-completion-mode-hook (lambda ()
-					(eldoc-mode -1)
-					(setq company-backends '((company-files company-capf :with company-dabbrev-code :separate company-yasnippet) (company-semantic)))))
-  (lsp-register-client
-    (make-lsp-client :new-connection (lsp-tramp-connection "rust-analyzer")
-                     :major-modes '(rust-mode)
-                     :remote? t
-                     :server-id 'rust-analyzer-remote))
+                                        (eldoc-mode -1)
+                                        (setq company-backends '((company-files company-capf :with company-dabbrev-code :separate company-yasnippet) (company-semantic)))))
   :hook
   (lsp-mode . lsp-completion-mode)
   (c++-mode . lsp)
@@ -244,43 +249,112 @@
   (typescript-mode . lsp)
   (javascript-mode . lsp)
   (rjsx-mode . lsp)
-  (rust-mode . lsp)
+  (rustic-mode . lsp)
+  (mhtml-mode . lsp)
   (css-mode . lsp)
   (java-mode . lsp))
 
+(use-package rustic
+  :init
+  (require 'rustic-lsp)
+  (setq rustic-cargo-bin-remote "cargo")
+  :config
+  (defun rustic-buffer-workspace (&optional nodefault)
+    "Get workspace for the current buffer."
+    ;; this variable is buffer local so we can use the cached value
+    (if rustic--buffer-workspace
+        rustic--buffer-workspace
+      ;; Copy environment variables into the new buffer, since
+      ;; with-temp-buffer will re-use the variables' defaults, even if
+      ;; they have been changed in this variable using e.g. envrc-mode.
+      ;; See https://github.com/purcell/envrc/issues/12.
+      (let ((env process-environment)
+            (path exec-path))
+        (with-temp-buffer
+          ;; Copy the entire environment just in case there's something we
+          ;; don't know we need.
+          (setq-local process-environment env)
+          ;; Set PATH so we can find cargo.
+          (setq-local exec-path path)
+          (let ((ret (process-file (rustic-cargo-bin) nil (list (current-buffer) nil) nil "locate-project" "--workspace")))
+            (cond ((and (/= ret 0) nodefault)
+                   (error "`cargo locate-project' returned %s status: %s" ret (buffer-string)))
+                  ((and (/= ret 0) (not nodefault))
+                   (setq rustic--buffer-workspace default-directory))
+                  (t
+                   (goto-char 0)
+                   (let* ((output (json-read))
+                          (dir (file-name-directory (cdr (assoc-string "root" output)))))
+                     (setq rustic--buffer-workspace dir)))))))))
+  
+  (with-eval-after-load "lsp-rust"
+    (lsp-register-client
+     (make-lsp-client
+      :new-connection (lsp-stdio-connection
+                       (lambda ()
+                         `("rust-analyzer" ,@(cl-rest lsp-rust-analyzer-server-args))))
+      :remote? t
+      :major-modes '(rust-mode rustic-mode)
+      :initialization-options 'lsp-rust-analyzer--make-init-options
+      :notification-handlers (ht<-alist lsp-rust-notification-handlers)
+      :action-handlers (ht ("rust-analyzer.runSingle" #'lsp-rust--analyzer-run-single))
+      :library-folders-fn (lambda (_workspace) lsp-rust-library-directories)
+      :after-open-fn (lambda ()
+                       (when lsp-rust-analyzer-server-display-inlay-hints
+                         (lsp-rust-analyzer-inlay-hints-mode)))
+      :ignore-messages nil
+      :server-id 'rust-analyzer-remote)))
+
+  (evil-leader/set-key-for-mode 'rustic-mode
+    "hs" 'rustic-cargo-check
+    "ht" 'rustic-cargo-test
+    "hn" 'rustic-cargo-run
+    "hc" 'rustic-compile))
+(defun start-file-process-shell-command@around (start-file-process-shell-command name buffer &rest args)
+  "Start a program in a subprocess.  Return the process object for it. Similar to `start-process-shell-command', but calls `start-file-process'."
+  ;; On remote hosts, the local `shell-file-name' might be useless.
+  (let ((command (mapconcat 'identity args " ")))
+    (funcall start-file-process-shell-command name buffer command)))
+
+(advice-add 'start-file-process-shell-command :around #'start-file-process-shell-command@around)
+
 
 (use-package lsp-pyright
-             :init
-             (setq lsp-pyright-python-executable-cmd "python")
-             (setq python-shell-interpreter "ipython"
-                   python-shell-interpreter-args "--simple-prompt --pprint")
-             (zsp-register-custom-settings
-               '(("pyls.plugins.pyls_mypy.enabled" t t)
-                 ("pyls.plugins.pyls_mypy.live_mode" nil t)
-                 ("pyls.plugins.pyls_black.enabled" t t)
-                 ("pyls.plugins.pyls_isort.enabled" t t)))
-             (require 'lsp-pyright)
-             (lsp-register-client
-               (make-lsp-client
-                 :new-connection (lsp-tramp-connection (lambda ()
-                                                         (cons "pyright-langserver"
-                                                               lsp-pyright-langserver-command-args)))
-                 :major-modes '(python-mode)
-                 :remote? t
-                 :server-id 'pyright-remote
-                 :multi-root lsp-pyright-multi-root
-                 :priority 3
-                 :initialized-fn (lambda (workspace)
-                                   (with-lsp-workspace workspace
-                                                       (lsp--set-configuration
-                                                         (make-hash-table :test 'equal))))
-                 :download-server-fn (lambda (_client callback error-callback _update?)
-                                       (lsp-package-ensure 'pyright callback error-callback))
-                 :notification-handlers (lsp-ht ("pyright/beginProgress" 'lsp-pyright--begin-progress-callback)
-                                                ("pyright/reportProgress" 'lsp-pyright--report-progress-callback)
-                                                ("pyright/endProgress" 'lsp-pyright--end-progress-callback))))
-             :hook
-             (python-mode . lsp))
+  :init
+  (setq lsp-pyright-python-executable-cmd "python")
+  (setq python-shell-interpreter "ipython"
+        python-shell-interpreter-args "--simple-prompt --pprint")
+  (lsp-register-custom-settings
+   '(("pyls.plugins.pyls_mypy.enabled" t t)
+     ("pyls.plugins.pyls_mypy.live_mode" nil t)
+     ("pyls.plugins.pyls_black.enabled" t t)
+     ("pyls.plugins.pyls_isort.enabled" t t)))
+  (require 'lsp-pyright)
+  :after lsp-mode
+  :config
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-tramp-connection (lambda ()
+                                            (cons "pyright-langserver"
+                                                  lsp-pyright-langserver-command-args)))
+    :major-modes '(python-mode)
+    :remote? t
+    :server-id 'pyright-remote
+    :multi-root lsp-pyright-multi-root
+    :priority 3
+    :initialized-fn (lambda (workspace)
+                      (with-lsp-workspace workspace
+                        (lsp--set-configuration
+                         (make-hash-table :test 'equal))))
+    :download-server-fn (lambda (_client callback error-callback _update?)
+                          (lsp-package-ensure 'pyright callback error-callback))
+    :notification-handlers (lsp-ht ("pyright/beginProgress" 'lsp-pyright--begin-progress-callback)
+                                   ("pyright/reportProgress" 'lsp-pyright--report-progress-callback)
+                                   ("pyright/endProgress" 'lsp-pyright--end-progress-callback))))
+  :hook
+  (python-mode . lsp))
+
+
 
 (use-package pythonic)
 (use-package pyvenv
@@ -317,7 +391,10 @@
   :straight (:type git :host github :repo "merrickluo/lsp-tailwindcss")
   :init
   (setq lsp-tailwindcss-add-on-mode t)
-  (setq lsp-tailwindcss-experimental-class-regex ["tw`([^`]*)" "tw=\"([^\"]*)" "tw={\"([^\"}]*)" "tw\\.\\w+`([^`]*)" "tw\\(.*?\\)`([^`]*)"]))
+  (setq lsp-tailwindcss-skip-config-check t)
+  (setq lsp-tailwindcss-experimental-class-regex ["tw`([^`]*)" "tw=\"([^\"]*)" "tw={\"([^\"}]*)" "tw\\.\\w+`([^`]*)" "tw\\(.*?\\)`([^`]*)"])
+  (add-to-list 'lsp-tailwindcss-major-modes 'scss-mode)
+  (add-to-list 'lsp-tailwindcss-major-modes 'mhtml-mode))
 
 ;; <Begin a chain of package installs>
 ;; Ya! SnipPpets
@@ -408,16 +485,16 @@
 (use-package sudo-edit)
 
 ;; blamer for git
-(use-package blamer
-  :config
-  (setq blamer-idle-time 1)
-  (setq blamer-min-offset 10)
-  (setq blamer-author-formatter "%s, ")
-  (setq blamer-datetime-formatter "%s")
-  (setq blamer-commit-formatter nil)
-  (setq blamer-type 'both)
-  :config
-  (global-blamer-mode 1))
+;; (use-package blamer
+;;   :config
+;;   (setq blamer-idle-time 1)
+;;   (setq blamer-min-offset 10)
+;;   (setq blamer-author-formatter "%s, ")
+;;   (setq blamer-datetime-formatter "%s")
+;;   (setq blamer-commit-formatter nil)
+;;   (setq blamer-type 'both)
+;;   :config
+;;   (global-blamer-mode 1))
 
 ;; mpv
 (use-package mpv)
@@ -680,8 +757,6 @@ rather than the whole path."
 ;; CRDT
 (use-package crdt)
 
-
-
 ;; ----markdown!
 ;; Search the local directory and insert a file! or make one!
 (defun insert-file-name-as-wikilink (filename &optional args)
@@ -891,25 +966,25 @@ rather than the whole path."
   (modern-c++-font-lock-global-mode t))
 
 ;; Rust
-(use-package rust-mode
-  :straight (:type git :host github :repo "rust-lang/rust-mode")
-  :config
-  (evil-leader/set-key-for-mode 'rust-mode
-    "hs" 'rust-check
-    "ht" 'rust-test
-    "hn" 'rust-run
-    "hc" 'rust-compile)
-  :hook
-  (rust-mode . (lambda () (setq indent-tabs-mode nil))))
+;; (use-package rust-mode
+;;   :straight (:type git :host github :repo "rust-lang/rust-mode")
+;;   :config
+;;   (evil-leader/set-key-for-mode 'rust-mode
+;;     "hs" 'rust-check
+;;     "ht" 'rust-test
+;;     "hn" 'rust-run
+;;     "hc" 'rust-compile)
+;;   :hook
+;;   (rust-mode . (lambda () (setq indent-tabs-mode nil))))
 
 (use-package flycheck-rust
   :hook
   (flycheck-mode . flycheck-rust-setup))
 
-(use-package racer
-  :diminish racer-mode
-  :hook
-  (rust-mode . racer-mode))
+;; (use-package racer
+;;   :diminish racer-mode
+;;   :hook
+;;   (rust-mode . racer-mode))
 
 ;; Org
 (use-package org-fragtog
