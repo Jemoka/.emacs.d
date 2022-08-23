@@ -41,6 +41,7 @@
 
 
 ;;; ---tramp remote
+(require 'tramp)
 (add-to-list 'tramp-remote-path "/usr/bin")
 (add-to-list 'tramp-remote-path "/usr/local/bin")
 (add-to-list 'tramp-remote-path "/opt/bin")
@@ -290,7 +291,7 @@
   (with-eval-after-load "lsp-rust"
     (lsp-register-client
      (make-lsp-client
-      :new-connection (lsp-stdio-connection
+      :new-connection (lsp-tramp-connection
                        (lambda ()
                          `("rust-analyzer" ,@(cl-rest lsp-rust-analyzer-server-args))))
       :remote? t
