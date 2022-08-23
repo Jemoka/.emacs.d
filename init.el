@@ -1061,12 +1061,19 @@ rather than the whole path."
     "auss" 'org-roam-dailies-capture-today
     "auso" 'org-roam-dailies-goto-today)
   (evil-define-key 'insert org-mode-map (kbd "C-SPC") 'org-roam-node-insert-immediate)
-  (evil-define-key 'insert org-mode-map (kbd "C-S-SPC") 'org-roam-node-insert)
+  (evil-define-key 'insert org-mode-map (kbd "C-M-SPC") 'org-roam-node-insert)
   (org-roam-db-autosync-mode 1))
 
 (use-package org-ref
   :init
-  (setq bibtex-completion-bibliography '("~/Documents/knowledgebase/documents/refs.bib")
+  (require 'doi-utils)
+  (setq bibtex-completion-bibliography '("~/Documents/knowledgebase/documents/bibs/ml.bib"
+                                         "~/Documents/knowledgebase/documents/bibs/ling.bib"
+                                         "~/Documents/knowledgebase/documents/bibs/cs.bib"
+                                         "~/Documents/knowledgebase/documents/bibs/biomed.bib"
+                                         "~/Documents/knowledgebase/documents/bibs/chem.bib"
+                                         "~/Documents/knowledgebase/documents/bibs/jc.bib"
+                                         "~/Documents/knowledgebase/documents/oldrefs.bib")
         bibtex-completion-notes-path "~/Documents/knowledgebase"
         bibtex-completion-additional-search-fields '(keywords)
         bibtex-autokey-year-length 4
@@ -1096,11 +1103,18 @@ that."
         (if (buffer-contains-substring "printbibliography")
             (insert "\n[[bibliography:~/Documents/knowledgebase/documents/refs.bib]]"))
         (org-ref-process-buffer 'html)))
+    (defun org-ref-lookandput (&optional a)
+      (interactive)
+
+      (call-interactively 'doi-utils-add-entry-from-crossref-query)
+      (call-interactively 'org-ref-insert-link))
     (add-to-list 'org-export-before-parsing-hook #'my/org-ref-process-buffer--html))
   :config
   (evil-leader/set-key 
-    "aui" 'org-ref-insert-link)
+    "aui" 'org-ref-insert-link
+    "auc" 'org-ref-lookandput)
   (evil-define-key 'insert org-mode-map (kbd "C-<escape>") 'org-ref-insert-link)
+  (evil-define-key 'insert org-mode-map (kbd "C-M-<escape>") 'org-ref-lookandput)
   (add-function :after bibtex-completion-edit-notes-function (lambda (keys)
                                                                (goto-char (point-min))
                                                                (org-id-get-create))))
@@ -1109,7 +1123,11 @@ that."
                            (setq mode-line-format nil)))
 
 (use-package ivy-bibtex
-  :after org-ref)
+  :after org-ref
+  :init
+  (setq ivy-re-builders-alist
+      '((ivy-bibtex . ivy--regex-ignore-order)
+        (t . ivy--regex-plus))))
 
 (defun org-rebuild-cache ()
   "Rebuild the `org-mode' and `org-roam' cache."
