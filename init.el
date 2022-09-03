@@ -442,10 +442,23 @@
                            (yas-expand-snippet "\\begin{pmatrix}\n$1\n\\end{pmatrix} $0"))
                     ".pmb" (lambda () (interactive)
                            (yas-expand-snippet "\\begin{bmatrix}\n$1\n\\end{bmatrix} $0"))
-                    "qt" "\\qty"
+                    "lsm" (lambda () (interactive)
+                           (yas-expand-snippet "\sum_{$1}^{$2} $0"))
+                    "lid" (lambda () (interactive)
+                           (yas-expand-snippet "\int_{$1}^{$2} $0"))
+                    "^" (lambda () (interactive)
+                           (yas-expand-snippet "^{$1} $0"))
+                    "_" (lambda () (interactive)
+                           (yas-expand-snippet "_{$1} $0"))
+                    "lii" "\\int"
+                    "lt" "\\qty"
                     ;; add accent snippets
                     :cond #'laas-object-on-left-condition
-                    "qq" (lambda () (interactive) (laas-wrap-previous-object "sqrt")))
+                    "lll" (lambda () (interactive) (laas-wrap-previous-object "sqrt"))
+                    "llb" (lambda () (interactive) (laas-wrap-previous-object "mathbb"))
+                    "llc" (lambda () (interactive) (laas-wrap-previous-object "mathcal"))
+                    "llf" (lambda () (interactive) (laas-wrap-previous-object "mathbf"))
+                    "llt" (lambda () (interactive) (laas-wrap-previous-object "text")))
   :hook
   (org-mode . laas-mode))
 
