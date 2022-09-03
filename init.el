@@ -442,6 +442,7 @@
                            (yas-expand-snippet "\\begin{pmatrix}\n$1\n\\end{pmatrix} $0"))
                     ".pmb" (lambda () (interactive)
                            (yas-expand-snippet "\\begin{bmatrix}\n$1\n\\end{bmatrix} $0"))
+                    "qt" "\\qty"
                     ;; add accent snippets
                     :cond #'laas-object-on-left-condition
                     "qq" (lambda () (interactive) (laas-wrap-previous-object "sqrt")))
