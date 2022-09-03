@@ -11,13 +11,22 @@
 #+LATEX_HEADER_EXTRA: \usepackage{fontspec}
 #+LATEX_HEADER_EXTRA: \usepackage{svg}
 #+LATEX_HEADER_EXTRA: \usepackage{tikz}
+#+LATEX_HEADER_EXTRA: \usepackage{physics}
 #+LATEX_HEADER_EXTRA: \usepackage{cancel}
 #+LATEX_HEADER_EXTRA: \usepackage{pgfplots}
 #+LATEX_HEADER_EXTRA: \usepackage{indentfirst}
 
 #+LATEX_HEADER_EXTRA: \usepackage[style=apa,url=true,backend=biber] {biblatex}
-#+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/refs.bib}
-
+#+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/bibs/ml.bib}
+#+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/bibs/ling.bib}
+#+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/bibs/cs.bib}
+#+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/bibs/biomed.bib}
+#+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/bibs/chem.bib}
+#+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/bibs/jc.bib}
+#+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/bibs/phymath.bib}
+#+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/bibs/socio.bib}
+#+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/bibs/misc.bib}
+#+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/oldrefs.bib}
 
 #+LATEX_HEADER_EXTRA: \setmainfont[ItalicFont = HelveticaNeue-Italic, BoldFont = HelveticaNeue-Bold, BoldItalicFont = HelveticaNeue-BoldItalic]{HelveticaNeue}
 #+LATEX_HEADER_EXTRA: \newfontfamily\NHLight[ItalicFont = HelveticaNeue-LightItalic, BoldFont       = HelveticaNeue-UltraLight, BoldItalicFont = HelveticaNeue-UltraLightItalic]{HelveticaNeue-Light}

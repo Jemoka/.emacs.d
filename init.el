@@ -242,7 +242,7 @@
   (add-hook 'c++-mode-hook (lambda() (setq-local lsp-enable-snippet nil)))
   (add-hook 'lsp-completion-mode-hook (lambda ()
                                         (eldoc-mode -1)
-                                        (setq company-backends '((company-files company-capf :with company-dabbrev-code :separate company-yasnippet) (company-semantic)))))
+                                        (setq company-backends '((company-files company-capf :with company-dabbrev-code company-yasnippet) (company-semantic)))))
   :hook
   (lsp-mode . lsp-completion-mode)
   (c++-mode . lsp)
@@ -409,19 +409,59 @@
                 (let ((yas-buffer-local-condition ''(require-snippet-condition . auto)))
                   (yas-expand))))))
 
+(use-package aas
+      :hook (LaTeX-mode . ass-activate-for-major-mode)
+      :hook (org-mode . ass-activate-for-major-mode)
+      :config
+      ;; (aas-set-snippets 'org-mode
+      ;;                   "w/" "with")
+      )
+
+(use-package laas
+  :config ; do whatever here
+  (aas-set-snippets 'laas-mode
+                    ;; set condition!
+                    ".pp" (lambda () (interactive)
+                           (yas-expand-snippet "$$1$ $0"))
+                    ".pe" (lambda () (interactive)
+                           (yas-expand-snippet "\\begin{equation}\n$1\n\\end{equation} $0"))
+                    ".pc" (lambda () (interactive)
+                           (yas-expand-snippet "\\begin{equation}\n\begin{cases}\n$1\n\end{cases}\n\\end{equation} $0"))
+                    ".pa" (lambda () (interactive)
+                           (yas-expand-snippet "\\begin{align}\n$1\n\\end{align} $0"))
+                    :cond #'texmathp ; expand only while in math
+                    ".pt" (lambda () (interactive)
+                           (yas-expand-snippet "\\text{$1}$0"))
+                    ".pbb" (lambda () (interactive)
+                            (yas-expand-snippet "\\mathbb{$1}$0"))
+                    ".pba" (lambda () (interactive)
+                            (yas-expand-snippet "\\mathbf{$1}$0"))
+                    ".pbc" (lambda () (interactive)
+                            (yas-expand-snippet "\\mathcal{$1}$0"))
+                    ".pmp" (lambda () (interactive)
+                           (yas-expand-snippet "\\begin{pmatrix}\n$1\n\\end{pmatrix} $0"))
+                    ".pmb" (lambda () (interactive)
+                           (yas-expand-snippet "\\begin{bmatrix}\n$1\n\\end{bmatrix} $0"))
+                    ;; add accent snippets
+                    :cond #'laas-object-on-left-condition
+                    "qq" (lambda () (interactive) (laas-wrap-previous-object "sqrt")))
+  :hook
+  (org-mode . laas-mode))
+
 ;; LaTex
 (use-package company-auctex
   :after yasnippet)
 
 
-(setq company-backends '((company-files company-capf :with company-dabbrev-code :separate company-yasnippet) (company-dabbrev-code company-semantic)))
+(setq company-backends '((company-files company-capf :with company-dabbrev-code company-yasnippet) (company-semantic)))
 (yas-global-mode 1)
 (company-auctex-init)
 
 (add-hook 'org-mode-hook (lambda ()
-			   (setq completion-ignore-case t)
-			   (setq company-minimum-prefix-length 1)
-			   (setq company-backends '((company-files company-capf :with company-dabbrev-code :separate company-yasnippet) (company-dabbrev-code company-semantic)))))
+                           (setq completion-ignore-case t)
+                           (setq company-minimum-prefix-length 1)
+                           (setq-local company-backends '((company-files company-yasnippet company-capf :with company-dabbrev-code) (company-semantic)))))
+
 (add-hook 'company-after-completion-hook (lambda (canidate)
 					      (org-roam-link-replace-all)))
 
@@ -1073,7 +1113,11 @@ rather than the whole path."
                                          "~/Documents/knowledgebase/documents/bibs/biomed.bib"
                                          "~/Documents/knowledgebase/documents/bibs/chem.bib"
                                          "~/Documents/knowledgebase/documents/bibs/jc.bib"
+                                         "~/Documents/knowledgebase/documents/bibs/phymath.bib"
+                                         "~/Documents/knowledgebase/documents/bibs/socio.bib"
+                                         "~/Documents/knowledgebase/documents/bibs/misc.bib"
                                          "~/Documents/knowledgebase/documents/oldrefs.bib")
+        bibtex-completion-library-path "~/Documents/knowledgebase/documents/refs"
         bibtex-completion-notes-path "~/Documents/knowledgebase"
         bibtex-completion-additional-search-fields '(keywords)
         bibtex-autokey-year-length 4
@@ -1101,7 +1145,7 @@ that."
       (when (org-export-derived-backend-p backend 'html)
         (goto-char (max-char))
         (if (buffer-contains-substring "printbibliography")
-            (insert "\n[[bibliography:~/Documents/knowledgebase/documents/refs.bib]]"))
+            (insert (format "\n[[bibliography:%s]]" (string-join bibtex-completion-bibliography ","))))
         (org-ref-process-buffer 'html)))
     (defun org-ref-lookandput (&optional a)
       (interactive)
@@ -1249,6 +1293,7 @@ that."
 ;; code highlightin
   (setq org-latex-packages-alist '(("margin=1in" "geometry")))
     (add-to-list 'org-latex-packages-alist '("" "minted"))
+    (add-to-list 'org-latex-packages-alist '("" "physics"))
     (setq org-latex-pdf-process '("latexmk -bibtex -f -pdf -%latex -shell-escape -interaction=nonstopmode -output-directory=%o %f"))
 
 
