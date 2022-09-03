@@ -423,6 +423,8 @@
   :config ; do whatever here
   (aas-set-snippets 'laas-mode
                     ;; set condition!
+                    "..p" (lambda () (interactive)
+                           (yas-expand-snippet "$$1$ $0"))
                     ".pp" (lambda () (interactive)
                            (yas-expand-snippet "$$1$ $0"))
                     ".pe" (lambda () (interactive)
@@ -454,7 +456,7 @@
                            (yas-expand-snippet "_{$1}$0"))
                     "lii" "\\int"
                     "lt" "\\qty"
-                    "ldd" (lambda () (interactive)
+                    "lh " (lambda () (interactive)
                           (yas-expand-snippet "\\dd{$1}$0"))
                     "lhh" "\\dv"
                     "lht" (lambda () (interactive)
@@ -462,6 +464,11 @@
                     "lhn" "\\pdv"
                     "lhs" (lambda () (interactive)
                           (yas-expand-snippet "\\pdv{$1}{$2}$0"))
+                    "lan" " \\\\\n\\Rightarrow\\ & "
+                    "las" "& "
+                    "lae" " &= "
+                    "lah" (lambda () (interactive)
+                          (yas-expand-snippet " \\\\\\\n&= $1"))
                     ;; add accent snippets
                     :cond #'laas-object-on-left-condition
                     "lll" (lambda () (interactive) (laas-wrap-previous-object "sqrt"))
