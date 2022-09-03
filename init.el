@@ -410,6 +410,7 @@
                   (yas-expand))))))
 
 (use-package aas
+  :diminish aas
       :hook (LaTeX-mode . ass-activate-for-major-mode)
       :hook (org-mode . ass-activate-for-major-mode)
       :config
@@ -418,6 +419,7 @@
       )
 
 (use-package laas
+  :diminish laas-mode
   :config ; do whatever here
   (aas-set-snippets 'laas-mode
                     ;; set condition!
@@ -442,16 +444,24 @@
                            (yas-expand-snippet "\\begin{pmatrix}\n$1\n\\end{pmatrix} $0"))
                     "lsmb" (lambda () (interactive)
                            (yas-expand-snippet "\\begin{bmatrix}\n$1\n\\end{bmatrix} $0"))
-                    "lsa" (lambda () (interactive)
-                           (yas-expand-snippet "\\sum_{$1}^{$2} $0"))
+                    "lss" (lambda () (interactive)
+                           (yas-expand-snippet "\\sum_{$1}^{$2}$0"))
                     "lid" (lambda () (interactive)
-                           (yas-expand-snippet "\\int_{$1}^{$2} $0"))
+                           (yas-expand-snippet "\\int_{$1}^{$2}$0"))
                     "^" (lambda () (interactive)
-                           (yas-expand-snippet "^{$1} $0"))
+                           (yas-expand-snippet "^{$1}$0"))
                     "_" (lambda () (interactive)
-                           (yas-expand-snippet "_{$1} $0"))
+                           (yas-expand-snippet "_{$1}$0"))
                     "lii" "\\int"
                     "lt" "\\qty"
+                    "ldd" (lambda () (interactive)
+                          (yas-expand-snippet "\\dd{$1}$0"))
+                    "lhh" "\\dv"
+                    "lht" (lambda () (interactive)
+                          (yas-expand-snippet "\\dv{$1}{$2}$0"))
+                    "lhn" "\\pdv"
+                    "lhs" (lambda () (interactive)
+                          (yas-expand-snippet "\\pdv{$1}{$2}$0"))
                     ;; add accent snippets
                     :cond #'laas-object-on-left-condition
                     "lll" (lambda () (interactive) (laas-wrap-previous-object "sqrt"))
@@ -461,6 +471,18 @@
                     "llt" (lambda () (interactive) (laas-wrap-previous-object "text")))
   :hook
   (org-mode . laas-mode))
+
+;; disable company-capf (i.e. Org Roam complete) inside a math enviroment for org
+(defun nil-in-math (res)
+  "Disable a backend result inside a math environment by selectively returning RES."
+
+  (if (and (derived-mode-p 'org-mode)
+           (texmathp))
+      nil
+    res))
+
+(advice-add 'company-capf--candidates :filter-return #'nil-in-math)
+           
 
 ;; LaTex
 (use-package company-auctex
