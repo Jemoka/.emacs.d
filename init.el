@@ -508,8 +508,8 @@
                            (setq-local company-backends '((company-files company-yasnippet company-capf :with company-dabbrev-code) (company-semantic)))))
 
 (add-hook 'company-after-completion-hook (lambda (canidate)
-					      (org-roam-link-replace-all)))
-
+                                           (if (derived-mode-p 'org-mode)
+                                               (org-roam-link-replace-all))))
 ;; </Begin a chain of package installs>
 
 ;; Flycheck
