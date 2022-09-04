@@ -423,15 +423,13 @@
   :config ; do whatever here
   (aas-set-snippets 'laas-mode
                     ;; set condition!
-                    "..p" (lambda () (interactive)
-                           (yas-expand-snippet "$$1$ $0"))
-                    ".pp" (lambda () (interactive)
-                           (yas-expand-snippet "$$1$ $0"))
-                    ".pe" (lambda () (interactive)
+                    ".p " (lambda () (interactive)
+                           (yas-expand-snippet "$$1$$0"))
+                    ".ph" (lambda () (interactive)
                            (yas-expand-snippet "\\begin{equation}\n$1\n\\end{equation} $0"))
-                    ".pc" (lambda () (interactive)
+                    ".pn" (lambda () (interactive)
                            (yas-expand-snippet "\\begin{equation}\n\begin{cases}\n$1\n\end{cases}\n\\end{equation} $0"))
-                    ".pa" (lambda () (interactive)
+                    ".pt" (lambda () (interactive)
                            (yas-expand-snippet "\\begin{align}\n$1\n\\end{align} $0"))
                     :cond #'texmathp ; expand only while in math
                     "lst" (lambda () (interactive)
@@ -450,12 +448,16 @@
                            (yas-expand-snippet "\\sum_{$1}^{$2}$0"))
                     "lid" (lambda () (interactive)
                            (yas-expand-snippet "\\int_{$1}^{$2}$0"))
+                    "lim" (lambda () (interactive)
+                           (yas-expand-snippet "\\lim_{$1 \\to $2}$0"))
                     "^" (lambda () (interactive)
                            (yas-expand-snippet "^{$1}$0"))
                     "_" (lambda () (interactive)
                            (yas-expand-snippet "_{$1}$0"))
                     "lii" "\\int"
-                    "lt" "\\qty"
+                    "lt" (lambda () (interactive)
+                           (yas-expand-snippet "\\qty($1)$0"))
+                    "lq" "\\qty"
                     "lh " (lambda () (interactive)
                           (yas-expand-snippet "\\dd{$1}$0"))
                     "lhh" "\\dv"
@@ -1146,6 +1148,12 @@ rather than the whole path."
   (evil-define-key 'insert org-mode-map (kbd "C-SPC") 'org-roam-node-insert-immediate)
   (evil-define-key 'insert org-mode-map (kbd "C-M-SPC") 'org-roam-node-insert)
   (org-roam-db-autosync-mode 1))
+
+;; mobile
+(setq org-directory "~/Documents/knowledgebase")
+(setq org-mobile-inbox-for-pull "~/Documents/knowledgebase/KBhinbox.org")
+(setq org-mobile-directory "~/Dropbox/Apps/MobileOrg")
+(setq org-mobile-files '("~/Documents/knowledgebase"))
 
 (use-package org-ref
   :init

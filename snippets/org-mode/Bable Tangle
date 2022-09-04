@@ -1,4 +1,4 @@
-# key: bspt
+# key: ~bspt
 # name: Bable Tangle
 # --
 #+PROPERTY: header-args :tangle $1 :results verbatim :exports both

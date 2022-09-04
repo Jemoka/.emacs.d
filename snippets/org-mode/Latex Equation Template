@@ -1,6 +1,6 @@
 # -*- mode: snippet -*-
 # name: Latex Equation Template	
-# key: lteqn
+# key: ~lteqn
 # --
 \begin{equation}
     $1

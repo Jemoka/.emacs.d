@@ -1,6 +1,6 @@
 # -*- mode: snippet -*-
 # name: Latex Align Template
-# key: ltaln
+# key: ~ltaln
 # --
 \begin{align}
     $1
