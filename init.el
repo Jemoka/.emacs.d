@@ -222,6 +222,13 @@
   :hook
   (after-init . company-tng-mode))
 
+;; stats!
+(use-package company-statistics
+  :diminish company-statistics-mode
+
+  :config
+  (company-statistics-mode))
+
 (use-package lsp-mode
   :init
   (setq lsp-auto-configure nil)
