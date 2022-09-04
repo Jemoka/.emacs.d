@@ -243,7 +243,9 @@
   (require 'lsp-css)
   (require 'lsp-html)
   (require 'lsp-completion)
+  (require 'lsp-svelte)
   (lsp-completion--enable)
+  (setq lsp-completion--no-reordering t)
   (setq lsp-enable-snippet t)
   (add-hook 'c-mode-hook (lambda() (setq-local lsp-enable-snippet nil)))
   (add-hook 'c++-mode-hook (lambda() (setq-local lsp-enable-snippet nil)))
@@ -260,6 +262,7 @@
   (rustic-mode . lsp)
   (mhtml-mode . lsp)
   (css-mode . lsp)
+  (svelte-mode . lsp)
   (java-mode . lsp))
 
 (use-package rustic
@@ -917,6 +920,9 @@ rather than the whole path."
 
 
 ;; ----new languages 
+;; swelte
+(use-package svelte-mode)
+
 ;; cider
 (use-package cider
   :config
