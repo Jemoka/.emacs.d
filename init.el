@@ -223,11 +223,11 @@
   (after-init . company-tng-mode))
 
 ;; stats!
-(use-package company-statistics
-  :diminish company-statistics-mode
+;; (use-package company-statistics
+;;   :diminish company-statistics-mode
 
-  :config
-  (company-statistics-mode))
+;;   :config
+;;   (company-statistics-mode))
 
 (use-package lsp-mode
   :init
@@ -245,13 +245,13 @@
   (require 'lsp-completion)
   (require 'lsp-svelte)
   (lsp-completion--enable)
-  (setq lsp-completion--no-reordering t)
+  (setq lsp-completion--no-reordering nil)
   (setq lsp-enable-snippet t)
   (add-hook 'c-mode-hook (lambda() (setq-local lsp-enable-snippet nil)))
   (add-hook 'c++-mode-hook (lambda() (setq-local lsp-enable-snippet nil)))
   (add-hook 'lsp-completion-mode-hook (lambda ()
                                         (eldoc-mode -1)
-                                        (setq company-backends '((company-files company-capf :with company-dabbrev-code company-yasnippet) (company-semantic)))))
+                                        (setq company-backends '((company-files company-capf :with company-dabbrev-code) (company-semantic)))))
   :hook
   (lsp-mode . lsp-completion-mode)
   (c++-mode . lsp)
@@ -405,7 +405,8 @@
   (setq lsp-tailwindcss-skip-config-check t)
   (setq lsp-tailwindcss-experimental-class-regex ["tw`([^`]*)" "tw=\"([^\"]*)" "tw={\"([^\"}]*)" "tw\\.\\w+`([^`]*)" "tw\\(.*?\\)`([^`]*)"])
   (add-to-list 'lsp-tailwindcss-major-modes 'scss-mode)
-  (add-to-list 'lsp-tailwindcss-major-modes 'mhtml-mode))
+  (add-to-list 'lsp-tailwindcss-major-modes 'mhtml-mode)
+  (add-to-list 'lsp-tailwindcss-major-modes 'svelte-mode))
 
 ;; <Begin a chain of package installs>
 ;; Ya! SnipPpets
