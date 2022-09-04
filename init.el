@@ -257,14 +257,13 @@
   (c-mode . lsp)
   (typescript-mode . lsp)
   (javascript-mode . lsp)
+  (js-mode . lsp)
   (rjsx-mode . lsp)
   (rustic-mode . lsp)
   (mhtml-mode . lsp)
   (css-mode . lsp)
   (svelte-mode . lsp)
   (java-mode . lsp))
-
-(add-hook 'javascript-mode-hook 'lsp)
 
 (use-package rustic
   :init
