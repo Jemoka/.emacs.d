@@ -245,13 +245,12 @@
   (require 'lsp-completion)
   (require 'lsp-svelte)
   (lsp-completion--enable)
-  (setq lsp-completion--no-reordering nil)
   (setq lsp-enable-snippet t)
   (add-hook 'c-mode-hook (lambda() (setq-local lsp-enable-snippet nil)))
   (add-hook 'c++-mode-hook (lambda() (setq-local lsp-enable-snippet nil)))
-  (add-hook 'lsp-completion-mode-hook (lambda ()
+  (remove-hook 'lsp-completion-mode-hook (lambda ()
                                         (eldoc-mode -1)
-                                        (setq company-backends '((company-files company-capf :with company-dabbrev-code) (company-semantic)))))
+                                        (setq company-backends '((company-files company-capf :with company-dabbrev-code)))))
   :hook
   (lsp-mode . lsp-completion-mode)
   (c++-mode . lsp)
@@ -264,6 +263,8 @@
   (css-mode . lsp)
   (svelte-mode . lsp)
   (java-mode . lsp))
+
+(add-hook 'javascript-mode-hook 'lsp)
 
 (use-package rustic
   :init
@@ -509,14 +510,14 @@
   :after yasnippet)
 
 
-(setq company-backends '((company-files company-capf :with company-dabbrev-code company-yasnippet) (company-semantic)))
+(setq company-backends '((company-files company-capf :with company-dabbrev-code company-yasnippet) ))
 (yas-global-mode 1)
 (company-auctex-init)
 
 (add-hook 'org-mode-hook (lambda ()
                            (setq completion-ignore-case t)
                            (setq company-minimum-prefix-length 1)
-                           (setq-local company-backends '((company-files company-yasnippet company-capf :with company-dabbrev-code) (company-semantic)))))
+                           (setq-local company-backends '((company-files company-yasnippet company-capf :with company-dabbrev-code) ))))
 
 (add-hook 'company-after-completion-hook (lambda (canidate)
                                            (if (derived-mode-p 'org-mode)
