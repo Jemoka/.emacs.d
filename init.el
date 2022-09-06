@@ -148,11 +148,11 @@
   :config
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t)
-  (load-theme 'doom-tomorrow-night t)
+  (load-theme 'doom-vibrant t)
 
   (doom-themes-visual-bell-config)
   (doom-themes-neotree-config)
-  (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
+  (setq doom-themes-treemacs-theme "doom-vibrant") ; use "doom-colors" for less minimal icon theme
   (doom-themes-treemacs-config)
   (doom-themes-org-config))
 
@@ -166,6 +166,13 @@
   :config
   (powerline-default-theme)
   (display-time-mode))
+
+;; (use-package doom-modeline
+;;   :ensure t
+;;   :init (doom-modeline-mode 1)
+;;   :config
+;;   (setq doom-modeline-icon t)
+;;   (setq doom-modeline-major-mode-icon nil))
 
 (use-package fancy-battery
   :config
@@ -572,6 +579,7 @@
       :fringe-face 'flycheck-fringe-info)))
 
 
+
 (with-eval-after-load "flycheck"
     (setq flycheck-clang-warnings `(,@flycheck-clang-warnings
                                     "no-pragma-once-outside-header")))
@@ -888,7 +896,6 @@ rather than the whole path."
   (set-face-attribute 'markdown-header-face-4 nil :foreground 'unspecified :inherit 'outline-4)
   (set-face-attribute 'markdown-header-face-5 nil :foreground 'unspecified :inherit 'outline-5)
   (add-hook 'markdown-mode-hook (lambda ()
-                                  (setq mode-line-format nil)
                                   (olivetti-mode))))
 
 
@@ -922,7 +929,9 @@ rather than the whole path."
 
 ;; ----new languages 
 ;; swelte
-(use-package svelte-mode)
+(use-package svelte-mode
+  :config
+  (add-hook 'svelte-mode-hook (lambda () (flyspell-mode -1))))
 
 ;; cider
 (use-package cider
@@ -1227,9 +1236,6 @@ that."
   (add-function :after bibtex-completion-edit-notes-function (lambda (keys)
                                                                (goto-char (point-min))
                                                                (org-id-get-create))))
-
-(add-hook 'org-mode-hook (lambda ()
-                           (setq mode-line-format nil)))
 
 (use-package ivy-bibtex
   :after org-ref
