@@ -450,52 +450,55 @@
                     ".pt" (lambda () (interactive)
                            (yas-expand-snippet "\\begin{align}\n$1\n\\end{align} $0"))
                     :cond #'texmathp ; expand only while in math
-                    "lst" (lambda () (interactive)
+                    "sst" (lambda () (interactive)
                            (yas-expand-snippet "\\text{$1}$0"))
-                    "lsb" (lambda () (interactive)
+                    "ssb" (lambda () (interactive)
                             (yas-expand-snippet "\\mathbb{$1}$0"))
-                    "lsf" (lambda () (interactive)
+                    "ssf" (lambda () (interactive)
                             (yas-expand-snippet "\\mathbf{$1}$0"))
-                    "lsc" (lambda () (interactive)
+                    "ssc" (lambda () (interactive)
                             (yas-expand-snippet "\\mathcal{$1}$0"))
-                    "lsmp" (lambda () (interactive)
+                    "ssmp" (lambda () (interactive)
                            (yas-expand-snippet "\\begin{pmatrix}\n$1\n\\end{pmatrix} $0"))
-                    "lsmb" (lambda () (interactive)
+                    "ssmb" (lambda () (interactive)
                            (yas-expand-snippet "\\begin{bmatrix}\n$1\n\\end{bmatrix} $0"))
-                    "lss" (lambda () (interactive)
+                    "ssmv" (lambda () (interactive)
+                           (yas-expand-snippet "\\begin{vmatrix}\n$1\n\\end{vmatrix} $0"))
+
+                    "sss" (lambda () (interactive)
                            (yas-expand-snippet "\\sum_{$1}^{$2}$0"))
-                    "lid" (lambda () (interactive)
+                    "sid" (lambda () (interactive)
                            (yas-expand-snippet "\\int_{$1}^{$2}$0"))
-                    "lim" (lambda () (interactive)
+                    "slm" (lambda () (interactive)
                            (yas-expand-snippet "\\lim_{$1 \\to $2}$0"))
                     "^" (lambda () (interactive)
                            (yas-expand-snippet "^{$1}$0"))
                     "_" (lambda () (interactive)
                            (yas-expand-snippet "_{$1}$0"))
-                    "lii" "\\int"
-                    "lt" (lambda () (interactive)
-                           (yas-expand-snippet "\\qty($1)$0"))
-                    "lq" "\\qty"
-                    "lh " (lambda () (interactive)
-                          (yas-expand-snippet "\\dd{$1}$0"))
-                    "lhh" "\\dv"
-                    "lht" (lambda () (interactive)
-                          (yas-expand-snippet "\\dv{$1}{$2}$0"))
-                    "lhn" "\\pdv"
-                    "lhs" (lambda () (interactive)
-                          (yas-expand-snippet "\\pdv{$1}{$2}$0"))
-                    "lan" " \\\\\n\\Rightarrow\\ & "
-                    "las" "& "
-                    "lae" " &= "
-                    "lah" (lambda () (interactive)
+                    "sii" "\\int"
+                    "st" (lambda () (interactive)
+                          (yas-expand-snippet "\\qty($1)$0"))
+                    "sq" "\\qty"
+                    "sh " (lambda () (interactive)
+                         (yas-expand-snippet "\\dd{$1}$0"))
+                    "shh" "\\dv"
+                    "sht" (lambda () (interactive)
+                         (yas-expand-snippet "\\dv{$1}{$2}$0"))
+                    "shn" "\\pdv"
+                    "shs" (lambda () (interactive)
+                         (yas-expand-snippet "\\pdv{$1}{$2}$0"))
+                    "san" " \\\\\n\\Rightarrow\\ & "
+                    "sas" "& "
+                    "sae" " &= "
+                    "sah" (lambda () (interactive)
                           (yas-expand-snippet " \\\\\\\n&= $1"))
                     ;; add accent snippets
                     :cond #'laas-object-on-left-condition
-                    "lll" (lambda () (interactive) (laas-wrap-previous-object "sqrt"))
-                    "llb" (lambda () (interactive) (laas-wrap-previous-object "mathbb"))
-                    "llc" (lambda () (interactive) (laas-wrap-previous-object "mathcal"))
-                    "llf" (lambda () (interactive) (laas-wrap-previous-object "mathbf"))
-                    "llt" (lambda () (interactive) (laas-wrap-previous-object "text")))
+                    "sll" (lambda () (interactive) (laas-wrap-previous-object "sqrt"))
+                    "slb" (lambda () (interactive) (laas-wrap-previous-object "mathbb"))
+                    "slc" (lambda () (interactive) (laas-wrap-previous-object "mathcal"))
+                    "slf" (lambda () (interactive) (laas-wrap-previous-object "mathbf"))
+                    "slt" (lambda () (interactive) (laas-wrap-previous-object "text")))
   :hook
   (org-mode . laas-mode))
 
