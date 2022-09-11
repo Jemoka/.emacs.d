@@ -257,7 +257,7 @@
   (add-hook 'c++-mode-hook (lambda() (setq-local lsp-enable-snippet nil)))
   (add-hook 'lsp-completion-mode-hook (lambda ()
                                         (eldoc-mode -1)
-                                        (setq company-backends '((company-files company-capf :with company-dabbrev-code)))))
+                                        (setq company-backends '(company-files company-capf))))
   :hook
   (lsp-mode . lsp-completion-mode)
   (c++-mode . lsp)
