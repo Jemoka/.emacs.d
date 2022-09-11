@@ -255,7 +255,7 @@
   (setq lsp-enable-snippet t)
   (add-hook 'c-mode-hook (lambda() (setq-local lsp-enable-snippet nil)))
   (add-hook 'c++-mode-hook (lambda() (setq-local lsp-enable-snippet nil)))
-  (remove-hook 'lsp-completion-mode-hook (lambda ()
+  (add-hook 'lsp-completion-mode-hook (lambda ()
                                         (eldoc-mode -1)
                                         (setq company-backends '((company-files company-capf :with company-dabbrev-code)))))
   :hook
@@ -443,10 +443,12 @@
                     ;; set condition!
                     ".p " (lambda () (interactive)
                            (yas-expand-snippet "$$1$$0"))
+                    ".pp" (lambda () (interactive)
+                           (yas-expand-snippet "$$1$$0"))
                     ".ph" (lambda () (interactive)
                            (yas-expand-snippet "\\begin{equation}\n$1\n\\end{equation} $0"))
                     ".pn" (lambda () (interactive)
-                           (yas-expand-snippet "\\begin{equation}\n\begin{cases}\n$1\n\end{cases}\n\\end{equation} $0"))
+                           (yas-expand-snippet "\\begin{equation}\n\\begin{cases}\n$1\n\\end{cases}\n\\end{equation} $0"))
                     ".pt" (lambda () (interactive)
                            (yas-expand-snippet "\\begin{align}\n$1\n\\end{align} $0"))
                     :cond #'texmathp ; expand only while in math
@@ -458,14 +460,14 @@
                             (yas-expand-snippet "\\mathbf{$1}$0"))
                     "ssc" (lambda () (interactive)
                             (yas-expand-snippet "\\mathcal{$1}$0"))
-                    "ssmp" (lambda () (interactive)
+                    "smp" (lambda () (interactive)
                            (yas-expand-snippet "\\begin{pmatrix}\n$1\n\\end{pmatrix} $0"))
-                    "ssmb" (lambda () (interactive)
+                    "smb" (lambda () (interactive)
                            (yas-expand-snippet "\\begin{bmatrix}\n$1\n\\end{bmatrix} $0"))
-                    "ssmv" (lambda () (interactive)
+                    "smv" (lambda () (interactive)
                            (yas-expand-snippet "\\begin{vmatrix}\n$1\n\\end{vmatrix} $0"))
 
-                    "sss" (lambda () (interactive)
+                    "ssm" (lambda () (interactive)
                            (yas-expand-snippet "\\sum_{$1}^{$2}$0"))
                     "sid" (lambda () (interactive)
                            (yas-expand-snippet "\\int_{$1}^{$2}$0"))
@@ -489,12 +491,14 @@
                          (yas-expand-snippet "\\pdv{$1}{$2}$0"))
                     "san" " \\\\\n\\Rightarrow\\ & "
                     "sas" "& "
-                    "sae" " &= "
-                    "sah" (lambda () (interactive)
+                    "saq" " &= "
+                    "sae" (lambda () (interactive)
                           (yas-expand-snippet " \\\\\\\n&= $1"))
                     ;; add accent snippets
                     :cond #'laas-object-on-left-condition
-                    "sll" (lambda () (interactive) (laas-wrap-previous-object "sqrt"))
+                    "ssr" (lambda () (interactive) (laas-wrap-previous-object "sqrt"))
+                    "svc" (lambda () (interactive) (laas-wrap-previous-object "vec"))
+                    "scp" (lambda () (interactive) (laas-wrap-previous-object "hat"))
                     "slb" (lambda () (interactive) (laas-wrap-previous-object "mathbb"))
                     "slc" (lambda () (interactive) (laas-wrap-previous-object "mathcal"))
                     "slf" (lambda () (interactive) (laas-wrap-previous-object "mathbf"))
@@ -1692,6 +1696,10 @@ are null."
 (setq tab-width 4)
 (setq c-basic-offset 4)
 (setq python-indent-offset 4)
+(setq web-mode-markup-indent-offset 4)
+(setq web-mode-css-indent-offset 4)
+(setq css-indent-offset 4)
+(setq web-mode-code-indent-offset 4)
 
 ;; Flycheck vs. Modern C++
 (add-hook 'c++-mode-hook (lambda ()
