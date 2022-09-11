@@ -174,9 +174,6 @@
 ;;   (setq doom-modeline-icon t)
 ;;   (setq doom-modeline-major-mode-icon nil))
 
-(use-package fancy-battery
-  :config
-  (fancy-battery-mode))
 
 ;; Line numbers, relativity
 (add-hook 'prog-mode-hook (lambda ()
@@ -205,8 +202,6 @@
 (add-hook 'typescript-mode-hook (lambda () (setq indent-tabs-mode nil)))
 
 
-
-
 ;; ----autocomplete
 ;; Turns out the best way to do LSP is to not use it
 (use-package company
@@ -219,6 +214,7 @@
   (setq company-dabbrev-code-other-buffers nil)
   (setq company-dabbrev-code-ignore-case t)
   (setq company-dabbrev-code-time-limit 0.01)
+  (setq company-tooltip-maximum-width 30)
 
   :config
   (define-key company-active-map (kbd "TAB") 'company-select-next)
