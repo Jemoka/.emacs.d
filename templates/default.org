@@ -47,7 +47,7 @@
 #+LATEX_HEADER_EXTRA: \lhead{\textbf{\@title}}
 #+LATEX_HEADER_EXTRA: \makeatother
 #+LATEX_HEADER_EXTRA: \rhead{\textrmlf{Written} \today}
-#+LATEX_HEADER_EXTRA: \lfoot{\theauthor\ \textbullet \ \textbf{2021-2022}}
+#+LATEX_HEADER_EXTRA: \lfoot{\theauthor\ \textbullet \ \textbf{2022-2023}}
 #+LATEX_HEADER_EXTRA: \cfoot{}
 #+LATEX_HEADER_EXTRA: \rfoot{\textrmlf{Page} \thepage}
 

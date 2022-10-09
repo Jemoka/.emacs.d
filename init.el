@@ -16,9 +16,9 @@
     (setenv "PATH" path-from-shell)
     (setq exec-path (split-string path-from-shell path-separator))))
 
+
 (set-exec-path-from-shell-PATH)
 (setq package-enable-at-startup nil)
-
 
 
 ;;; ----Shunning custom
@@ -214,7 +214,7 @@
   (setq company-dabbrev-code-other-buffers nil)
   (setq company-dabbrev-code-ignore-case t)
   (setq company-dabbrev-code-time-limit 0.01)
-  (setq company-tooltip-maximum-width 30)
+  (setq company-tooltip-maximum-width 40)
 
   :config
   (define-key company-active-map (kbd "TAB") 'company-select-next)
@@ -423,6 +423,8 @@
                 (let ((yas-buffer-local-condition ''(require-snippet-condition . auto)))
                   (yas-expand))))))
 
+(use-package xenops)
+
 (use-package aas
   :diminish aas
       :hook (LaTeX-mode . ass-activate-for-major-mode)
@@ -441,6 +443,8 @@
                            (yas-expand-snippet "$$1$$0"))
                     ".pp" (lambda () (interactive)
                            (yas-expand-snippet "$$1$$0"))
+                    "..p" (lambda () (interactive)
+                           (yas-expand-snippet "$$1$$0"))
                     ".ph" (lambda () (interactive)
                            (yas-expand-snippet "\\begin{equation}\n$1\n\\end{equation} $0"))
                     ".pn" (lambda () (interactive)
@@ -448,6 +452,9 @@
                     ".pt" (lambda () (interactive)
                            (yas-expand-snippet "\\begin{align}\n$1\n\\end{align} $0"))
                     :cond #'texmathp ; expand only while in math
+                    "ssed" "\\blacksquare"
+                    "sssu" "\\cup"
+                    "sssi" "\\cap"
                     "sst" (lambda () (interactive)
                            (yas-expand-snippet "\\text{$1}$0"))
                     "ssb" (lambda () (interactive)
@@ -469,6 +476,8 @@
                            (yas-expand-snippet "\\int_{$1}^{$2}$0"))
                     "slm" (lambda () (interactive)
                            (yas-expand-snippet "\\lim_{$1 \\to $2}$0"))
+                    "ssv" (lambda () (interactive)
+                           (yas-expand-snippet "\\vec{$1}$0"))
                     "^" (lambda () (interactive)
                            (yas-expand-snippet "^{$1}$0"))
                     "_" (lambda () (interactive)
@@ -476,6 +485,10 @@
                     "sii" "\\int"
                     "st" (lambda () (interactive)
                           (yas-expand-snippet "\\qty($1)$0"))
+                    "smm" (lambda () (interactive)
+                          (yas-expand-snippet "\\mqty($1)$0"))
+                    "smd" (lambda () (interactive)
+                          (yas-expand-snippet "\\dmat{$1}$0"))
                     "sq" "\\qty"
                     "sh " (lambda () (interactive)
                          (yas-expand-snippet "\\dd{$1}$0"))
@@ -1111,10 +1124,10 @@ rather than the whole path."
   (org-mode . org-download-enable)
   (dired-mode . org-download-enable))
 
-(use-package zotxt
-  :diminish org-zotxt-mode
-  :hook
-  (org-mode . org-zotxt-mode))
+;; (use-package zotxt
+;;   :diminish org-zotxt-mode
+;;   :hook
+;;   (org-mode . org-zotxt-mode))
 
 (use-package calfw)
 
@@ -1723,6 +1736,14 @@ are null."
 (global-set-key (kbd "C-j") #'evil-window-down)
 (global-set-key (kbd "C-k") #'evil-window-up)
 (global-set-key (kbd "C-l") #'evil-window-right)
+
+;; EVil minibuffer
+(defun stop-using-minibuffer ()
+    "kill the minibuffer"
+    (when (and (>= (recursion-depth) 1) (active-minibuffer-window))
+      (abort-recursive-edit)))
+
+(add-hook 'mouse-leave-buffer-hook 'stop-using-minibuffer)
 
 ;; No to clipboard abuse
 (setq x-select-enable-clipboard t)
