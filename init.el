@@ -39,6 +39,10 @@
 (require 'eaf)
 (require 'eaf-browser)
 
+;;; ---eww
+(require 'eww)
+(setq eww-search-prefix "https://www.google.com/search?q=")
+
 
 ;;; ---tramp remote
 (require 'tramp)
@@ -947,7 +951,9 @@ rather than the whole path."
 ;; swelte
 (use-package svelte-mode
   :config
-  (add-hook 'svelte-mode-hook (lambda () (flyspell-mode -1))))
+  (add-hook 'svelte-mode-hook (lambda () (flyspell-mode -1)))
+  :custom
+  (svelte-basic-offset 4))
 
 ;; cider
 (use-package cider
