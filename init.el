@@ -44,6 +44,7 @@
 (setq eww-search-prefix "https://www.google.com/search?q=")
 
 
+
 ;;; ---tramp remote
 (require 'tramp)
 (add-to-list 'tramp-remote-path "/usr/bin")
@@ -272,6 +273,9 @@
   (svelte-mode . lsp)
   (java-mode . lsp))
 
+;; eglot just to have it
+(use-package eglot)
+
 (use-package rustic
   :init
   (require 'rustic-lsp)
@@ -428,6 +432,10 @@
                   (yas-expand))))))
 
 (use-package xenops)
+
+(use-package ox-reveal
+  :config
+  (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js"))
 
 (use-package aas
   :diminish aas
@@ -1278,6 +1286,39 @@ that."
 ;; (use-package org-pdftools
 ;;   :hook (org-mode . org-pdftools-setup-link))
 
+(use-package epresent
+  :straight
+  (:host github :repo "eschulte/epresent"))
+
+(define-minor-mode hidden-mode-line-mode
+  "Minor mode to hide the mode-line in the current buffer."
+  :init-value nil
+  :global t
+  :variable hidden-mode-line-mode
+  :group 'editing-basics
+  (if hidden-mode-line-mode
+      (setq hide-mode-line mode-line-format
+            mode-line-format nil)
+    (setq mode-line-format hide-mode-line
+          hide-mode-line nil))
+  (force-mode-line-update)
+  ;; Apparently force-mode-line-update is not always enough to
+  ;; redisplay the mode-line
+  (redraw-display)
+  (when (and (called-interactively-p 'interactive)
+             hidden-mode-line-mode)
+    (run-with-idle-timer
+     0 nil 'message
+     (concat "Hidden Mode Line Mode enabled.  "
+             "Use M-x hidden-mode-line-mode to make the mode-line appear."))))
+
+(use-package org-tree-slide
+  :config
+  (evil-define-key 'normal org-tree-slide-mode-map (kbd "C-n") #'org-tree-slide-move-next-tree)
+  (evil-define-key 'normal org-tree-slide-mode-map (kbd "C-p") #'org-tree-slide-move-previous-tree)
+  :hook
+  (org-tree-slide-mode . hidden-mode-line-mode))
+
 (use-package ox-hugo
   :ensure t   ;Auto-install the package from Melpa
   :after ox
@@ -1710,6 +1751,7 @@ are null."
 (setq-default indent-tabs-mode nil)
 (setq tab-width 4)
 (setq c-basic-offset 4)
+(setq-default c-basic-offset 4)
 (setq python-indent-offset 4)
 (setq web-mode-markup-indent-offset 4)
 (setq web-mode-css-indent-offset 4)
