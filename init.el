@@ -146,7 +146,7 @@
 (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
 (add-to-list 'default-frame-alist '(ns-appearance . dark)) ;; assuming you are using a dark theme
 (setq ns-use-proxy-icon nil)
-(setq frame-title-format "\n emacs")
+(setq frame-title-format "\nemacs")
 
 ;; Doom theme
 (use-package doom-themes
@@ -237,6 +237,16 @@
 ;;   :config
 ;;   (company-statistics-mode))
 
+
+(use-package tree-sitter
+  :diminish tree-sitter-mode
+  :config
+  (global-tree-sitter-mode)
+  :hook
+  (tree-sitter-mode . tree-sitter-hl-mode))
+
+(use-package tree-sitter-langs)
+
 (use-package lsp-mode
   :init
   (setq lsp-auto-configure nil)
@@ -272,6 +282,24 @@
   (css-mode . lsp)
   (svelte-mode . lsp)
   (java-mode . lsp))
+
+(use-package lsp-ui
+  :config
+  (setq lsp-ui-doc-show-with-cursor t
+        lsp-ui-doc-position 'at-point
+        lsp-ui-doc-text-scale-level -2
+        lsp-ui-doc-max-height 8
+        lsp-ui-doc-max-width 100
+        lsp-ui-doc-include-signature t
+        lsp-ui-doc-delay 1)
+  (evil-leader/set-key
+    "ha.p" 'lsp-ui-doc-focus-frame
+    "ha.." 'lsp-ui-doc-unfocus-frame
+    "haa" 'lsp-ui-peek-find-references
+    "had" 'lsp-ui-peek-find-definitions
+    "har" 'lsp-rename)
+  :hook
+  (lsp-mode . lsp-ui-mode))
 
 ;; eglot just to have it
 (use-package eglot)
@@ -1747,16 +1775,18 @@ are null."
 
 ;; ----misc
 ;; offsets and tabs
+(setq-default tab-width 4
+              python-indent-offset 4
+              c-basic-offset 4
+              web-mode-markup-indent-offset 4
+              web-mode-css-indent-offset 4
+              css-indent-offset 4
+              web-mode-code-indent-offset 4
+              indent-tabs-mode nil)
+
+;; remove tabs
 (setq indent-tabs-mode nil)
-(setq-default indent-tabs-mode nil)
-(setq tab-width 4)
-(setq c-basic-offset 4)
-(setq-default c-basic-offset 4)
-(setq python-indent-offset 4)
-(setq web-mode-markup-indent-offset 4)
-(setq web-mode-css-indent-offset 4)
-(setq css-indent-offset 4)
-(setq web-mode-code-indent-offset 4)
+(indent-tabs-mode -1)
 
 ;; Flycheck vs. Modern C++
 (add-hook 'c++-mode-hook (lambda ()
