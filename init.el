@@ -491,6 +491,7 @@
                            (yas-expand-snippet "\\begin{equation}\n\\begin{cases}\n$1\n\\end{cases}\n\\end{equation} $0"))
                     ".pt" (lambda () (interactive)
                            (yas-expand-snippet "\\begin{align}\n$1\n\\end{align} $0"))
+                    ".pbt" ":tangle "
                     :cond #'texmathp ; expand only while in math
                     "ssed" "\\blacksquare"
                     "sssu" "\\cup"
@@ -857,6 +858,7 @@ rather than the whole path."
   (evil-leader/set-key 
     "ps" 'counsel-switch-buffer
     "mn" 'counsel-find-file
+    "has" 'counsel-ag
     "<SPC>" 'counsel-M-x))
 
 (use-package swiper)
@@ -1533,6 +1535,7 @@ that."
   "owl" 'olivetti-expand
   "owh" 'olivetti-shrink
   "ahs" 'org-edit-special
+  "aht" 'org-babel-tangle
   "att" 'org-todo
   "ath" 'org-inlinetask-insert-task
   "ats" 'org-show-todo-tree
@@ -1624,7 +1627,7 @@ are null."
                 (if (eq (widget-type (widget-at)) 'editable-field)
                     (beginning-of-line)))))
   (setq notmuch-saved-searches '((:name "inbox" :query "tag:inbox" :key "i")
-                                 (:name "unread" :query "tag:unread" :key "u")
+                                 (:name "unread" :query "tag:unread -folder:@SaneLater" :key "u")
                                  (:name "flagged" :query "tag:flagged" :key "f")
                                  (:name "sent" :query "tag:sent" :key "t")
                                  (:name "drafts" :query "tag:draft" :key "d")
