@@ -33,12 +33,6 @@
 (setq create-lockfiles nil)
 
 
-;;; ----eaf
-(add-to-list 'load-path "~/.emacs.d/site-lisp/emacs-application-framework/")
-(add-to-list 'load-path "~/.emacs.d/site-lisp/")
-(require 'eaf)
-(require 'eaf-browser)
-
 ;;; ---eww
 (require 'eww)
 (setq eww-search-prefix "https://www.google.com/search?q=")
@@ -262,6 +256,7 @@
   (require 'lsp-html)
   (require 'lsp-completion)
   (require 'lsp-svelte)
+  (require 'lsp-ocaml)
   (lsp-completion--enable)
   (setq lsp-enable-snippet t)
   (add-hook 'c-mode-hook (lambda() (setq-local lsp-enable-snippet nil)))
@@ -281,7 +276,8 @@
   (mhtml-mode . lsp)
   (css-mode . lsp)
   (svelte-mode . lsp)
-  (java-mode . lsp))
+  (java-mode . lsp)
+  (tuareg-mode . lsp))
 
 (use-package lsp-ui
   :config
@@ -446,6 +442,30 @@
   (add-to-list 'lsp-tailwindcss-major-modes 'scss-mode)
   (add-to-list 'lsp-tailwindcss-major-modes 'mhtml-mode)
   (add-to-list 'lsp-tailwindcss-major-modes 'svelte-mode))
+
+;; org by buffer
+(defun org+-buffer-name-to-title (&optional end)
+  "Rename buffer to value of #+TITLE:.
+If END is non-nil search for #+TITLE: at `point' and
+delimit it to END.
+Start an unlimited search at `point-min' otherwise."
+  (interactive)
+  (let ((beg (or (and end (point))
+         (point-min))))
+    (save-excursion
+      (when end
+    (goto-char end)
+    (setq end (line-end-position)))
+      (goto-char beg)
+      (when (re-search-forward "^[[:space:]]*#\\+TITLE:[[:space:]]*\\(.*?\\)[[:space:]]*$" end t)
+    (rename-buffer (match-string 1)))))
+  nil)
+
+(defun org+-buffer-name-to-title-config ()
+  "Configure Org to rename buffer to value of #+TITLE:."
+  (font-lock-add-keywords nil '(org+-buffer-name-to-title)))
+
+(add-hook 'org-mode-hook #'org+-buffer-name-to-title-config)
 
 ;; <Begin a chain of package installs>
 ;; Ya! SnipPpets
@@ -1031,6 +1051,21 @@ rather than the whole path."
       (highlight-regexp sym 'bold)))
   (evil-define-key 'insert cider-repl-mode-map (kbd "<up>") #'cider-repl-backward-input)
   (evil-define-key 'insert cider-repl-mode-map (kbd "<down>") #'cider-repl-forward-input))
+
+;; OCaml
+(use-package tuareg
+  :config
+  (evil-leader/set-key-for-mode 'tuareg-mode
+    "ht" 'tuareg-eval-phrase
+    "hb" 'tuareg-eval-buffer
+    "hn" 'tuareg-eval-region))
+
+;; ## added by OPAM user-setup for emacs / base ## 56ab50dc8996d2bb95e7856a6eddb17b ## you can edit, but keep this line
+(require 'opam-user-setup "~/.emacs.d/opam-user-setup.el")
+;; ## end of OPAM user-setup addition for emacs / base ## keep this line
+;; or this if you're into use-package
+
+
 
 ;; LaTeX
 (use-package auctex
@@ -1739,8 +1774,6 @@ are null."
   "mb" 'deft-find-file
 
   ;; browser
-  "ob" 'eaf-open-browser
-  "oh" 'eaf-open-browser-with-history
   "of" 'elfeed
 
   ;; emms
