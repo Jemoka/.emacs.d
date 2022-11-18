@@ -774,6 +774,25 @@ rather than the whole path."
 
 (setq shr-use-fonts nil)
 
+;; ERC
+(load "~/.emacs.d/.ercpass")
+(require 'erc-services)
+(setq erc-prompt-for-nickserv-password nil)
+(erc-services-mode 1)
+(setq erc-nickserv-passwords
+      `((Libera.Chat     (("jemoka" . ,librechat-pass)))))
+;; Interpret mIRC-style color commands in IRC chats
+(setq erc-interpret-mirc-color t)
+;; Kill buffers for channels after /part
+(setq erc-kill-buffer-on-part t)
+;; Kill buffers for private queries after quitting the server
+(setq erc-kill-queries-on-quit t)
+;; Kill buffers for server messages after quitting the server
+(setq erc-kill-server-buffer-on-quit t)
+;; rename buffers
+(setq erc-rename-buffers t)
+
+
 ;; Telga
 (use-package telega
   :init
@@ -1798,6 +1817,11 @@ are null."
 
   ;; global link store
   "osl" 'org-store-link
+
+  ;; open IRC
+  "oil" '(lambda () (interactive)
+           (erc :server "irc.libera.chat"
+                :nick "jemoka"))
 
   ;; email
   "ooe" 'notmuch-hello
