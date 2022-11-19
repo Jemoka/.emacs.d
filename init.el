@@ -792,6 +792,22 @@ rather than the whole path."
 ;; rename buffers
 (setq erc-rename-buffers t)
 
+(use-package erc-image
+  :init
+  (setq erc-image-inline-rescale 400)
+  :config
+  (add-to-list 'erc-modules 'image)
+  (erc-update-modules))
+
+;; logging
+(setq erc-log-channels-directory "~/.erc/logs/")
+(setq erc-save-buffer-on-part nil)
+(setq erc-log-insert-log-on-open nil)
+
+(add-to-list 'erc-modules 'log)
+(add-to-list 'erc-modules 'spelling)
+(add-to-list 'erc-modules 'notifications)
+(erc-update-modules)
 
 ;; Telga
 (use-package telega
@@ -1819,9 +1835,10 @@ are null."
   "osl" 'org-store-link
 
   ;; open IRC
-  "oil" '(lambda () (interactive)
+  "oii" '(lambda () (interactive)
            (erc :server "irc.libera.chat"
                 :nick "jemoka"))
+  "oiq" 'erc-cmd-QUERY
 
   ;; email
   "ooe" 'notmuch-hello
