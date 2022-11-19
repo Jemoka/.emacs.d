@@ -457,7 +457,7 @@ Start an unlimited search at `point-min' otherwise."
     (goto-char end)
     (setq end (line-end-position)))
       (goto-char beg)
-      (when (re-search-forward "^[[:space:]]*#\\+TITLE:[[:space:]]*\\(.*?\\)[[:space:]]*$" end t)
+      (when (re-search-forward "^[[:space:]]*#\\+title:[[:space:]]*\\(.*?\\)[[:space:]]*$" end t)
     (rename-buffer (match-string 1)))))
   nil)
 
