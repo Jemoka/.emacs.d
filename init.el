@@ -457,7 +457,7 @@ Start an unlimited search at `point-min' otherwise."
     (goto-char end)
     (setq end (line-end-position)))
       (goto-char beg)
-      (when (re-search-forward "^[[:space:]]*#\\+title:[[:space:]]*\\(.*?\\)[[:space:]]*$" end t)
+      (when (re-search-forward "^[[:space:]]*#\\+TITLE:[[:space:]]*\\(.*?\\)[[:space:]]*$" end t)
     (rename-buffer (match-string 1)))))
   nil)
 
@@ -591,6 +591,10 @@ Start an unlimited search at `point-min' otherwise."
 ;; LaTex
 (use-package company-auctex
   :after yasnippet)
+
+(with-eval-after-load 'tex
+  (add-to-list 'safe-local-variable-values
+               '(TeX-command-extra-options . "-shell-escape")))
 
 
 (setq company-backends '((company-files company-capf :with company-dabbrev-code company-yasnippet) ))
@@ -792,6 +796,25 @@ rather than the whole path."
 ;; rename buffers
 (setq erc-rename-buffers t)
 
+;; keybinds
+(defun pop-to-buffer-by-name (name)
+  (pop-to-buffer name
+                 '(display-buffer-in-side-window . ((side . right)
+                                                    (window-width . 90)))))
+
+(evil-leader/set-key
+  ;; open IRC
+  "'jl" '(lambda () (interactive)
+           (erc :server "irc.libera.chat"
+                :nick "jemoka"))
+  ;; open channel
+  "'ch" '(lambda () (interactive)
+           (pop-to-buffer-by-name "##jklsnt")))
+
+(require 'erc-dcc)
+(erc-dcc-enable)
+
+
 (use-package erc-image
   :init
   (setq erc-image-inline-rescale 400)
@@ -806,8 +829,9 @@ rather than the whole path."
 
 (add-to-list 'erc-modules 'log)
 (add-to-list 'erc-modules 'spelling)
-(add-to-list 'erc-modules 'notifications)
 (erc-update-modules)
+
+(use-package erc-terminal-notifier)
 
 ;; Telga
 (use-package telega
@@ -1838,7 +1862,6 @@ are null."
   "oii" '(lambda () (interactive)
            (erc :server "irc.libera.chat"
                 :nick "jemoka"))
-  "oiq" 'erc-cmd-QUERY
 
   ;; email
   "ooe" 'notmuch-hello
