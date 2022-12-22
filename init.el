@@ -666,6 +666,23 @@ Start an unlimited search at `point-min' otherwise."
                                     "no-pragma-once-outside-header")))
 (setq flycheck-relevant-error-other-file-show nil)
 
+;; thing
+(use-package org-special-block-extras
+
+  :config
+
+   ;; We can use variable values when defining new blocks
+   (org-defblock test
+                 (title "bafoon") ()
+                 "A testing remark block"
+                 (format
+                  (if (equal backend 'hugo)
+                      "1:%s 2:%s"
+                    "%s how: %s")
+                  title contents))
+   :hook
+   (org-mode . org-special-block-extras-mode))
+
 ;; ----developer tools
 ;; edit
 (use-package sudo-edit)
@@ -1561,11 +1578,12 @@ that."
   (evil-define-key 'normal org-mode-map (kbd "TAB") #'org-cycle)
   (setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id))
 
+(setq org-latex-subtitle-separate t)
+(setq org-latex-subtitle-format "\\newcommand{\\thesubtitle}{%s}")
 (add-hook 'org-export-before-parsing-hook
           (lambda (bach-end) 
             (goto-char 0)
             (insert "#+SETUPFILE: ~/.emacs.d/templates/default.org\n")))
-
 
 (setq org-export-with-drawers nil)
 
