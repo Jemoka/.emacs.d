@@ -297,6 +297,26 @@
   :hook
   (lsp-mode . lsp-ui-mode))
 
+(use-package lsp-haskell
+  :config
+
+  (defun haskell-load-and-bring ()
+    "Sane behaviour when loading the current file into ghci."
+    (interactive)
+    (save-buffer)
+    (haskell-process-load-file)
+    (haskell-interactive-bring))
+
+  (evil-leader/set-key-for-mode 'haskell-mode
+    "hst" 'haskell-load-and-bring
+    "hn" 'haskell-process-cabal-build
+    "hb" 'haskell-process-load-file
+    "ht" 'haskell-process-load-file)
+
+  :hook
+  (haskell-mode . interactive-haskell-mode)
+  (haskell-mode . lsp))
+
 ;; eglot just to have it
 (use-package eglot)
 
@@ -1141,7 +1161,8 @@ rather than the whole path."
 ;; ## end of OPAM user-setup addition for emacs / base ## keep this line
 ;; or this if you're into use-package
 
-
+;; haskall
+(use-package haskell-mode)
 
 ;; LaTeX
 (use-package auctex
