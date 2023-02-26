@@ -68,6 +68,8 @@
   (require 'use-package))
 (setq straight-use-package-by-default t)
 
+(straight-use-package 'org)
+
 
 
 ;;; ----evil
@@ -105,6 +107,7 @@
   :after evil
   :config
   (global-undo-tree-mode)
+  (setq undo-tree-auto-save-history nil)
   (evil-set-undo-system 'undo-tree))
 
 ;; Tim Pope's Surround but like Evil
@@ -912,7 +915,6 @@ rather than the whole path."
   :bind (:map vterm-mode-map ("C-y" . vterm-yank)))
 
 ;; The E one
-
 (use-package eshell-syntax-highlighting
   :config
   ;; Enable in all Eshell buffers.
@@ -932,6 +934,18 @@ rather than the whole path."
   (add-hook 'eshell-mode-hook (lambda ()
                                 (evil-define-key 'normal eshell-mode-map (kbd "C-k") #'evil-window-up)
                                 (evil-define-key 'normal eshell-mode-map (kbd "C-j") #'evil-window-down))))
+(setq eshell-destroy-buffer-when-process-dies t)
+(setq eshell-prompt-regexp "^[^#$\n]*[#$] "
+      eshell-prompt-function
+      (lambda nil
+        (concat
+         "[" (user-login-name) "@"
+         (car (split-string (system-name) "\\."))
+         " "
+         (if (string= (eshell/pwd) (getenv "HOME"))
+             "~" (eshell/basename (eshell/pwd)))
+         "]"
+         (if (= (user-uid) 0) "# " "$ "))))
 
 ;; Monies
 (use-package ledger-mode
@@ -1007,12 +1021,17 @@ rather than the whole path."
 
 ;; Spelling
 (setenv "DICTIONARY" "en_US")
-(setenv "DICPATH" "~/.emacs.d/dictionaries")
+(setenv "DICPATH" "/Users/houjun/.emacs.d/dictionaries")
 (setq ispell-program-name "hunspell")
 
 (add-hook 'markdown-mode-hook 'flyspell-mode)
 (add-hook 'org-mode-hook 'flyspell-mode)
 (add-hook 'text-mode-hook 'flyspell-mode)
+
+;; undo
+;; let's not actually save hitory
+
+;; (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
 
 
 
@@ -1096,8 +1115,8 @@ rather than the whole path."
   "mm" 'markdown-follow-wiki-link-at-point)
 
 ;; Google Docs
-(add-to-list 'load-path "~/.emacs.d/site-lisp/gdoc.el")
-(require 'gdoc)
+;(add-to-list 'load-path "~/.emacs.d/site-lisp/gdoc.el")
+;(require 'gdoc)
 
 
 
@@ -1123,6 +1142,7 @@ rather than the whole path."
     "hsn" 'cider-eval-defun-to-comment
     "hst" 'cider-jack-in-clj
     "hsp" 'cider-quit
+    "had" 'cider-find-var
     "hh" 'cider-switch-to-repl-buffer)
   (evil-leader/set-key-for-mode 'cider-repl-mode 
     "hh" 'cider-switch-to-last-clojure-buffer)
@@ -1135,6 +1155,7 @@ rather than the whole path."
     "hk" 'cider-undef
     "hsn" 'cider-eval-defun-to-comment
     "hst" 'cider-jack-in-cljs
+    "had" 'cider-find-var
     "hsp" 'cider-quit)
 
   ;; redefine this so cider doesn't freak out when looking up
@@ -1217,7 +1238,15 @@ rather than the whole path."
   (define-key pdf-view-mode-map (kbd "C-j") #'evil-window-down)
   (define-key pdf-view-mode-map (kbd "C-k") #'evil-window-up)
   (define-key pdf-view-mode-map (kbd "C-l") #'evil-window-right)
-  :mode  ("\\.pdf\\'" . pdf-view-mode))
+  (add-hook 'pdf-view-mode-hook
+            (lambda ()
+              (set (make-local-variable 'evil-emacs-state-cursor) (list nil))))
+  :mode  ("\\.pdf\\'" . pdf-view-mode)
+  :hook
+  (pdf-view . pdf-view-themed-minor-mode)
+  (pdf-view . (lambda () (interactive)
+                (internal-show-cursor nil nil)
+                (blink-cursor-mode -1))))
 
 (use-package pdfgrep
   :config
@@ -1247,7 +1276,7 @@ rather than the whole path."
     "hn" 'cmake-ide-compile
     "ht" 'cmake-ide-compile))
 
-(require 'cmake-mode)
+(use-package cmake-mode)
 
 ;; ipynb
 (use-package ein)
@@ -1520,6 +1549,7 @@ that."
 
 ;; C-c c for asynchronous evaluating (only for SageMath code blocks).
 (with-eval-after-load "org"
+
   (define-key org-mode-map (kbd "C-c c") 'ob-sagemath-execute-async))
 
 ;; Do not confirm before evaluation
@@ -1552,7 +1582,7 @@ that."
 
 
 
-(plist-put org-format-latex-options :scale 1.3)
+(setq org-format-latex-options (plist-put org-format-latex-options :scale 2.5))
 (setq org-babel-clojure-backend 'cider)
 (setq org-src-tab-acts-natively t)
 (setq org-src-fontify-natively t)
@@ -1644,9 +1674,6 @@ that."
   "ax" 'org-noter-sync-current-note)
 
 
-
-(load "~/.emacs.d/site-lisp/scimax/scimax-inkscape.el")
-(require 'scimax-inkscape)
 
 (evil-leader/set-key-for-mode 'org-mode
   "acsk" 'org-move-subtree-up

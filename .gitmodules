@@ -7,3 +7,6 @@
 [submodule "site-lisp/scimax"]
 	path = site-lisp/scimax
 	url = https://github.com/jkitchin/scimax
+[submodule "site-packages/reveal.js"]
+	path = site-packages/reveal.js
+	url = git@github.com:hakimel/reveal.js.git
