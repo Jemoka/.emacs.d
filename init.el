@@ -139,6 +139,7 @@
 ;; Bars, menus, edges... Begone!
 (menu-bar-mode -1)
 (toggle-scroll-bar -1)
+(scroll-bar-mode -1)
 (tool-bar-mode -1)
 (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
 (add-to-list 'default-frame-alist '(ns-appearance . dark)) ;; assuming you are using a dark theme
@@ -455,16 +456,6 @@
 (use-package all-the-icons)
 
 (use-package lsp-java)
-
-(use-package lsp-tailwindcss
-  :straight (:type git :host github :repo "merrickluo/lsp-tailwindcss")
-  :init
-  (setq lsp-tailwindcss-add-on-mode t)
-  (setq lsp-tailwindcss-skip-config-check t)
-  (setq lsp-tailwindcss-experimental-class-regex ["tw`([^`]*)" "tw=\"([^\"]*)" "tw={\"([^\"}]*)" "tw\\.\\w+`([^`]*)" "tw\\(.*?\\)`([^`]*)"])
-  (add-to-list 'lsp-tailwindcss-major-modes 'scss-mode)
-  (add-to-list 'lsp-tailwindcss-major-modes 'mhtml-mode)
-  (add-to-list 'lsp-tailwindcss-major-modes 'svelte-mode))
 
 ;; org by buffer
 (defun org+-buffer-name-to-title (&optional end)
@@ -1362,7 +1353,7 @@ rather than the whole path."
   (setq org-roam-capture-templates
 	`(("d" "default"
 	   plain "%?"
-	   :target (file+head "%(identity default-directory)/KBh${slug}.org" "#+title: ${title}\n#+author: Houjun Liu\n\n")
+	   :target (file+head "%(identity default-directory)/KBh${slug}.org" "#+title: ${title}\n#+author: Houjun Liu\n\n\n")
 	   :unnarrowed t)))
   (defun org-roam-node-insert-immediate (arg &rest args)
     (interactive "P")
@@ -1374,8 +1365,8 @@ rather than the whole path."
   (evil-leader/set-key 
     "aur" 'org-roam-buffer-toggle
     "auu" 'org-roam-node-find
-    "auss" 'org-roam-dailies-capture-today
-    "auso" 'org-roam-dailies-goto-today
+    "auss" 'org-roam-dailies-goto-today
+    "ausa" 'org-roam-dailies-goto-date
     "ausc" 'kb-commit
     "aug" 'org-roam-graph)
   (evil-leader/set-key-for-mode 'org-mode
@@ -1387,11 +1378,49 @@ rather than the whole path."
     "auad" 'org-roam-alias-remove
     "auta" 'org-roam-tag-add
     "autr" 'org-roam-tag-remove
-    "auss" 'org-roam-dailies-capture-today
+    "auss" 'org-roam-dailies-goto-today
+    "ausa" 'org-roam-dailies-goto-date
     "auso" 'org-roam-dailies-goto-today)
   (evil-define-key 'insert org-mode-map (kbd "C-SPC") 'org-roam-node-insert-immediate)
   (evil-define-key 'insert org-mode-map (kbd "C-M-SPC") 'org-roam-node-insert)
+
+  (add-hook 'org-capture-mode-hook  
+            (lambda () (interactive)
+              (if (equal "knowledge capture" (frame-parameter nil 'name))  
+                  (delete-other-windows))))
+
+  (add-hook 'org-capture-after-finalize-hook  
+            (lambda () (interactive)
+              (if (equal "knowledge capture" (frame-parameter nil 'name))  
+                  (server-delete-client (car server-clients)))))
+
+  (defun org-roam-quick-capture ()
+    (interactive)
+    (make-frame '((name . "knowledge capture") 
+                  (width . 80) 
+                  (height . 40)))  
+    (select-frame-by-name "knowledge capture") 
+    (setq word-wrap 1)
+    (setq truncate-lines nil)
+    (menu-bar-mode -1)
+    (find-file "~/Documents/knowledgebase/KBhinbox.org")
+    (org-roam-capture))
+
+  (defun org-roam-quick-daily ()
+
+    (interactive)
+    (make-frame '((name . "knowledge capture") 
+                  (width . 80) 
+                  (height . 40)))  
+    (select-frame-by-name "knowledge capture") 
+    (setq word-wrap 1)
+    (setq truncate-lines nil)
+    (menu-bar-mode -1)
+    (org-roam-dailies-capture-today))
+
   (org-roam-db-autosync-mode 1))
+
+
 
 ;; mobile
 (setq org-directory "~/Documents/knowledgebase")
@@ -1935,6 +1964,12 @@ are null."
   ;; open
   "okb" (lambda () (interactive) (find-file "~/Documents/knowledgebase/KBhindex.org"))
   "otr" (lambda () (interactive) (find-file "~/Documents/taproot/index.org"))
+
+  ;; describe
+  "ff" 'describe-function
+  "fv" 'describe-variable
+  "fk" 'describe-key
+  "fm" 'describe-keymap
 
   ;; Universal argument
   "uu" 'universal-argument)
