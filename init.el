@@ -1383,6 +1383,9 @@ rather than the whole path."
     "auso" 'org-roam-dailies-goto-today)
   (evil-define-key 'insert org-mode-map (kbd "C-SPC") 'org-roam-node-insert-immediate)
   (evil-define-key 'insert org-mode-map (kbd "C-M-SPC") 'org-roam-node-insert)
+  (evil-define-key 'insert org-mode-map (kbd "C-@") 'org-roam-node-insert-immediate)
+  (evil-define-key 'insert org-mode-map (kbd "C-M-@") 'org-roam-node-insert)
+
 
   (add-hook 'org-capture-mode-hook  
             (lambda () (interactive)
@@ -1391,7 +1394,7 @@ rather than the whole path."
 
   (add-hook 'org-capture-after-finalize-hook  
             (lambda () (interactive)
-              (if (equal "knowledge capture" (frame-parameter nil 'name))  
+              (if (equal "knowledge capture" (frame-parameter nil 'name))
                   (server-delete-client (car server-clients)))))
 
   (defun org-roam-quick-capture ()
@@ -1404,6 +1407,7 @@ rather than the whole path."
     (setq truncate-lines nil)
     (menu-bar-mode -1)
     (find-file "~/Documents/knowledgebase/KBhinbox.org")
+    (delete-other-windows)
     (org-roam-capture))
 
   (defun org-roam-quick-daily ()
