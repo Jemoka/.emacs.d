@@ -1397,6 +1397,8 @@ rather than the whole path."
               (if (equal "knowledge capture" (frame-parameter nil 'name))
                   (server-delete-client (car server-clients)))))
 
+  (setq org-roam-file-exclude-regexp '("data/" "daily/"))
+
   (defun org-roam-quick-capture ()
     (interactive)
     (make-frame '((name . "knowledge capture") 
