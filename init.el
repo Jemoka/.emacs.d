@@ -1576,6 +1576,8 @@ that."
 ;; Sage math
 (use-package sage-shell-mode)
 (setq org-startup-with-inline-images t)
+
+(setq sage-shell:set-ipython-version-on-startup nil)
 (use-package ob-sagemath)
 
 (use-package ob-sml
@@ -1891,6 +1893,11 @@ are null."
   :config
   (when (memq window-system '(mac ns))
     (exec-path-from-shell-initialize)))
+
+(use-package poetry
+  :config
+  (evil-leader/set-key
+    "owp" 'poetry))
 
 ;; ----random keybindings
 (evil-leader/set-key
