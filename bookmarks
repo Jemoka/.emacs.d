@@ -3,8 +3,15 @@
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
 (("org-capture-last-stored"
+<<<<<<< HEAD
  (filename . "~/Dropbox/knowledgebase/KBhkirchoff_s_laws.org")
  (front-context-string)
  (rear-context-string . "hor: Houjun Liu\n")
  (position . 114))
+=======
+ (filename . "~/Dropbox/knowledgebase/KBhproducts_and_quotients_the_intuition.org")
+ (front-context-string . "\nWe mentioned th")
+ (rear-context-string . "hor: Houjun Liu\n")
+ (position . 136))
+>>>>>>> 7126ff71fd6e3f8157fdf7f15a38685f3cd2614d
 )
