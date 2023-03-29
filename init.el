@@ -88,6 +88,7 @@
 ;;;; diminish
 (use-package diminish
   :config
+  (add-hook 'flymake-mode-hook (lambda () (diminish 'flymake-mode)))
   (add-hook 'auto-revert-mode-hook (lambda () (diminish 'auto-revert-mode)))
   (add-hook 'eldoc-mode-hook (lambda () (diminish 'eldoc-mode)))
   (add-hook 'eldoc-mode-hook (lambda () (diminish 'eldoc-mode)))
@@ -245,84 +246,83 @@
 
 (use-package tree-sitter-langs)
 
-(use-package lsp-mode
-  :init
-  (setq lsp-auto-configure nil)
-  (setq read-process-output-max (* 1024 1024)) ;; 1mb
-  (setq gc-cons-threshold 100000000)
-  (setq lsp-idle-delay 0.100)
-  (setq lsp-log-io nil)
-  (setq lsp-enable-snippet t)
-  :config
-  (require 'lsp-clangd)
-  (require 'lsp-javascript)
-  (require 'lsp-css)
-  (require 'lsp-html)
-  (require 'lsp-completion)
-  (require 'lsp-svelte)
-  (require 'lsp-ocaml)
-  (lsp-completion--enable)
-  (setq lsp-enable-snippet t)
-  (add-hook 'c-mode-hook (lambda() (setq-local lsp-enable-snippet nil)))
-  (add-hook 'c++-mode-hook (lambda() (setq-local lsp-enable-snippet nil)))
-  (add-hook 'lsp-completion-mode-hook (lambda ()
-                                        (eldoc-mode -1)
-                                        (setq company-backends '(company-files company-capf))))
-  :hook
-  (lsp-mode . lsp-completion-mode)
-  (c++-mode . lsp)
-  (c-mode . lsp)
-  (typescript-mode . lsp)
-  (javascript-mode . lsp)
-  (js-mode . lsp)
-  (rjsx-mode . lsp)
-  (rustic-mode . lsp)
-  (mhtml-mode . lsp)
-  (css-mode . lsp)
-  (svelte-mode . lsp)
-  (java-mode . lsp)
-  (tuareg-mode . lsp))
+;; (use-package lsp-mode
+;;   :init
+;;   (setq lsp-auto-configure nil)
+;;   (setq read-process-output-max (* 1024 1024)) ;; 1mb
+;;   (setq gc-cons-threshold 100000000)
+;;   (setq lsp-idle-delay 0.100)
+;;   (setq lsp-log-io nil)
+;;   (setq lsp-enable-snippet t)
+;;   :config
+;;   (require 'lsp-clangd)
+;;   (require 'lsp-javascript)
+;;   (require 'lsp-css)
+;;   (require 'lsp-html)
+;;   (require 'lsp-completion)
+;;   (require 'lsp-svelte)
+;;   (require 'lsp-ocaml)
+;;   (lsp-completion--enable)
+;;   (setq lsp-enable-snippet t)
+;;   (add-hook 'c-mode-hook (lambda() (setq-local lsp-enable-snippet nil)))
+;;   (add-hook 'c++-mode-hook (lambda() (setq-local lsp-enable-snippet nil)))
+;;   (add-hook 'lsp-completion-mode-hook (lambda ()
+;;                                         (eldoc-mode -1)
+;;                                         (setq company-backends '(company-files company-capf))))
+;;   :hook
+;;   (lsp-mode . lsp-completion-mode)
+;;   (c++-mode . lsp)
+;;   (c-mode . lsp)
+;;   (typescript-mode . lsp)
+;;   (javascript-mode . lsp)
+;;   (js-mode . lsp)
+;;   (rjsx-mode . lsp)
+;;   (rustic-mode . lsp)
+;;   (mhtml-mode . lsp)
+;;   (css-mode . lsp)
+;;   (svelte-mode . lsp)
+;;   (java-mode . lsp)
+;;   (tuareg-mode . lsp))
 
-(use-package lsp-ui
-  :config
-  (setq lsp-ui-doc-show-with-cursor t
-        lsp-ui-doc-position 'at-point
-        lsp-ui-doc-text-scale-level -2
-        lsp-ui-doc-max-height 8
-        lsp-ui-doc-max-width 100
-        lsp-ui-doc-include-signature t
-        lsp-ui-doc-delay 1)
-  (evil-leader/set-key
-    "ha.p" 'lsp-ui-doc-focus-frame
-    "ha.." 'lsp-ui-doc-unfocus-frame
-    "haa" 'lsp-ui-peek-find-references
-    "had" 'lsp-ui-peek-find-definitions
-    "har" 'lsp-rename)
-  :hook
-  (lsp-mode . lsp-ui-mode))
+;; (use-package lsp-ui
+;;   :config
+;;   (setq lsp-ui-doc-show-with-cursor t
+;;         lsp-ui-doc-position 'at-point
+;;         lsp-ui-doc-text-scale-level -2
+;;         lsp-ui-doc-max-height 8
+;;         lsp-ui-doc-max-width 100
+;;         lsp-ui-doc-include-signature t
+;;         lsp-ui-doc-delay 1)
+;;   (evil-leader/set-key
+;;     "ha.p" 'lsp-ui-doc-focus-frame
+;;     "ha.." 'lsp-ui-doc-unfocus-frame
+;;     "haa" 'lsp-ui-peek-find-references
+;;     "had" 'lsp-ui-peek-find-definitions
+;;     "har" 'lsp-rename)
+;;   :hook
+;;   (lsp-mode . lsp-ui-mode))
 
-(use-package lsp-haskell
-  :config
+;; (use-package lsp-haskell
+;;   :config
 
-  (defun haskell-load-and-bring ()
-    "Sane behaviour when loading the current file into ghci."
-    (interactive)
-    (save-buffer)
-    (haskell-process-load-file)
-    (haskell-interactive-bring))
+;;   (defun haskell-load-and-bring ()
+;;     "Sane behaviour when loading the current file into ghci."
+;;     (interactive)
+;;     (save-buffer)
+;;     (haskell-process-load-file)
+;;     (haskell-interactive-bring))
 
-  (evil-leader/set-key-for-mode 'haskell-mode
-    "hst" 'haskell-load-and-bring
-    "hn" 'haskell-process-cabal-build
-    "hb" 'haskell-process-load-file
-    "ht" 'haskell-process-load-file)
+;;   (evil-leader/set-key-for-mode 'haskell-mode
+;;     "hst" 'haskell-load-and-bring
+;;     "hn" 'haskell-process-cabal-build
+;;     "hb" 'haskell-process-load-file
+;;     "ht" 'haskell-process-load-file)
 
-  :hook
-  (haskell-mode . interactive-haskell-mode)
-  (haskell-mode . lsp))
+;;   :hook
+;;   (haskell-mode . interactive-haskell-mode)
+;;   (haskell-mode . lsp))
 
-;; eglot just to have it
-(use-package eglot)
+
 
 (use-package rustic
   :init
@@ -389,40 +389,40 @@
 (advice-add 'start-file-process-shell-command :around #'start-file-process-shell-command@around)
 
 
-(use-package lsp-pyright
-  :init
-  (setq lsp-pyright-python-executable-cmd "python")
-  (setq python-shell-interpreter "ipython"
-        python-shell-interpreter-args "--simple-prompt --pprint")
-  (lsp-register-custom-settings
-   '(("pyls.plugins.pyls_mypy.enabled" t t)
-     ("pyls.plugins.pyls_mypy.live_mode" nil t)
-     ("pyls.plugins.pyls_black.enabled" t t)
-     ("pyls.plugins.pyls_isort.enabled" t t)))
-  (require 'lsp-pyright)
-  :after lsp-mode
-  :config
-  (lsp-register-client
-   (make-lsp-client
-    :new-connection (lsp-tramp-connection (lambda ()
-                                            (cons "pyright-langserver"
-                                                  lsp-pyright-langserver-command-args)))
-    :major-modes '(python-mode)
-    :remote? t
-    :server-id 'pyright-remote
-    :multi-root lsp-pyright-multi-root
-    :priority 3
-    :initialized-fn (lambda (workspace)
-                      (with-lsp-workspace workspace
-                        (lsp--set-configuration
-                         (make-hash-table :test 'equal))))
-    :download-server-fn (lambda (_client callback error-callback _update?)
-                          (lsp-package-ensure 'pyright callback error-callback))
-    :notification-handlers (lsp-ht ("pyright/beginProgress" 'lsp-pyright--begin-progress-callback)
-                                   ("pyright/reportProgress" 'lsp-pyright--report-progress-callback)
-                                   ("pyright/endProgress" 'lsp-pyright--end-progress-callback))))
-  :hook
-  (python-mode . lsp))
+;; (use-package lsp-pyright
+;;   :init
+;;   (setq lsp-pyright-python-executable-cmd "python")
+;;   (setq python-shell-interpreter "ipython"
+;;         python-shell-interpreter-args "--simple-prompt --pprint")
+;;   (lsp-register-custom-settings
+;;    '(("pyls.plugins.pyls_mypy.enabled" t t)
+;;      ("pyls.plugins.pyls_mypy.live_mode" nil t)
+;;      ("pyls.plugins.pyls_black.enabled" t t)
+;;      ("pyls.plugins.pyls_isort.enabled" t t)))
+;;   (require 'lsp-pyright)
+;;   :after lsp-mode
+;;   :config
+;;   (lsp-register-client
+;;    (make-lsp-client
+;;     :new-connection (lsp-tramp-connection (lambda ()
+;;                                             (cons "pyright-langserver"
+;;                                                   lsp-pyright-langserver-command-args)))
+;;     :major-modes '(python-mode)
+;;     :remote? t
+;;     :server-id 'pyright-remote
+;;     :multi-root lsp-pyright-multi-root
+;;     :priority 3
+;;     :initialized-fn (lambda (workspace)
+;;                       (with-lsp-workspace workspace
+;;                         (lsp--set-configuration
+;;                          (make-hash-table :test 'equal))))
+;;     :download-server-fn (lambda (_client callback error-callback _update?)
+;;                           (lsp-package-ensure 'pyright callback error-callback))
+;;     :notification-handlers (lsp-ht ("pyright/beginProgress" 'lsp-pyright--begin-progress-callback)
+;;                                    ("pyright/reportProgress" 'lsp-pyright--report-progress-callback)
+;;                                    ("pyright/endProgress" 'lsp-pyright--end-progress-callback))))
+;;   :hook
+;;   (python-mode . lsp))
 
 
 
@@ -455,7 +455,7 @@
 
 (use-package all-the-icons)
 
-(use-package lsp-java)
+;; (use-package lsp-java)
 
 ;; org by buffer
 (defun org+-buffer-name-to-title (&optional end)
@@ -611,9 +611,29 @@ Start an unlimited search at `point-min' otherwise."
                '(TeX-command-extra-options . "-shell-escape")))
 
 
-(setq company-backends '((company-files company-capf :with company-dabbrev-code company-yasnippet) ))
+;; eglot just to have it
+(use-package eglot
+  :diminish eglot
+  :init
+  (setq eglot-stay-out-of '("company"))
+  :config
+  (evil-leader/set-key
+    "har" 'eglot-rename
+    "had" 'xref-find-definitions
+    "haa" 'xref-find-references
+    "hax" 'eglot-reconnect)
+  :hook
+  (eglot-mode . company-tng-mode)
+  (python-mode . eglot)
+  (c++-mode . eglot)
+  (c-mode . eglot))
+
+
+(setq company-backends '((company-files company-capf :with company-yasnippet)))
 (yas-global-mode 1)
 (company-auctex-init)
+
+;; lsp!
 
 (add-hook 'org-mode-hook (lambda ()
                            (setq completion-ignore-case t)
@@ -700,6 +720,10 @@ Start an unlimited search at `point-min' otherwise."
 ;; ----developer tools
 ;; edit
 (use-package sudo-edit)
+
+;; rebote editing
+;; (use-package nova
+;;   :straight (:host github :repo "manateelazycat/nova"))
 
 ;; blamer for git
 ;; (use-package blamer

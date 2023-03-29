@@ -10,3 +10,6 @@
 [submodule "site-packages/reveal.js"]
 	path = site-packages/reveal.js
 	url = git@github.com:hakimel/reveal.js.git
+[submodule "site-lisp/lsp-bridge"]
+	path = site-lisp/lsp-bridge
+	url = git@github.com:manateelazycat/lsp-bridge.git
