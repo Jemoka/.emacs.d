@@ -1392,10 +1392,10 @@ rather than the whole path."
               (if (equal "knowledge capture" (frame-parameter nil 'name))  
                   (delete-other-windows))))
 
-  (add-hook 'org-capture-after-finalize-hook  
-            (lambda () (interactive)
-              (if (equal "knowledge capture" (frame-parameter nil 'name))
-                  (server-delete-client (car server-clients)))))
+  ;; (add-hook 'org-capture-after-finalize-hook  
+  ;;           (lambda () (interactive)
+  ;;             (if (equal "knowledge capture" (frame-parameter nil 'name))
+  ;;                 (server-delete-client (car server-clients)))))
 
   (setq org-roam-file-exclude-regexp '("data/" "daily/"))
 
@@ -1735,7 +1735,8 @@ that."
   "ath" 'org-inlinetask-insert-task
   "ats" 'org-show-todo-tree
   "atl" 'org-todo-list
-  "ati" 'org-time-stamp)
+  "ati" 'org-time-stamp
+  "all" 'org-footnote-action)
 
 (evil-leader/set-key
   "ahs" 'org-edit-src-exit
