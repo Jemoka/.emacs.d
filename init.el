@@ -551,6 +551,12 @@ Start an unlimited search at `point-min' otherwise."
                            (yas-expand-snippet "\\int_{$1}^{$2}$0"))
                     "slm" (lambda () (interactive)
                            (yas-expand-snippet "\\lim_{$1 \\to $2}$0"))
+                    "smil" (lambda () (interactive)
+                           (yas-expand-snippet "\\langle"))
+                    "smir" (lambda () (interactive)
+                           (yas-expand-snippet "\\rangle"))
+                    "smii" (lambda () (interactive)
+                           (yas-expand-snippet "\\langle $1 \\rangle$0"))
                     "ssv" (lambda () (interactive)
                            (yas-expand-snippet "\\vec{$1}$0"))
                     "^" (lambda () (interactive)
@@ -610,7 +616,6 @@ Start an unlimited search at `point-min' otherwise."
   (add-to-list 'safe-local-variable-values
                '(TeX-command-extra-options . "-shell-escape")))
 
-
 ;; eglot just to have it
 (use-package eglot
   :diminish eglot
@@ -624,12 +629,13 @@ Start an unlimited search at `point-min' otherwise."
     "hax" 'eglot-reconnect)
   :hook
   (eglot-mode . company-tng-mode)
-  (python-mode . eglot)
-  (c++-mode . eglot)
-  (c-mode . eglot))
+  (python-mode . eglot-ensure)
+  (c++-mode . eglot-ensure)
+  (c-mode . eglot-ensure)
+  (rjsx-mode . eglot-ensure)
+  (js-mode . eglot-ensure))
 
-
-(setq company-backends '((company-files company-capf :with company-yasnippet)))
+(setq company-backends '((company-files) (company-capf :with company-yasnippet)))
 (yas-global-mode 1)
 (company-auctex-init)
 
@@ -1367,6 +1373,8 @@ rather than the whole path."
 ;;   :custom
 ;;   (org-roam-directory (file-truename "~/Documents/taproot/")))
 
+(use-package sqlite)
+
 (use-package org-roam
   :custom
   (org-roam-directory (file-truename "~/Documents/knowledgebase/"))
@@ -1643,7 +1651,7 @@ that."
 
 
 
-(setq org-format-latex-options (plist-put org-format-latex-options :scale 2.5))
+(setq org-format-latex-options (plist-put org-format-latex-options :scale 3))
 (setq org-babel-clojure-backend 'cider)
 (setq org-src-tab-acts-natively t)
 (setq org-src-fontify-natively t)
