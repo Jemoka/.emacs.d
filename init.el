@@ -1424,12 +1424,7 @@ rather than the whole path."
               (if (equal "knowledge capture" (frame-parameter nil 'name))  
                   (delete-other-windows))))
 
-  ;; (add-hook 'org-capture-after-finalize-hook  
-  ;;           (lambda () (interactive)
-  ;;             (if (equal "knowledge capture" (frame-parameter nil 'name))
-  ;;                 (server-delete-client (car server-clients)))))
-
-  (setq org-roam-file-exclude-regexp '("data/" "daily/"))
+  (setq org-roam-file-exclude-regexp "daily/")
 
   (defun org-roam-quick-capture ()
     (interactive)
