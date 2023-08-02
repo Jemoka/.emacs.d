@@ -200,7 +200,8 @@
 (use-package rjsx-mode
   :config
   (add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode))
-  (add-to-list 'auto-mode-alist '("pages\\/.*\\.js\\'" . rjsx-mode)))
+  (add-to-list 'auto-mode-alist '("pages\\/.*\\.js\\'" . rjsx-mode))
+  (add-to-list 'auto-mode-alist '("app\\/.*\\.js\\'" . rjsx-mode)))
 
 (add-hook 'js-mode-hook (lambda () (setq indent-tabs-mode nil)))
 (add-hook 'typescript-mode-hook (lambda () (setq indent-tabs-mode nil)))
@@ -388,12 +389,13 @@
 
 (advice-add 'start-file-process-shell-command :around #'start-file-process-shell-command@around)
 
+(setq python-shell-interpreter "ipython"
+      python-shell-interpreter-args "--simple-prompt --pprint")
 
 ;; (use-package lsp-pyright
 ;;   :init
 ;;   (setq lsp-pyright-python-executable-cmd "python")
-;;   (setq python-shell-interpreter "ipython"
-;;         python-shell-interpreter-args "--simple-prompt --pprint")
+  
 ;;   (lsp-register-custom-settings
 ;;    '(("pyls.plugins.pyls_mypy.enabled" t t)
 ;;      ("pyls.plugins.pyls_mypy.live_mode" nil t)
@@ -424,7 +426,12 @@
 ;;   :hook
 ;;   (python-mode . lsp))
 
-
+(defun pgp-clearsign ()
+  (interactive)
+  (shell-command (format "echo \"\"\"%s\"\"\" | gpg --clearsign -o- > %s"
+                         (buffer-string) (buffer-file-name)))
+  (revert-buffer t t))
+;; 
 
 (use-package pythonic)
 (use-package pyvenv
@@ -487,6 +494,7 @@ Start an unlimited search at `point-min' otherwise."
   :diminish yas-minor-mode
   :after company
   :config
+  (setq yas-triggers-in-field t)
   (add-hook 'post-command-hook
             (lambda  ()
               (when (and (boundp 'yas-minor-mode) yas-minor-mode)
@@ -616,7 +624,13 @@ Start an unlimited search at `point-min' otherwise."
   (add-to-list 'safe-local-variable-values
                '(TeX-command-extra-options . "-shell-escape")))
 
+(yas-global-mode 1)
+(company-auctex-init)
+
 ;; eglot just to have it
+;; IF EGLOT IS BROKEN
+;; /opt/homebrew/Cellar/emacs-plus@28/28.2/share/emacs/28.2/lisp/progmodes
+;; delete/move project.el.gz; project.elc somewhere else
 (use-package eglot
   :diminish eglot
   :init
@@ -627,6 +641,8 @@ Start an unlimited search at `point-min' otherwise."
     "had" 'xref-find-definitions
     "haa" 'xref-find-references
     "hax" 'eglot-reconnect)
+  (add-to-list 'eglot-server-programs
+               '(svelte-mode . ("svelteserver" "--stdio")))
   :hook
   (eglot-mode . company-tng-mode)
   (python-mode . eglot-ensure)
@@ -635,9 +651,9 @@ Start an unlimited search at `point-min' otherwise."
   (rjsx-mode . eglot-ensure)
   (js-mode . eglot-ensure))
 
-(setq company-backends '((company-files) (company-capf :with company-yasnippet)))
-(yas-global-mode 1)
-(company-auctex-init)
+;; (setq company-backends '((company-capf :with company-yasnippet company-files)))
+(setq company-backends '(company-files company-capf :with company-yasnippet))
+;; (setq company-backends '(company-capf))
 
 ;; lsp!
 
@@ -655,7 +671,7 @@ Start an unlimited search at `point-min' otherwise."
 (use-package flycheck
   :diminish flycheck-mode
   :init
-  (global-flycheck-mode)
+  ;; (global-flycheck-mode)
   :config
   (setq flycheck-check-syntax-automatically '(mode-enabled save idle-change))
   (set-face-attribute 'flycheck-error nil :underline t)
@@ -751,15 +767,6 @@ Start an unlimited search at `point-min' otherwise."
   :init
   (setq-default elfeed-search-filter "-hide +unread "))
 
-(defun file-notify-rm-all-watches ()
-  "Remove all existing file notification watches from Emacs."
-  (interactive)
-  (maphash
-   (lambda (key _value)
-     (file-notify-rm-watch key))
-   file-notify-descriptors))
-
-
 ;; Elfeed tube
 (use-package elfeed-tube
   :straight (:host github :repo "karthink/elfeed-tube")
@@ -780,8 +787,6 @@ Start an unlimited search at `point-min' otherwise."
          :map elfeed-search-mode-map
          ("F" . elfeed-tube-fetch)
          ([remap save-buffer] . elfeed-tube-save)))
-
-
 ;;mpv
 (use-package elfeed-tube-mpv
   :straight (:host github :repo "karthink/elfeed-tube")
@@ -791,6 +796,20 @@ Start an unlimited search at `point-min' otherwise."
   :config
   (evil-leader/set-key-for-mode 'elfeed-show-mode
     "oe" 'elfeed-tube-mpv-follow-mode))
+
+(defun file-notify-rm-all-watches ()
+  "Remove all existing file notification watches from Emacs."
+  (interactive)
+  (maphash
+   (lambda (key _value)
+     (file-notify-rm-watch key))
+   file-notify-descriptors))
+
+
+
+
+
+
 
 (use-package emms
   :diminish emms
@@ -1280,6 +1299,15 @@ rather than the whole path."
   "hn" 'python-shell-send-region
   "hb" 'python-shell-send-buffer
   "hst" 'run-python)
+
+;; docs
+(use-package numpydoc
+  :config
+  (setq numpydoc-insertion-style 'prompt)
+  (setq numpydoc-insert-examples-block nil)
+  (setq numpydoc-insert-return-without-typehint t)
+  :bind (:map python-mode-map
+              ("s-SPC" . numpydoc-generate)))
 
 ;; CMake
 (use-package cmake-ide
@@ -1947,6 +1975,7 @@ are null."
 
   ;; Git
   "gt" 'magit
+  "gd" 'magit-file-dispatch
 
   ;; Perspectives
   "vs" 'persp-switch
