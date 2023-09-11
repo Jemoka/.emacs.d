@@ -201,7 +201,8 @@
   :config
   (add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode))
   (add-to-list 'auto-mode-alist '("pages\\/.*\\.js\\'" . rjsx-mode))
-  (add-to-list 'auto-mode-alist '("app\\/.*\\.js\\'" . rjsx-mode)))
+  (add-to-list 'auto-mode-alist '("app\\/.*\\.js\\'" . rjsx-mode))
+  (add-to-list 'auto-mode-alist '("app/*.js" . rjsx-mode)))
 
 (add-hook 'js-mode-hook (lambda () (setq indent-tabs-mode nil)))
 (add-hook 'typescript-mode-hook (lambda () (setq indent-tabs-mode nil)))
@@ -247,61 +248,100 @@
 
 (use-package tree-sitter-langs)
 
-;; (use-package lsp-mode
-;;   :init
-;;   (setq lsp-auto-configure nil)
-;;   (setq read-process-output-max (* 1024 1024)) ;; 1mb
-;;   (setq gc-cons-threshold 100000000)
-;;   (setq lsp-idle-delay 0.100)
-;;   (setq lsp-log-io nil)
-;;   (setq lsp-enable-snippet t)
-;;   :config
-;;   (require 'lsp-clangd)
-;;   (require 'lsp-javascript)
-;;   (require 'lsp-css)
-;;   (require 'lsp-html)
-;;   (require 'lsp-completion)
-;;   (require 'lsp-svelte)
-;;   (require 'lsp-ocaml)
-;;   (lsp-completion--enable)
-;;   (setq lsp-enable-snippet t)
-;;   (add-hook 'c-mode-hook (lambda() (setq-local lsp-enable-snippet nil)))
-;;   (add-hook 'c++-mode-hook (lambda() (setq-local lsp-enable-snippet nil)))
-;;   (add-hook 'lsp-completion-mode-hook (lambda ()
-;;                                         (eldoc-mode -1)
-;;                                         (setq company-backends '(company-files company-capf))))
-;;   :hook
-;;   (lsp-mode . lsp-completion-mode)
-;;   (c++-mode . lsp)
-;;   (c-mode . lsp)
-;;   (typescript-mode . lsp)
-;;   (javascript-mode . lsp)
-;;   (js-mode . lsp)
-;;   (rjsx-mode . lsp)
-;;   (rustic-mode . lsp)
-;;   (mhtml-mode . lsp)
-;;   (css-mode . lsp)
-;;   (svelte-mode . lsp)
-;;   (java-mode . lsp)
-;;   (tuareg-mode . lsp))
+(use-package lsp-mode
+  :init
+  (setq lsp-auto-configure nil)
+  (setq read-process-output-max (* 1024 1024)) ;; 1mb
+  (setq gc-cons-threshold 100000000)
+  (setq lsp-idle-delay 0.100)
+  (setq lsp-log-io nil)
+  (setq lsp-enable-snippet t)
+  :config
+  (require 'lsp-clangd)
+  (require 'lsp-javascript)
+  ;; (require 'lsp-css)
+  ;; (require 'lsp-html)
+  (require 'lsp-completion)
+  (require 'lsp-svelte)
+  (require 'lsp-ocaml)
+  (lsp-completion--enable)
+  (setq lsp-enable-snippet t)
+  (require 'lsp-html)
+  (require 'lsp-css)
+  (add-hook 'c-mode-hook (lambda() (setq-local lsp-enable-snippet nil)))
+  (add-hook 'c++-mode-hook (lambda() (setq-local lsp-enable-snippet nil)))
+  (add-hook 'lsp-completion-mode-hook (lambda ()
+                                        (eldoc-mode -1)
+                                        (setq company-backends '(company-files company-capf))))
+  :hook
+  (lsp-mode . lsp-completion-mode)
+  (c++-mode . lsp)
+  (c-mode . lsp)
+  (typescript-mode . lsp)
+  (javascript-mode . lsp)
+  (js-mode . lsp)
+  (rjsx-mode . lsp)
+  (rustic-mode . lsp)
+  ;; (css-mode . lsp)
+  ;; (html-mode . lsp)
+  (mhtml-mode . lsp)
+  ;; (css-mode . lsp)
+  (svelte-mode . lsp)
+  (java-mode . lsp)
+  (tuareg-mode . lsp))
 
-;; (use-package lsp-ui
-;;   :config
-;;   (setq lsp-ui-doc-show-with-cursor t
-;;         lsp-ui-doc-position 'at-point
-;;         lsp-ui-doc-text-scale-level -2
-;;         lsp-ui-doc-max-height 8
-;;         lsp-ui-doc-max-width 100
-;;         lsp-ui-doc-include-signature t
-;;         lsp-ui-doc-delay 1)
-;;   (evil-leader/set-key
-;;     "ha.p" 'lsp-ui-doc-focus-frame
-;;     "ha.." 'lsp-ui-doc-unfocus-frame
-;;     "haa" 'lsp-ui-peek-find-references
-;;     "had" 'lsp-ui-peek-find-definitions
-;;     "har" 'lsp-rename)
-;;   :hook
-;;   (lsp-mode . lsp-ui-mode))
+(use-package lsp-pyright
+  :init
+  (setq lsp-pyright-python-executable-cmd "python")
+  
+  (lsp-register-custom-settings
+   '(("pyls.plugins.pyls_mypy.enabled" t t)
+     ("pyls.plugins.pyls_mypy.live_mode" nil t)
+     ("pyls.plugins.pyls_black.enabled" t t)
+     ("pyls.plugins.pyls_isort.enabled" t t)))
+  (require 'lsp-pyright)
+  :after lsp-mode
+  :config
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-tramp-connection (lambda ()
+                                            (cons "pyright-langserver"
+                                                  lsp-pyright-langserver-command-args)))
+    :major-modes '(python-mode)
+    :remote? t
+    :server-id 'pyright-remote
+    :multi-root lsp-pyright-multi-root
+    :priority 3
+    :initialized-fn (lambda (workspace)
+                      (with-lsp-workspace workspace
+                        (lsp--set-configuration
+                         (make-hash-table :test 'equal))))
+    :download-server-fn (lambda (_client callback error-callback _update?)
+                          (lsp-package-ensure 'pyright callback error-callback))
+    :notification-handlers (lsp-ht ("pyright/beginProgress" 'lsp-pyright--begin-progress-callback)
+                                   ("pyright/reportProgress" 'lsp-pyright--report-progress-callback)
+                                   ("pyright/endProgress" 'lsp-pyright--end-progress-callback))))
+  :hook
+  (python-mode . lsp))
+
+
+(use-package lsp-ui
+  :config
+  (setq lsp-ui-doc-show-with-cursor t
+        lsp-ui-doc-position 'at-point
+        lsp-ui-doc-text-scale-level -2
+        lsp-ui-doc-max-height 8
+        lsp-ui-doc-max-width 100
+        lsp-ui-doc-include-signature t
+        lsp-ui-doc-delay 1)
+  (evil-leader/set-key
+    "ha.p" 'lsp-ui-doc-focus-frame
+    "ha.." 'lsp-ui-doc-unfocus-frame
+    "haa" 'lsp-ui-peek-find-references
+    "had" 'lsp-ui-peek-find-definitions
+    "har" 'lsp-rename)
+  :hook
+  (lsp-mode . lsp-ui-mode))
 
 ;; (use-package lsp-haskell
 ;;   :config
@@ -391,40 +431,6 @@
 
 (setq python-shell-interpreter "ipython"
       python-shell-interpreter-args "--simple-prompt --pprint")
-
-;; (use-package lsp-pyright
-;;   :init
-;;   (setq lsp-pyright-python-executable-cmd "python")
-  
-;;   (lsp-register-custom-settings
-;;    '(("pyls.plugins.pyls_mypy.enabled" t t)
-;;      ("pyls.plugins.pyls_mypy.live_mode" nil t)
-;;      ("pyls.plugins.pyls_black.enabled" t t)
-;;      ("pyls.plugins.pyls_isort.enabled" t t)))
-;;   (require 'lsp-pyright)
-;;   :after lsp-mode
-;;   :config
-;;   (lsp-register-client
-;;    (make-lsp-client
-;;     :new-connection (lsp-tramp-connection (lambda ()
-;;                                             (cons "pyright-langserver"
-;;                                                   lsp-pyright-langserver-command-args)))
-;;     :major-modes '(python-mode)
-;;     :remote? t
-;;     :server-id 'pyright-remote
-;;     :multi-root lsp-pyright-multi-root
-;;     :priority 3
-;;     :initialized-fn (lambda (workspace)
-;;                       (with-lsp-workspace workspace
-;;                         (lsp--set-configuration
-;;                          (make-hash-table :test 'equal))))
-;;     :download-server-fn (lambda (_client callback error-callback _update?)
-;;                           (lsp-package-ensure 'pyright callback error-callback))
-;;     :notification-handlers (lsp-ht ("pyright/beginProgress" 'lsp-pyright--begin-progress-callback)
-;;                                    ("pyright/reportProgress" 'lsp-pyright--report-progress-callback)
-;;                                    ("pyright/endProgress" 'lsp-pyright--end-progress-callback))))
-;;   :hook
-;;   (python-mode . lsp))
 
 (defun pgp-clearsign ()
   (interactive)
@@ -631,25 +637,25 @@ Start an unlimited search at `point-min' otherwise."
 ;; IF EGLOT IS BROKEN
 ;; /opt/homebrew/Cellar/emacs-plus@28/28.2/share/emacs/28.2/lisp/progmodes
 ;; delete/move project.el.gz; project.elc somewhere else
-(use-package eglot
-  :diminish eglot
-  :init
-  (setq eglot-stay-out-of '("company"))
-  :config
-  (evil-leader/set-key
-    "har" 'eglot-rename
-    "had" 'xref-find-definitions
-    "haa" 'xref-find-references
-    "hax" 'eglot-reconnect)
-  (add-to-list 'eglot-server-programs
-               '(svelte-mode . ("svelteserver" "--stdio")))
-  :hook
-  (eglot-mode . company-tng-mode)
-  (python-mode . eglot-ensure)
-  (c++-mode . eglot-ensure)
-  (c-mode . eglot-ensure)
-  (rjsx-mode . eglot-ensure)
-  (js-mode . eglot-ensure))
+;; (use-package eglot
+;;   :diminish eglot
+;;   :init
+;;   (setq eglot-stay-out-of '("company"))
+;;   :config
+;;   (evil-leader/set-key
+;;     "har" 'eglot-rename
+;;     "had" 'xref-find-definitions
+;;     "haa" 'xref-find-references
+;;     "hax" 'eglot-reconnect)
+;;   (add-to-list 'eglot-server-programs
+;;                '(svelte-mode . ("svelteserver" "--stdio")))
+;;   :hook
+;;   (eglot-mode . company-tng-mode)
+;;   (python-mode . eglot-ensure)
+;;   (c++-mode . eglot-ensure)
+;;   (c-mode . eglot-ensure)
+;;   (rjsx-mode . eglot-ensure)
+;;   (js-mode . eglot-ensure))
 
 ;; (setq company-backends '((company-capf :with company-yasnippet company-files)))
 (setq company-backends '(company-files company-capf :with company-yasnippet))
@@ -913,12 +919,38 @@ rather than the whole path."
 
 (use-package erc-terminal-notifier)
 
+;; alert
+(use-package alert)
+
 ;; Telga
+     
+
+(defun switch-to-existing-buffer-other-window (part)
+  "Switch to buffer with PART in its name."
+  (interactive
+   (list (read-buffer-to-switch "Switch to buffer in other window: ")))
+  (let ((candidates
+     (cl-remove
+      nil
+      (mapcar (lambda (buf)
+            (let ((pos (string-match part (buffer-name buf))))
+              (when pos
+            (cons pos buf))))
+          (buffer-list)))))
+    (unless candidates
+      (user-error "There is no buffers with %S in its name." part))
+    (setq candidates (cl-sort candidates #'< :key 'car))
+    (pop-to-buffer-same-window (cdr (car candidates)) nil)))
+
+
 (use-package telega
   :init
-  (setq telega-use-images t)
+  (setq telega-use-images nil)
   :config
-  (setq telega-server-libs-prefix "/opt/homebrew"))
+  (setq telega-server-libs-prefix "/opt/homebrew")
+  (evil-leader/set-key
+    "gs" 'telega-switch-buffer
+    "gc" (lambda () (interactive) (switch-to-existing-buffer-other-window "adrsn"))))
 
 ;; flooo
 (use-package floobits)
@@ -1120,7 +1152,6 @@ rather than the whole path."
   (setq markdown-enable-math t)
   (setq-default markdown-hide-markup nil)
   :config
-  (define-key markdown-mode-map (kbd "[[") 'insert-file-name-as-wikilink)
   (setq markdown-enable-wiki-links t)
   (setq markdown-link-space-sub-char " ")
   (set-face-attribute 'markdown-header-face-1 nil :foreground 'unspecified :inherit 'outline-1)
@@ -1328,7 +1359,7 @@ rather than the whole path."
 (use-package cmake-mode)
 
 ;; ipynb
-(use-package ein)
+(use-package jupyter)
 
 ;; Olivetti
 (use-package olivetti
@@ -2099,6 +2130,7 @@ are null."
 
 ;; Human Dired 
 (setq dired-listing-switches "-alFh")
+(evil-ex-define-cmd "W" 'evil-write)
 
 (provide 'init)
 ;;; init.el ends here

@@ -9,6 +9,9 @@ set(CMAKE_C_STANDARD 17)              # Enable c17 standard
 # Add main.cpp file of project root directory as source file
 set(SOURCE_FILES main.cpp)
 
+# make compile commands
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Add executable target with source files listed in SOURCE_FILES variable
 add_executable($1 \${SOURCE_FILES})
 

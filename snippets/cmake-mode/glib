@@ -13,6 +13,9 @@ set(SOURCE_FILES main.c)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules (GLIB REQUIRED glib-2.0)
 
+# make compile commands
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Add executable target with source files listed in SOURCE_FILES variable
 add_executable($1 \${SOURCE_FILES})
 
