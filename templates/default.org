@@ -11,6 +11,7 @@
 #+LATEX_HEADER_EXTRA: \usepackage{pgfplots}
 #+LATEX_HEADER_EXTRA: \usepackage{xcolor}
 #+LATEX_HEADER_EXTRA: \usepackage{indentfirst}
+#+LATEX_HEADER_EXTRA: \usepackage{amsmath}
 
 #+LATEX_HEADER_EXTRA: \usepackage[style=apa,url=true,backend=biber] {biblatex}
 #+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/bibs/ml.bib}

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: Org Bable Session
+# key: ~bss
+# --
+#+PROPERTY: header-args :session $1

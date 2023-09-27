@@ -243,6 +243,7 @@
   :diminish tree-sitter-mode
   :config
   (global-tree-sitter-mode)
+  (tree-sitter-require 'julia)
   :hook
   (tree-sitter-mode . tree-sitter-hl-mode))
 
@@ -561,6 +562,8 @@ Start an unlimited search at `point-min' otherwise."
 
                     "ssm" (lambda () (interactive)
                            (yas-expand-snippet "\\sum_{$1}^{$2}$0"))
+                    "ssx" (lambda () (interactive)
+                           (yas-expand-snippet "\\prod_{$1}^{$2}$0"))
                     "sid" (lambda () (interactive)
                            (yas-expand-snippet "\\int_{$1}^{$2}$0"))
                     "slm" (lambda () (interactive)
@@ -588,6 +591,10 @@ Start an unlimited search at `point-min' otherwise."
                     "sh " (lambda () (interactive)
                          (yas-expand-snippet "\\dd{$1}$0"))
                     "shh" "\\dv"
+                    "dim" "\\dim"
+                    "range" "\\text{range}\\"
+                    "mod" "\\ \\text{mod}\\"
+                    "null" "\\text{null}\\"
                     "sht" (lambda () (interactive)
                          (yas-expand-snippet "\\dv{$1}{$2}$0"))
                     "shn" "\\pdv"
@@ -895,7 +902,32 @@ rather than the whole path."
                 :nick "jemoka"))
   ;; open channel
   "'ch" '(lambda () (interactive)
-           (pop-to-buffer-by-name "##jklsnt")))
+           (pop-to-buffer-by-name "##jklsnt"))
+
+  ;; switch buffe
+  "''" 'erc-track-switch-buffer-other-window
+
+  "'," 'erc-switch-to-buffer-other-window)
+
+(setq erc-format-query-as-channel-p t
+      erc-track-priority-faces-only 'all
+      erc-track-faces-priority-list '(erc-error-face
+                                      erc-current-nick-face
+                                      erc-keyword-face
+                                      erc-nick-msg-face
+                                      erc-direct-msg-face
+                                      erc-dangerous-host-face
+                                      erc-notice-face
+                                      erc-prompt-face))
+
+(setq erc-current-nick-highlight-type 'nick)
+(setq erc-keywords '("\\jack\\bi" "\\houjun\\bi"))
+
+(setq erc-track-exclude-types '("JOIN" "PART" "QUIT" "NICK" "MODE"))
+(setq erc-track-use-faces t)
+(setq erc-track-faces-priority-list
+        '(erc-current-nick-face erc-keyword-face))
+(setq erc-track-priority-faces-only 'all)
 
 (require 'erc-dcc)
 (erc-dcc-enable)
@@ -1192,6 +1224,9 @@ rather than the whole path."
 
 
 ;; ----new languages 
+;; julia
+(use-package julia-mode)
+
 ;; swelte
 (use-package svelte-mode
   :config
@@ -1701,7 +1736,8 @@ that."
    (ditaa . t)
    (shell . t)
    (sagemath . t)
-   (sml . t)))
+   (sml . t)
+   (julia . t)))
 
 
 
@@ -1743,6 +1779,7 @@ that."
   (setq org-latex-packages-alist '(("margin=1in" "geometry")))
     (add-to-list 'org-latex-packages-alist '("" "minted"))
     (add-to-list 'org-latex-packages-alist '("" "physics"))
+    (add-to-list 'org-latex-packages-alist '("" "tikz"))
     (setq org-latex-pdf-process '("latexmk -bibtex -f -pdf -%latex -shell-escape -interaction=nonstopmode -output-directory=%o %f"))
 
 
@@ -2131,6 +2168,9 @@ are null."
 ;; Human Dired 
 (setq dired-listing-switches "-alFh")
 (evil-ex-define-cmd "W" 'evil-write)
+
+;; images?
+(setq image-types '(xpm imagemagick pbm pgm ppm gif tiff png jpeg))
 
 (provide 'init)
 ;;; init.el ends here
