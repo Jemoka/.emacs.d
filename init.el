@@ -45,6 +45,8 @@
 (add-to-list 'tramp-remote-path "/usr/local/bin")
 (add-to-list 'tramp-remote-path "/opt/bin")
 (add-to-list 'tramp-remote-path "~/.cargo/bin")
+(add-to-list 'tramp-remote-path "/nlp/scr/houjun/miniconda3/bin/")
+(add-to-list 'tramp-remote-path 'tramp-own-remote-path)
 
 ;;; ----Straight
 (defvar bootstrap-version)
@@ -262,6 +264,7 @@
   (require 'lsp-javascript)
   ;; (require 'lsp-css)
   ;; (require 'lsp-html)
+  (require 'lsp-pylsp)
   (require 'lsp-completion)
   (require 'lsp-svelte)
   (require 'lsp-ocaml)
@@ -283,7 +286,7 @@
   (js-mode . lsp)
   (rjsx-mode . lsp)
   (rustic-mode . lsp)
-  ;; (css-mode . lsp)
+  (python-mode . lsp)
   ;; (html-mode . lsp)
   (mhtml-mode . lsp)
   ;; (css-mode . lsp)
@@ -291,39 +294,39 @@
   (java-mode . lsp)
   (tuareg-mode . lsp))
 
-(use-package lsp-pyright
-  :init
-  (setq lsp-pyright-python-executable-cmd "python")
+;; (use-package lsp-pyright
+;;   :init
+;;   (setq lsp-pyright-python-executable-cmd "python")
   
-  (lsp-register-custom-settings
-   '(("pyls.plugins.pyls_mypy.enabled" t t)
-     ("pyls.plugins.pyls_mypy.live_mode" nil t)
-     ("pyls.plugins.pyls_black.enabled" t t)
-     ("pyls.plugins.pyls_isort.enabled" t t)))
-  (require 'lsp-pyright)
-  :after lsp-mode
-  :config
-  (lsp-register-client
-   (make-lsp-client
-    :new-connection (lsp-tramp-connection (lambda ()
-                                            (cons "pyright-langserver"
-                                                  lsp-pyright-langserver-command-args)))
-    :major-modes '(python-mode)
-    :remote? t
-    :server-id 'pyright-remote
-    :multi-root lsp-pyright-multi-root
-    :priority 3
-    :initialized-fn (lambda (workspace)
-                      (with-lsp-workspace workspace
-                        (lsp--set-configuration
-                         (make-hash-table :test 'equal))))
-    :download-server-fn (lambda (_client callback error-callback _update?)
-                          (lsp-package-ensure 'pyright callback error-callback))
-    :notification-handlers (lsp-ht ("pyright/beginProgress" 'lsp-pyright--begin-progress-callback)
-                                   ("pyright/reportProgress" 'lsp-pyright--report-progress-callback)
-                                   ("pyright/endProgress" 'lsp-pyright--end-progress-callback))))
-  :hook
-  (python-mode . lsp))
+;;   (lsp-register-custom-settings
+;;    '(("pyls.plugins.pyls_mypy.enabled" t t)
+;;      ("pyls.plugins.pyls_mypy.live_mode" nil t)
+;;      ("pyls.plugins.pyls_black.enabled" t t)
+;;      ("pyls.plugins.pyls_isort.enabled" t t)))
+;;   (require 'lsp-pyright)
+;;   :after lsp-mode
+;;   ;; :config
+;;   ;; (lsp-register-client
+;;   ;;  (make-lsp-client
+;;   ;;   :new-connection (lsp-tramp-connection (lambda ()
+;;   ;;                                           (cons "pyright-langserver"
+;;   ;;                                                 lsp-pyright-langserver-command-args)))
+;;   ;;   :major-modes '(python-mode)
+;;   ;;   :remote? t
+;;   ;;   :server-id 'pyright-remote
+;;   ;;   :multi-root lsp-pyright-multi-root
+;;   ;;   :priority 3
+;;   ;;   :initialized-fn (lambda (workspace)
+;;   ;;                     (with-lsp-workspace workspace
+;;   ;;                       (lsp--set-configuration
+;;   ;;                        (make-hash-table :test 'equal))))
+;;   ;;   :download-server-fn (lambda (_client callback error-callback _update?)
+;;   ;;                         (lsp-package-ensure 'pyright callback error-callback))
+;;   ;;   :notification-handlers (lsp-ht ("pyright/beginProgress" 'lsp-pyright--begin-progress-callback)
+;;   ;;                                  ("pyright/reportProgress" 'lsp-pyright--report-progress-callback)
+;;   ;;                                  ("pyright/endProgress" 'lsp-pyright--end-progress-callback))))
+;;   :hook
+;;   (python-mode . lsp))
 
 
 (use-package lsp-ui
@@ -365,6 +368,8 @@
 ;;   (haskell-mode . lsp))
 
 
+(use-package python-pytest
+  :after lsp-mode)
 
 (use-package rustic
   :init
@@ -417,10 +422,13 @@
       :ignore-messages nil
       :server-id 'rust-analyzer-remote)))
 
+  (setq rustic-default-test-arguments "--benches --tests --all-features -- --nocapture")
+
   (evil-leader/set-key-for-mode 'rustic-mode
     "hs" 'rustic-cargo-check
     "ht" 'rustic-cargo-test
     "hn" 'rustic-cargo-run
+    "hra" 'rustic-cargo-add
     "hc" 'rustic-compile))
 (defun start-file-process-shell-command@around (start-file-process-shell-command name buffer &rest args)
   "Start a program in a subprocess.  Return the process object for it. Similar to `start-process-shell-command', but calls `start-file-process'."
@@ -576,6 +584,7 @@ Start an unlimited search at `point-min' otherwise."
                            (yas-expand-snippet "\\langle $1 \\rangle$0"))
                     "ssv" (lambda () (interactive)
                            (yas-expand-snippet "\\vec{$1}$0"))
+                    "emptyset" "\\emptyset"
                     "^" (lambda () (interactive)
                            (yas-expand-snippet "^{$1}$0"))
                     "_" (lambda () (interactive)
@@ -592,7 +601,13 @@ Start an unlimited search at `point-min' otherwise."
                          (yas-expand-snippet "\\dd{$1}$0"))
                     "shh" "\\dv"
                     "dim" "\\dim"
+                    "prec" "\\prec"
+                    "preq" "\\preceq"
+                    "sim" "\\sim"
+                    "succ" "\\succ"
+                    "sucq" "\\succeq"
                     "range" "\\text{range}\\"
+                    "smns" "\\setminus"
                     "mod" "\\ \\text{mod}\\"
                     "null" "\\text{null}\\"
                     "sht" (lambda () (interactive)
@@ -831,6 +846,7 @@ Start an unlimited search at `point-min' otherwise."
   :config
   (require 'emms-setup)
   (emms-all)
+  (emms-player-mpd-connect)
   (emms-default-players))
 
 (defun track-title-from-file-name (file)
@@ -1234,6 +1250,12 @@ rather than the whole path."
   :custom
   (svelte-basic-offset 4))
 
+;; common-lisp
+;; slime
+(use-package slime
+  :init
+  (setq inferior-lisp-program "sbcl"))
+
 ;; cider
 (use-package cider
   :config
@@ -1282,6 +1304,9 @@ rather than the whole path."
     "ht" 'tuareg-eval-phrase
     "hb" 'tuareg-eval-buffer
     "hn" 'tuareg-eval-region))
+
+(add-to-list 'load-path "/Users/houjun/.opam/default/share/emacs/site-lisp")
+(require 'ocp-indent)
 
 ;; ## added by OPAM user-setup for emacs / base ## 56ab50dc8996d2bb95e7856a6eddb17b ## you can edit, but keep this line
 (require 'opam-user-setup "~/.emacs.d/opam-user-setup.el")
@@ -1364,6 +1389,7 @@ rather than the whole path."
   "ht" 'python-shell-send-statement
   "hn" 'python-shell-send-region
   "hb" 'python-shell-send-buffer
+  "hd" 'python-pytest-dispatch
   "hst" 'run-python)
 
 ;; docs
@@ -1421,6 +1447,8 @@ rather than the whole path."
 ;;     "hc" 'rust-compile)
 ;;   :hook
 ;;   (rust-mode . (lambda () (setq indent-tabs-mode nil))))
+
+(use-package platformio-mode)
 
 (use-package flycheck-rust
   :hook
@@ -1669,6 +1697,8 @@ that."
 (use-package ox-hugo
   :ensure t   ;Auto-install the package from Melpa
   :after ox
+  :init
+  (setq org-export-with-broken-links t)
   :config
   (add-hook 'org-mode-hook 'org-hugo-auto-export-mode)
   :hook
@@ -2071,6 +2101,7 @@ are null."
   ;; emms
   "omm" 'emms-pause
   "oms" 'emms-start
+  "omi" 'emms-show
   "ome" 'emms-stop
   "om>" 'emms-seek-forward
   "om<" 'emms-seek-backward
