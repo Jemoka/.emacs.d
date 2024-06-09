@@ -35,3 +35,4 @@
 /.dap-breakpoints
 /site-lisp/.DS_Store
 /.ercpass
+/secrets.el

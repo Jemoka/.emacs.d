@@ -11,6 +11,8 @@
 #+LATEX_HEADER_EXTRA: \usepackage{pgfplots}
 #+LATEX_HEADER_EXTRA: \usepackage{xcolor}
 #+LATEX_HEADER_EXTRA: \usepackage{indentfirst}
+#+LATEX_HEADER_EXTRA: \usepackage{algpseudocode}
+#+LATEX_HEADER_EXTRA: \usepackage{algorithm}
 #+LATEX_HEADER_EXTRA: \usepackage{amsmath}
 
 #+LATEX_HEADER_EXTRA: \usepackage[style=apa,url=true,backend=biber] {biblatex}
@@ -26,6 +28,10 @@
 #+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/oldrefs.bib}
 
 #+LATEX_HEADER_EXTRA: \setmainfont{IBM Plex Serif}
+#+LATEX_HEADER_EXTRA: \usepackage [autostyle, english = american]{csquotes}
+#+LATEX_HEADER_EXTRA: \MakeOuterQuote{"}
+
+
 
 # #+LATEX_HEADER_EXTRA: \setmainfont[ItalicFont = HelveticaNeue-Italic, BoldFont = HelveticaNeue-Bold, BoldItalicFont = HelveticaNeue-BoldItalic]{HelveticaNeue}
 # #+LATEX_HEADER_EXTRA: \newfontfamily\NHLight[ItalicFont = HelveticaNeue-LightItalic, BoldFont       = HelveticaNeue-UltraLight, BoldItalicFont = HelveticaNeue-UltraLightItalic]{HelveticaNeue-Light}

@@ -63,15 +63,60 @@
   (load bootstrap-file nil 'nomessage))
 
 
-
 ;;; ----use-package
 (straight-use-package 'use-package)
 (eval-when-compile
   (require 'use-package))
-(setq straight-use-package-by-default t)
 
+(setq straight-use-package-by-default t)
 (straight-use-package 'org)
 
+
+(use-package exwm
+  :init
+  (setq exwm-workspace-number 5)
+  (setq exwm-layout-show-all-buffers t)
+  (setq exwm-workspace-show-all-buffers t)
+  (setq exwm-workspace-minibuffer-position 'bottom)
+  :config
+  (exwm-enable))
+
+(use-package exwm-outer-gaps
+  :straight (exmw-outer-gaps :type git :host github :repo "lucasgruss/exwm-outer-gaps")
+  :config
+  (defun exwm-outer-gaps-redraw ()
+    "exwm-outer gaps sometimes has artifacts in the gap area. Quickly toggling the mode on and off works forces a redraw of the gaps and gets rid of them."
+    (interactive)
+    (exwm-outer-gaps-mode))
+  :hook (exwm-init . (lambda () (exwm-outer-gaps-mode))))
+
+(use-package exwm-mff
+  :init (exwm-mff-mode))
+
+(use-package exwm
+  :init
+
+  (defun b3n-exwm-set-buffer-name ()
+    (if (and exwm-title (string-match "\\`http[^ ]+" exwm-title))
+        (let ((url (match-string 0 exwm-title)))
+          (setq-local buffer-file-name url)
+          (setq-local exwm-title (replace-regexp-in-string
+                                  (concat (regexp-quote url) " - ")
+                                  ""
+                                  exwm-title))))
+    (setq-local exwm-title
+                (concat
+                 exwm-class-name
+                 "<"
+                 (if (<= (length exwm-title) 50)
+                     exwm-title
+                   (concat (substring exwm-title 0 50) "…"))
+                 ">"))
+
+    (exwm-workspace-rename-buffer exwm-title))
+
+  (add-hook 'exwm-update-class-hook 'b3n-exwm-set-buffer-name)
+  (add-hook 'exwm-update-title-hook 'b3n-exwm-set-buffer-name))
 
 
 ;;; ----evil
@@ -135,8 +180,6 @@
 (use-package evil-easymotion
   :config
   (evilem-default-keybindings "SPC"))
-
-
 
 ;; ----cosmetics
 ;; Bars, menus, edges... Begone!
@@ -251,6 +294,10 @@
 
 (use-package tree-sitter-langs)
 
+(defun check-and-lsp ()
+  (if (not (file-remote-p default-directory))
+      (lsp)))
+
 (use-package lsp-mode
   :init
   (setq lsp-auto-configure nil)
@@ -258,7 +305,7 @@
   (setq gc-cons-threshold 100000000)
   (setq lsp-idle-delay 0.100)
   (setq lsp-log-io nil)
-  (setq lsp-enable-snippet t)
+  (setq lsp-enable-snippet nil)
   :config
   (require 'lsp-clangd)
   (require 'lsp-javascript)
@@ -269,30 +316,33 @@
   (require 'lsp-svelte)
   (require 'lsp-ocaml)
   (lsp-completion--enable)
-  (setq lsp-enable-snippet t)
+  (setq lsp-enable-snippet nil)
   (require 'lsp-html)
   (require 'lsp-css)
   (add-hook 'c-mode-hook (lambda() (setq-local lsp-enable-snippet nil)))
   (add-hook 'c++-mode-hook (lambda() (setq-local lsp-enable-snippet nil)))
   (add-hook 'lsp-completion-mode-hook (lambda ()
                                         (eldoc-mode -1)
-                                        (setq company-backends '(company-files company-capf))))
+                                        (setq company-backends '(company-files company-capf :with company-dabbrev-code))))
   :hook
   (lsp-mode . lsp-completion-mode)
-  (c++-mode . lsp)
-  (c-mode . lsp)
-  (typescript-mode . lsp)
-  (javascript-mode . lsp)
-  (js-mode . lsp)
-  (rjsx-mode . lsp)
-  (rustic-mode . lsp)
-  (python-mode . lsp)
+  (c++-mode . check-and-lsp)
+  (c-mode . check-and-lsp)
+  (typescript-mode . check-and-lsp)
+  (javascript-mode . check-and-lsp)
+  (js-mode . check-and-lsp)
+  (rjsx-mode . check-and-lsp)
+  (rustic-mode . check-and-lsp)
+  (python-mode . check-and-lsp)
   ;; (html-mode . lsp)
-  (mhtml-mode . lsp)
+  (mhtml-mode . check-and-lsp)
   ;; (css-mode . lsp)
-  (svelte-mode . lsp)
-  (java-mode . lsp)
-  (tuareg-mode . lsp))
+  (svelte-mode . check-and-lsp)
+  (java-mode . check-and-lsp)
+  (tuareg-mode . check-and-lsp))
+
+(eval-after-load 'tramp
+  (setq tramp-default-method "rsync"))
 
 ;; (use-package lsp-pyright
 ;;   :init
@@ -313,7 +363,7 @@
 ;;   ;;                                                 lsp-pyright-langserver-command-args)))
 ;;   ;;   :major-modes '(python-mode)
 ;;   ;;   :remote? t
-;;   ;;   :server-id 'pyright-remote
+;;   ;;   :server-id 'pyright-eemote
 ;;   ;;   :multi-root lsp-pyright-multi-root
 ;;   ;;   :priority 3
 ;;   ;;   :initialized-fn (lambda (workspace)
@@ -375,6 +425,8 @@
   :init
   (require 'rustic-lsp)
   (setq rustic-cargo-bin-remote "cargo")
+  :hook
+  (rustic-mode . lsp-completion-mode)
   :config
   (defun rustic-buffer-workspace (&optional nodefault)
     "Get workspace for the current buffer."
@@ -428,8 +480,11 @@
     "hs" 'rustic-cargo-check
     "ht" 'rustic-cargo-test
     "hn" 'rustic-cargo-run
+    "hh" 'rustic-cargo-current-test
     "hra" 'rustic-cargo-add
     "hc" 'rustic-compile))
+
+
 (defun start-file-process-shell-command@around (start-file-process-shell-command name buffer &rest args)
   "Start a program in a subprocess.  Return the process object for it. Similar to `start-process-shell-command', but calls `start-file-process'."
   ;; On remote hosts, the local `shell-file-name' might be useless.
@@ -553,8 +608,8 @@ Start an unlimited search at `point-min' otherwise."
                     "ssed" "\\blacksquare"
                     "sssu" "\\cup"
                     "sssi" "\\cap"
-                    "sst" (lambda () (interactive)
-                           (yas-expand-snippet "\\text{$1}$0"))
+                    ;; "sst" (lambda () (interactive)
+                    ;;        (yas-expand-snippet "\\text{$1}$0"))
                     "ssb" (lambda () (interactive)
                             (yas-expand-snippet "\\mathbb{$1}$0"))
                     "ssf" (lambda () (interactive)
@@ -617,6 +672,8 @@ Start an unlimited search at `point-min' otherwise."
                          (yas-expand-snippet "\\pdv{$1}{$2}$0"))
                     "san" " \\\\\n\\Rightarrow\\ & "
                     "sas" "& "
+                    "sst" (lambda () (interactive)
+                         (yas-expand-snippet "\\sqrt{$1}$0"))
                     "saq" " &= "
                     "sae" (lambda () (interactive)
                           (yas-expand-snippet " \\\\\\\n&= $1"))
@@ -680,7 +737,7 @@ Start an unlimited search at `point-min' otherwise."
 ;;   (js-mode . eglot-ensure))
 
 ;; (setq company-backends '((company-capf :with company-yasnippet company-files)))
-(setq company-backends '(company-files company-capf :with company-yasnippet))
+(setq company-backends '(company-files company-capf :with company-dabbrev-code company-yasnippet))
 ;; (setq company-backends '(company-capf))
 
 ;; lsp!
@@ -768,6 +825,16 @@ Start an unlimited search at `point-min' otherwise."
    (org-mode . org-special-block-extras-mode))
 
 ;; ----developer tools
+
+;; ripgrep
+(use-package deadgrep
+  :config
+  (evil-leader/set-key
+    "has" 'deadgrep))
+    
+;; (use-package wgrep)
+;; (use-package wgrep-deadgrep)
+
 ;; edit
 (use-package sudo-edit)
 
@@ -888,22 +955,24 @@ rather than the whole path."
 (setq shr-use-fonts nil)
 
 ;; ERC
-(load "~/.emacs.d/.ercpass")
-(require 'erc-services)
-(setq erc-prompt-for-nickserv-password nil)
-(erc-services-mode 1)
-(setq erc-nickserv-passwords
-      `((Libera.Chat     (("jemoka" . ,librechat-pass)))))
-;; Interpret mIRC-style color commands in IRC chats
-(setq erc-interpret-mirc-color t)
-;; Kill buffers for channels after /part
-(setq erc-kill-buffer-on-part t)
-;; Kill buffers for private queries after quitting the server
-(setq erc-kill-queries-on-quit t)
-;; Kill buffers for server messages after quitting the server
-(setq erc-kill-server-buffer-on-quit t)
-;; rename buffers
-(setq erc-rename-buffers t)
+(if (file-exists-p "~/.emacs.d/.ercpass")
+    (progn
+      (load "~/.emacs.d/.ercpass")
+      (require 'erc-services)
+      (setq erc-prompt-for-nickserv-password nil)
+      (erc-services-mode 1)
+      (setq erc-nickserv-passwords
+            `((Libera.Chat     (("jemoka" . ,librechat-pass)))))
+      ;; Interpret mIRC-style color commands in IRC chats
+      (setq erc-interpret-mirc-color t)
+      ;; Kill buffers for channels after /part
+      (setq erc-kill-buffer-on-part t)
+      ;; Kill buffers for private queries after quitting the server
+      (setq erc-kill-queries-on-quit t)
+      ;; Kill buffers for server messages after quitting the server
+      (setq erc-kill-server-buffer-on-quit t)
+      ;; rename buffers
+      (setq erc-rename-buffers t)))
 
 ;; keybinds
 (defun pop-to-buffer-by-name (name)
@@ -1018,6 +1087,8 @@ rather than the whole path."
 ;; Term!
 ;; The V one
 (use-package vterm
+  :init
+  (setq vterm-shell "/bin/zsh")
   :config
   ;; HJKL Nav
   (define-key vterm-mode-map (kbd "C-h") #'evil-window-left)
@@ -1030,6 +1101,14 @@ rather than the whole path."
   (evil-define-key 'normal vterm-mode-map (kbd "C-c") nil)
   (evil-define-key 'insert vterm-mode-map (kbd "C-c") #'vterm-send-C-c)
   (evil-define-key 'normal vterm-mode-map (kbd "C-c") #'vterm-send-C-c)
+
+  (add-hook 'vterm-exit-functions
+            (lambda (_ _)
+              (let* ((buffer (current-buffer))
+                     (window (get-buffer-window buffer)))
+                (when (not (one-window-p))
+                  (delete-window window))
+                (kill-buffer buffer))))
 
   ;; Yank
   :bind (:map vterm-mode-map ("C-y" . vterm-yank)))
@@ -1108,7 +1187,6 @@ rather than the whole path."
   (evil-leader/set-key 
     "ps" 'counsel-switch-buffer
     "mn" 'counsel-find-file
-    "has" 'counsel-ag
     "<SPC>" 'counsel-M-x))
 
 (use-package swiper)
@@ -1233,6 +1311,21 @@ rather than the whole path."
   "ml" 'markdown-follow-link-at-point
   "mm" 'markdown-follow-wiki-link-at-point)
 
+
+(defun load-if-exists (f)
+  (if (file-exists-p (expand-file-name f))
+      (load-file (expand-file-name f))))
+
+(load-if-exists "~/.emacs.d/secrets.el")
+
+(fset 'epg-wait-for-status 'ignore)
+(use-package org-gcal
+  :init
+  (setq plstore-cache-passphrase-for-symmetric-encryption nil)
+  (setq org-gcal-client-id anderson-client-id
+        org-gcal-client-secret anderson-client-secret
+        org-gcal-fetch-file-alist '(("c_63mtk8cc2shblbltjpc79cs788@group.calendar.google.com" .  "~/Dropbox/knowledgebase/protocols/tasks.org"))))
+
 ;; Google Docs
 ;(add-to-list 'load-path "~/.emacs.d/site-lisp/gdoc.el")
 ;(require 'gdoc)
@@ -1271,9 +1364,12 @@ rather than the whole path."
     "hst" 'cider-jack-in-clj
     "hsp" 'cider-quit
     "had" 'cider-find-var
+    "hsi" 'cider-inspect-last-result
     "hh" 'cider-switch-to-repl-buffer)
   (evil-leader/set-key-for-mode 'cider-repl-mode 
-    "hh" 'cider-switch-to-last-clojure-buffer)
+    "hh" 'cider-switch-to-last-clojure-buffer
+    "hd" 'cider-clojuredocs)
+    
   (evil-leader/set-key-for-mode 'clojurescript-mode
     "ht" 'cider-eval-last-sexp
     "ue" 'cider-eval-last-sexp
@@ -1305,13 +1401,13 @@ rather than the whole path."
     "hb" 'tuareg-eval-buffer
     "hn" 'tuareg-eval-region))
 
-(add-to-list 'load-path "/Users/houjun/.opam/default/share/emacs/site-lisp")
-(require 'ocp-indent)
+;; (add-to-list 'load-path "/Users/houjun/.opam/default/share/emacs/site-lisp")
+;; (require 'ocp-indent)
 
-;; ## added by OPAM user-setup for emacs / base ## 56ab50dc8996d2bb95e7856a6eddb17b ## you can edit, but keep this line
-(require 'opam-user-setup "~/.emacs.d/opam-user-setup.el")
-;; ## end of OPAM user-setup addition for emacs / base ## keep this line
-;; or this if you're into use-package
+;; ;; ## added by OPAM user-setup for emacs / base ## 56ab50dc8996d2bb95e7856a6eddb17b ## you can edit, but keep this line
+;; (require 'opam-user-setup "~/.emacs.d/opam-user-setup.el")
+;; ;; ## end of OPAM user-setup addition for emacs / base ## keep this line
+;; ;; or this if you're into use-package
 
 ;; haskall
 (use-package haskell-mode)
@@ -1385,12 +1481,19 @@ rather than the whole path."
 
 ;; Python
 ;; Interactive
-(evil-leader/set-key-for-mode 'python-mode
-  "ht" 'python-shell-send-statement
-  "hn" 'python-shell-send-region
-  "hb" 'python-shell-send-buffer
-  "hd" 'python-pytest-dispatch
-  "hst" 'run-python)
+(use-package isend-mode
+  :diminish isend-mode
+  :init
+  (setq isend-forward-line nil)
+  :config
+  (add-hook 'isend-mode-hook 'isend-default-python-setup)
+  (evil-leader/set-key-for-mode 'python-mode
+    "ht" 'isend-send
+    "hn" 'isend-send-defun
+    "hb" 'isend-send-buffer
+    "hd" 'python-pytest-dispatch
+    "hst" 'isend-associate))
+
 
 ;; docs
 (use-package numpydoc
@@ -1457,7 +1560,7 @@ rather than the whole path."
 ;; (use-package racer
 ;;   :diminish racer-mode
 ;;   :hook
-;;   (rust-mode . racer-mode))
+;;   (/ust-mode . racer-mode))
 
 ;; Org
 (use-package org-fragtog
@@ -1641,6 +1744,7 @@ that."
   (add-function :after bibtex-completion-edit-notes-function (lambda (keys)
                                                                (goto-char (point-min))
                                                                (org-id-get-create))))
+(use-package nyan-mode)
 
 (use-package ivy-bibtex
   :after org-ref
@@ -1810,6 +1914,8 @@ that."
     (add-to-list 'org-latex-packages-alist '("" "minted"))
     (add-to-list 'org-latex-packages-alist '("" "physics"))
     (add-to-list 'org-latex-packages-alist '("" "tikz"))
+    (add-to-list 'org-latex-packages-alist '("" "algpseudocode"))
+    (add-to-list 'org-latex-packages-alist '("" "algorithm"))
     (setq org-latex-pdf-process '("latexmk -bibtex -f -pdf -%latex -shell-escape -interaction=nonstopmode -output-directory=%o %f"))
 
 
@@ -1891,7 +1997,8 @@ that."
   "ats" 'org-show-todo-tree
   "atl" 'org-todo-list
   "ati" 'org-time-stamp
-  "all" 'org-footnote-action)
+  "all" 'org-footnote-action
+  "au/" 'org-fragtog-mode)
 
 (evil-leader/set-key
   "ahs" 'org-edit-src-exit
@@ -2080,7 +2187,8 @@ are null."
   "vd" 'persp-kill
 
   ;; vterm
-  "vt" 'eshell
+  "ve" 'eshell
+  "vt" 'vterm
 
   ;; LaTeX
   "ra" 'TeX-command-run-all
@@ -2202,6 +2310,8 @@ are null."
 
 ;; images?
 (setq image-types '(xpm imagemagick pbm pgm ppm gif tiff png jpeg))
+(setq evil-shift-width 4)
+(setq-default evil-shift-width 4)
 
 (provide 'init)
 ;;; init.el ends here
