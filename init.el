@@ -1316,7 +1316,20 @@ rather than the whole path."
   (if (file-exists-p (expand-file-name f))
       (load-file (expand-file-name f))))
 
-(load-if-exists "~/.emacs.d/secrets.el")
+;; (load-if-exists "secrets.el.gpg")
+;; (use-package slack
+;;   :commands (slack-start)
+;;   :init
+;;   (setq slack-buffer-emojify t) ;; if you want to enable emoji, default nil
+;;   (setq slack-prefer-current-team t)
+;;   :config
+;;   (slack-register-team
+;;    :name "stanford"
+;;    :default t
+;;    :token slack-token
+;;    :cookie slack-cookie
+;;    :subscribed-channels '()
+;;    :full-and-display-names t))
 
 (fset 'epg-wait-for-status 'ignore)
 (use-package org-gcal
@@ -2084,15 +2097,39 @@ are null."
                     (widget-forward 1))
                 (if (eq (widget-type (widget-at)) 'editable-field)
                     (beginning-of-line)))))
-  (setq notmuch-saved-searches '((:name "inbox" :query "tag:inbox" :key "i")
-                                 (:name "unread" :query "tag:unread -folder:@SaneLater" :key "u")
+  (defun evil-collection-notmuch-show-toggle-delete ()
+    "Toggle deleted tag for message."
+    (interactive)
+    (evil-collection-notmuch-toggle-tag "trash" "show"))
+
+  (defun evil-collection-notmuch-tree-toggle-delete ()
+    "Toggle deleted tag for message."
+    (interactive)
+    (evil-collection-notmuch-toggle-tag "trash" "tree"))
+
+  (defun evil-collection-notmuch-search-toggle-delete ()
+    "Toggle deleted tag for message."
+    (interactive)
+    (evil-collection-notmuch-toggle-tag "trash" "search" 'notmuch-search-next-thread))
+
+  (evil-collection-define-key 'normal 'notmuch-search-mode-map
+    "t" 'notmuch-search-tag-all
+    "*" 'notmuch-search-filter-by-tag)
+  (evil-collection-define-key 'normal 'notmuch-tree-mode-map
+    "t" 'notmuch-tree-tag-thread)
+  (evil-collection-define-key 'normal 'notmuch-show-mode-map
+    "t" 'notmuch-show-tag-all)
+
+  
+  (setq notmuch-saved-searches '((:name "inbox" :query "tag:inbox" :key "b")
+                                 (:name "unread" :query "tag:unread -tag:@SaneNews -tag:@SaneLater -tag:trash" :key "u")
+                                 (:name "news" :query "tag:@SaneNews" :key "n")
                                  (:name "flagged" :query "tag:flagged" :key "f")
                                  (:name "sent" :query "tag:sent" :key "t")
                                  (:name "drafts" :query "tag:draft" :key "d")
                                  (:name "all mail" :query "*" :key "a")))
+  (setq notmuch-hello-hide-tags '("new"))
   (setq notmuch-show-only-matching-messages t))
-
-
 
 ;; Fixing notmuch behavior
 ;; https://notmuchmail.org/pipermail/notmuch/2017/024647.html
@@ -2124,6 +2161,8 @@ are null."
     (kill-buffer))
   (notmuch-select-previous-notmuch-buffer))
 
+(define-key notmuch-message-mode-map (kbd "C-c C-k") 'notmuch-bury-or-kill-this-buffer)
+
 (defun notmuch-mua-send-and-exit (&optional arg)
   (interactive "P")
   (notmuch-mua-send-common arg 't)
@@ -2135,18 +2174,27 @@ are null."
   (unless (notmuch-tree-close-message-window)
     (kill-buffer (current-buffer))
     (notmuch-select-previous-notmuch-buffer)))
-  
+
+(use-package notmuch-indicator
+  :diminish notmuch-indicator-mode
+  :init
+  (setq notmuch-indicator-args
+        '((:terms "tag:inbox" :label "M")))
+  :config
+  (notmuch-indicator-mode 1))
 
 ;; something 
-(setq message-sendmail-f-is-evil 't)
+(setq message-sendmail-f-is-evil nil)
 (setq-default notmuch-search-oldest-first nil)
 ;;need to tell msmtp which account we're using
 
 (setq send-mail-function 'sendmail-send-it
-      sendmail-program "msmtp"
-      mail-specify-envelope-from t
-      message-sendmail-envelope-from 'header
-      mail-envelope-from 'header)
+      sendmail-program "gmi"
+      mail-specify-envelope-from nil
+      message-sendmail-envelope-from 'obey-mail-envelope-from
+      mail-envelope-from nil)
+(setq notmuch-fcc-dirs nil)
+(setq message-sendmail-extra-arguments '("send" "--quiet" "-t" "-C" "~/mail/jemoka"))
 
 
 ;; Exec Path from Shell
@@ -2236,7 +2284,7 @@ are null."
                 :nick "jemoka"))
 
   ;; email
-  "ooe" 'notmuch-hello
+  "'m" 'notmuch-hello
 
   ;; open
   "okb" (lambda () (interactive) (find-file "~/Documents/knowledgebase/KBhindex.org"))
