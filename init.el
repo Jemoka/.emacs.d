@@ -2123,13 +2123,13 @@ are null."
   
   (setq notmuch-saved-searches '((:name "inbox" :query "tag:inbox" :key "b")
                                  (:name "unread" :query "tag:unread -tag:@SaneNews -tag:@SaneLater -tag:trash" :key "u")
-                                 (:name "news" :query "tag:@SaneNews" :key "n")
-                                 (:name "flagged" :query "tag:flagged" :key "f")
-                                 (:name "sent" :query "tag:sent" :key "t")
-                                 (:name "drafts" :query "tag:draft" :key "d")
-                                 (:name "all mail" :query "*" :key "a")))
+                                 (:name "news" :query "tag:@SaneNews and tag:unread" :key "n")
+                                 (:name "flagged" :query "tag:flagged" :key "f")))
   (setq notmuch-hello-hide-tags '("new"))
-  (setq notmuch-show-only-matching-messages t))
+  (setq notmuch-show-only-matching-messages t)
+  (add-hook 'message-send-hook 'notmuch-mua-attachment-check))
+
+(add-to-list 'notmuch-message-mode-hook (lambda () (auto-fill-mode -1)))
 
 ;; Fixing notmuch behavior
 ;; https://notmuchmail.org/pipermail/notmuch/2017/024647.html
@@ -2176,10 +2176,10 @@ are null."
     (notmuch-select-previous-notmuch-buffer)))
 
 (use-package notmuch-indicator
-  :diminish notmuch-indicator-mode
   :init
   (setq notmuch-indicator-args
-        '((:terms "tag:inbox" :label "M")))
+        '((:terms "tag:inbox" :label "M"))
+        notmuch-indicator-hide-empty-counters t)
   :config
   (notmuch-indicator-mode 1))
 
