@@ -1899,6 +1899,7 @@ that."
 (setq org-ditaa-jar-path "/opt/homebrew/Cellar/ditaa/0.11.0_1/libexec/ditaa-0.11.0-standalone.jar")
 
 (with-eval-after-load 'org
+  (setq org-latex-tables-booktabs t)
   (setq org-image-actual-width 300)
   (set-face-attribute 'org-table-header nil :foreground 'unspecified :background (doom-color 'bg) :inherit 'outline-1)
   (set-face-attribute 'org-table nil :foreground 'unspecified :background (doom-color 'bg-alt))
@@ -1929,6 +1930,7 @@ that."
     (add-to-list 'org-latex-packages-alist '("" "tikz"))
     (add-to-list 'org-latex-packages-alist '("" "algpseudocode"))
     (add-to-list 'org-latex-packages-alist '("" "algorithm"))
+    (add-to-list 'org-latex-packages-alist '("" "booktabs"))
     (setq org-latex-pdf-process '("latexmk -bibtex -f -pdf -%latex -shell-escape -interaction=nonstopmode -output-directory=%o %f"))
 
 
