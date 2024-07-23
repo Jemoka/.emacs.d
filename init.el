@@ -289,6 +289,7 @@
   :config
   (global-tree-sitter-mode)
   (tree-sitter-require 'julia)
+  (tree-sitter-require 'commonlisp)
   :hook
   (tree-sitter-mode . tree-sitter-hl-mode))
 
@@ -863,25 +864,25 @@ Start an unlimited search at `point-min' otherwise."
   (setq-default elfeed-search-filter "-hide +unread "))
 
 ;; Elfeed tube
-(use-package elfeed-tube
-  :straight (:host github :repo "karthink/elfeed-tube")
-  :after elfeed
-  :demand t
-  :config
-  ;; (setq elfeed-tube-auto-save-p nil) ;; t is auto-save (not default)
-  ;; (setq elfeed-tube-auto-fetch-p t) ;;  t is auto-fetch (default)
-  (elfeed-tube-setup)
+;; (use-package elfeed-tube
+;;   :straight (:host github :repo "karthink/elfeed-tube")
+;;   :after elfeed
+;;   :demand t
+;;   :config
+;;   ;; (setq elfeed-tube-auto-save-p nil) ;; t is auto-save (not default)
+;;   ;; (setq elfeed-tube-auto-fetch-p t) ;;  t is auto-fetch (default)
+;;   (elfeed-tube-setup)
 
-  :config
-  (setq elfeed-tube-captions-languages
-      '("en" "zh-cn" "zh" "cn" "english (auto generated)"))
+;;   :config
+;;   (setq elfeed-tube-captions-languages
+;;       '("en" "zh-cn" "zh" "cn" "english (auto generated)"))
 
-  :bind (:map elfeed-show-mode-map
-         ("F" . elfeed-tube-fetch)
-         ([remap save-buffer] . elfeed-tube-save)
-         :map elfeed-search-mode-map
-         ("F" . elfeed-tube-fetch)
-         ([remap save-buffer] . elfeed-tube-save)))
+;;   :bind (:map elfeed-show-mode-map
+;;          ("F" . elfeed-tube-fetch)
+;;          ([remap save-buffer] . elfeed-tube-save)
+;;          :map elfeed-search-mode-map
+;;          ("F" . elfeed-tube-fetch)
+;;          ([remap save-buffer] . elfeed-tube-save)))
 ;;mpv
 (use-package elfeed-tube-mpv
   :straight (:host github :repo "karthink/elfeed-tube")
@@ -1356,11 +1357,42 @@ rather than the whole path."
   :custom
   (svelte-basic-offset 4))
 
-;; common-lisp
+;; lisp
 ;; slime
-(use-package slime
+(use-package sly
   :init
-  (setq inferior-lisp-program "sbcl"))
+  (setq inferior-lisp-program "sbcl")
+  (setq sly-description-autofocus t)
+  :config
+  (evil-define-key 'insert sly-mrepl-mode-map (kbd "<up>") #'sly-mrepl-previous-input-or-button)
+  (evil-define-key 'insert sly-mrepl-mode-map (kbd "<down>") #'sly-mrepl-next-input-or-button)
+  (evil-leader/set-key-for-mode 'lisp-mode
+    "ht" 'sly-eval-last-expression
+    "ue" 'sly-eval-last-expression
+    "hn" 'sly-eval-defun
+    "hb" 'sly-eval-buffer
+    "hd" 'sly-documentation-lookup
+    "hk" 'sly-undefine-function
+    "hsc" 'sly-mrepl-sync
+    "hsn" 'cider-eval-defun-to-comment
+    "hst" 'sly
+    "hsp" 'sly-quit-lisp
+    "hh" 'sly-switch-to-most-recent))
+
+;; (use-package sly-overlay
+;;   :straight (:host sourcehut :repo "fosskers/sly-overlay")
+;;   :config 
+
+;;   (evil-leader/set-key-for-mode 'lisp-mode
+;;     "ht" 'sly-overlay-eval-defun
+;;     "ue" 'sly-overlay-eval-defun
+;;     "hn" 'sly-eval-last-expression))
+    ;; "hb" 'sly-eval-buffer
+    ;; "hd" 'sly-documentation-lookup
+    ;; "hk" 'sly-undefine-function
+    ;; "hsn" 'cider-eval-defun-to-comment
+    ;; "hst" 'sly
+    ;; "hh" 'sly-switch-to-most-recent))
 
 ;; cider
 (use-package cider
