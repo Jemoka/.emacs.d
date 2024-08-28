@@ -1526,13 +1526,36 @@ rather than the whole path."
 
 ;; Python
 ;; Interactive
+
+(defun isend-default-ipython-setup ()
+  (when (eq major-mode 'python-ts-mode)
+    (set (make-local-variable 'isend-skip-empty-lines)     nil)
+    (set (make-local-variable 'isend-strip-empty-lines)    nil)
+    (set (make-local-variable 'isend-delete-indentation)   nil)
+    (set (make-local-variable 'isend-end-with-empty-line)  nil)
+    (set (make-local-variable 'isend-bracketed-paste)      nil)
+    (set (make-local-variable 'isend-send-line-function)   nil)
+    (set (make-local-variable 'isend-send-region-function) #'isend--ipython-paste)
+    (set (make-local-variable 'isend-mark-defun-function)  #'isend--python-mark-defun)))
+
+(defun isend-default-python-setup ()
+  (when (eq major-mode 'python-ts-mode)
+    (set (make-local-variable 'isend-skip-empty-lines)     nil)
+    (set (make-local-variable 'isend-strip-empty-lines)    nil)
+    (set (make-local-variable 'isend-delete-indentation)   nil)
+    (set (make-local-variable 'isend-end-with-empty-line)  t)
+    (set (make-local-variable 'isend-bracketed-paste)      t)
+    (set (make-local-variable 'isend-send-line-function)   nil)
+    (set (make-local-variable 'isend-send-region-function) nil)
+    (set (make-local-variable 'isend-mark-defun-function)  #'isend--python-mark-defun)))
+
 (use-package isend-mode
   :diminish isend-mode
   :init
   (setq isend-forward-line nil)
   :config
   (add-hook 'isend-mode-hook 'isend-default-python-setup)
-  (evil-leader/set-key-for-mode 'python-mode
+  (evil-leader/set-key-for-mode 'isend-mode
     "ht" 'isend-send
     "hn" 'isend-send-defun
     "hb" 'isend-send-buffer
@@ -1568,7 +1591,21 @@ rather than the whole path."
 (use-package cmake-mode)
 
 ;; ipynb
-(use-package jupyter)
+(use-package jupyter
+  :init
+  (setq jupyter-repl-echo-eval-p nil)
+  (setq jupyter-eval-use-overlays t)
+  :config
+  (evil-leader/set-key-for-mode 'python-ts-mode
+    "hsj" 'jupyter-run-server-repl
+    "hsc" 'jupyter-connect-server-repl
+    "hst" 'jupyter-repl-associate-buffer
+    "hsp" 'jupyter-repl-shutdown-kernel
+    "ht" 'jupyter-eval-line-or-region
+    "hn" 'jupyter-eval-defun
+    "hb" 'jupyter-eval-buffer
+    "hi" 'jupyter-inspect-at-point
+    "hd" 'python-pytest-dispatch))
 
 ;; Olivetti
 (use-package olivetti
