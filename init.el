@@ -1599,9 +1599,11 @@ rather than the whole path."
   (evil-leader/set-key-for-mode 'python-ts-mode
     "hsj" 'jupyter-run-server-repl
     "hsc" 'jupyter-connect-server-repl
+    "hss" 'jupyter-server-list-kernels
     "hst" 'jupyter-repl-associate-buffer
     "hsp" 'jupyter-repl-shutdown-kernel
     "ht" 'jupyter-eval-line-or-region
+    "hc" 'jupyter-eval-remove-overlays
     "hn" 'jupyter-eval-defun
     "hb" 'jupyter-eval-buffer
     "hi" 'jupyter-inspect-at-point
