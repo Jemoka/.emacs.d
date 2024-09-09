@@ -1597,6 +1597,7 @@ rather than the whole path."
   (setq jupyter-eval-use-overlays t)
   :config
   (evil-leader/set-key-for-mode 'python-ts-mode
+    "hsk" (lambda () (interactive) (setq jupyter--servers '()) (message "Cleared Jupyter servers!"))
     "hsj" 'jupyter-run-server-repl
     "hsc" 'jupyter-connect-server-repl
     "hss" 'jupyter-server-list-kernels
