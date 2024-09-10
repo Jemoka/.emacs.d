@@ -325,6 +325,10 @@
   (add-hook 'lsp-completion-mode-hook (lambda ()
                                         (eldoc-mode -1)
                                         (setq company-backends '(company-files company-capf :with company-dabbrev-code))))
+  (lsp-register-custom-settings '(("pyls.plugins.pyls_mypy.enabled" t t)
+                                  ("pyls.plugins.pyls_mypy.live_mode" nil t)
+                                  ("pylsp.plugins.pylsp_mypy.enabled" t t)
+                                  ("pylsp.plugins.pylsp_mypy.live_mode" nil t)))
   :hook
   (lsp-mode . lsp-completion-mode)
   (c++-mode . check-and-lsp)
@@ -757,7 +761,7 @@ Start an unlimited search at `point-min' otherwise."
 (use-package flycheck
   :diminish flycheck-mode
   :init
-  ;; (global-flycheck-mode)
+  (global-flycheck-mode)
   :config
   (setq flycheck-check-syntax-automatically '(mode-enabled save idle-change))
   (set-face-attribute 'flycheck-error nil :underline t)
