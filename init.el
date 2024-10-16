@@ -1,6 +1,8 @@
 ;upaa So. so. so. Let's try this again. Will jack succeed this time?
 ;; Probably not. But it's worth a try.
 
+(setenv "LIBRARY_PATH" "/opt/homebrew/opt/gcc/lib/gcc/14:/opt/homebrew/opt/libgccjit/lib/gcc/14:/opt/homebrew/opt/gcc/lib/gcc/14/gcc/aarch64-apple-darwin23/14")
+
 ;;; ----Load PATH
 (defun set-exec-path-from-shell-PATH ()
   "Set up Emacs' `exec-path' and PATH environment variable to match
@@ -245,9 +247,16 @@
 (use-package rjsx-mode
   :config
   (add-to-list 'auto-mode-alist '("components\\/.*\\.js\\'" . rjsx-mode))
+  (add-to-list 'auto-mode-alist '("src\\/.*\\.js\\'" . rjsx-mode))
   (add-to-list 'auto-mode-alist '("pages\\/.*\\.js\\'" . rjsx-mode))
   (add-to-list 'auto-mode-alist '("app\\/.*\\.js\\'" . rjsx-mode))
-  (add-to-list 'auto-mode-alist '("app/*.js" . rjsx-mode)))
+  (add-to-list 'auto-mode-alist '("app/*.js" . rjsx-mode))
+
+  (add-to-list 'auto-mode-alist '("components\\/.*\\.jsx\\'" . rjsx-mode))
+  (add-to-list 'auto-mode-alist '("src\\/.*\\.jsx\\'" . rjsx-mode))
+  (add-to-list 'auto-mode-alist '("pages\\/.*\\.jsx\\'" . rjsx-mode))
+  (add-to-list 'auto-mode-alist '("app\\/.*\\.jsx\\'" . rjsx-mode))
+  (add-to-list 'auto-mode-alist '("app/*.jsx" . rjsx-mode)))
 
 (add-hook 'js-mode-hook (lambda () (setq indent-tabs-mode nil)))
 (add-hook 'typescript-mode-hook (lambda () (setq indent-tabs-mode nil)))
@@ -284,20 +293,28 @@
 ;;   (company-statistics-mode))
 
 
-(use-package tree-sitter
-  :diminish tree-sitter-mode
-  :config
-  (global-tree-sitter-mode)
-  (tree-sitter-require 'julia)
-  (tree-sitter-require 'commonlisp)
-  :hook
-  (tree-sitter-mode . tree-sitter-hl-mode))
+;; (use-package tree-sitter
+;;   :diminish tree-sitter-mode
+;;   :config
+;;   (global-tree-sitter-mode)
+;;   (tree-sitter-require 'julia)
+;;   (tree-sitter-require 'commonlisp)
+;;   :hook
+;;   (tree-sitter-mode . tree-sitter-hl-mode))
 
-(use-package tree-sitter-langs)
+;; (use-package tree-sitter-langs)
+(setq treesit-font-lock-level 4)
+
+(setq major-mode-remap-alist
+      '((python-mode . python-ts-mode)))
 
 (defun check-and-lsp ()
   (if (not (file-remote-p default-directory))
       (lsp)))
+
+(evil-leader/set-key
+    "hfk" 'treesit-beginning-of-defun
+    "hfj" 'treesit-end-of-defun)
 
 (use-package lsp-mode
   :init
@@ -344,7 +361,8 @@
   ;; (css-mode . lsp)
   (svelte-mode . check-and-lsp)
   (java-mode . check-and-lsp)
-  (tuareg-mode . check-and-lsp))
+  (tuareg-mode . check-and-lsp)
+  (python-ts-mode . check-and-lsp))
 
 (eval-after-load 'tramp
   (setq tramp-default-method "rsync"))
@@ -665,6 +683,7 @@ Start an unlimited search at `point-min' otherwise."
                     "preq" "\\preceq"
                     "sim" "\\sim"
                     "succ" "\\succ"
+                    "spv" "\\vdash"
                     "sucq" "\\succeq"
                     "range" "\\text{range}\\"
                     "smns" "\\setminus"
@@ -761,8 +780,12 @@ Start an unlimited search at `point-min' otherwise."
 (use-package flycheck
   :diminish flycheck-mode
   :init
-  (global-flycheck-mode)
+  ;; (global-flycheck-mode -1)
   :config
+  (evil-leader/set-key-for-mode 'python-ts-mode
+    "hfc" 'flycheck-mode)
+  (evil-leader/set-key-for-mode 'prog-mode
+    "hfc" 'flycheck-mode)
   (setq flycheck-check-syntax-automatically '(mode-enabled save idle-change))
   (set-face-attribute 'flycheck-error nil :underline t)
   (set-face-attribute 'flycheck-warning nil :underline t)
@@ -830,6 +853,14 @@ Start an unlimited search at `point-min' otherwise."
    (org-mode . org-special-block-extras-mode))
 
 ;; ----developer tools
+
+(use-package copilot
+  :straight (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))
+  :ensure t
+  :config
+  (evil-leader/set-key
+    "hai" 'copilot-mode)
+  (define-key copilot-completion-map (kbd "C-M-<return>") 'copilot-accept-completion))
 
 ;; ripgrep
 (use-package deadgrep
@@ -1573,7 +1604,7 @@ rather than the whole path."
   (setq numpydoc-insertion-style 'prompt)
   (setq numpydoc-insert-examples-block nil)
   (setq numpydoc-insert-return-without-typehint t)
-  :bind (:map python-mode-map
+  :bind (:map python-ts-mode-map
               ("s-SPC" . numpydoc-generate)))
 
 ;; CMake
@@ -1854,9 +1885,7 @@ that."
 ;; (use-package org-pdftools
 ;;   :hook (org-mode . org-pdftools-setup-link))
 
-(use-package epresent
-  :straight
-  (:host github :repo "eschulte/epresent"))
+
 
 (define-minor-mode hidden-mode-line-mode
   "Minor mode to hide the mode-line in the current buffer."
@@ -1964,7 +1993,7 @@ that."
 
 
 
-(setq org-format-latex-options (plist-put org-format-latex-options :scale 3))
+(setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
 (setq org-babel-clojure-backend 'cider)
 (setq org-src-tab-acts-natively t)
 (setq org-src-fontify-natively t)
@@ -2403,7 +2432,7 @@ are null."
 
 ;; Set default font
 (set-face-attribute 'default nil
-                    :family "Hack"
+                    :family "Hack Nerd Font"
                     :height 120
                     :weight 'normal
                     :width 'normal)
@@ -2433,11 +2462,11 @@ are null."
 ;; Human Dired 
 (setq dired-listing-switches "-alFh")
 (evil-ex-define-cmd "W" 'evil-write)
-
 ;; images?
 (setq image-types '(xpm imagemagick pbm pgm ppm gif tiff png jpeg))
 (setq evil-shift-width 4)
 (setq-default evil-shift-width 4)
+(setq image-types (cons 'svg image-types))
 
 (provide 'init)
 ;;; init.el ends here
