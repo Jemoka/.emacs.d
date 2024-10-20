@@ -501,7 +501,7 @@
 
   (evil-leader/set-key-for-mode 'rustic-mode
     "hs" 'rustic-cargo-check
-    "ht" 'rustic-cargo-test
+    "ht" 'rustic-cargo-test-run
     "hn" 'rustic-cargo-run
     "hh" 'rustic-cargo-current-test
     "hra" 'rustic-cargo-add
