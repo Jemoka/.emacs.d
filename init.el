@@ -1,5 +1,6 @@
 ;upaa So. so. so. Let's try this again. Will jack succeed this time?
 ;; Probably not. But it's worth a try.
+(defvar native-comp-deferred-compilation-deny-list nil)
 
 (setenv "LIBRARY_PATH" "/opt/homebrew/opt/gcc/lib/gcc/14:/opt/homebrew/opt/libgccjit/lib/gcc/14:/opt/homebrew/opt/gcc/lib/gcc/14/gcc/aarch64-apple-darwin23/14")
 
@@ -43,6 +44,9 @@
 
 ;;; ---tramp remote
 (require 'tramp)
+(require 'tramp-fuse)
+(require 'tramp-rclone)
+(setq tramp-connection-properties `(("/sshfs:" "direct-async-process" t)))
 (add-to-list 'tramp-remote-path "/usr/bin")
 (add-to-list 'tramp-remote-path "/usr/local/bin")
 (add-to-list 'tramp-remote-path "/opt/bin")
@@ -74,51 +78,11 @@
 (straight-use-package 'org)
 
 
-(use-package exwm
-  :init
-  (setq exwm-workspace-number 5)
-  (setq exwm-layout-show-all-buffers t)
-  (setq exwm-workspace-show-all-buffers t)
-  (setq exwm-workspace-minibuffer-position 'bottom)
-  :config
-  (exwm-enable))
 
-(use-package exwm-outer-gaps
-  :straight (exmw-outer-gaps :type git :host github :repo "lucasgruss/exwm-outer-gaps")
-  :config
-  (defun exwm-outer-gaps-redraw ()
-    "exwm-outer gaps sometimes has artifacts in the gap area. Quickly toggling the mode on and off works forces a redraw of the gaps and gets rid of them."
-    (interactive)
-    (exwm-outer-gaps-mode))
-  :hook (exwm-init . (lambda () (exwm-outer-gaps-mode))))
 
-(use-package exwm-mff
-  :init (exwm-mff-mode))
 
-(use-package exwm
-  :init
 
-  (defun b3n-exwm-set-buffer-name ()
-    (if (and exwm-title (string-match "\\`http[^ ]+" exwm-title))
-        (let ((url (match-string 0 exwm-title)))
-          (setq-local buffer-file-name url)
-          (setq-local exwm-title (replace-regexp-in-string
-                                  (concat (regexp-quote url) " - ")
-                                  ""
-                                  exwm-title))))
-    (setq-local exwm-title
-                (concat
-                 exwm-class-name
-                 "<"
-                 (if (<= (length exwm-title) 50)
-                     exwm-title
-                   (concat (substring exwm-title 0 50) "…"))
-                 ">"))
 
-    (exwm-workspace-rename-buffer exwm-title))
-
-  (add-hook 'exwm-update-class-hook 'b3n-exwm-set-buffer-name)
-  (add-hook 'exwm-update-title-hook 'b3n-exwm-set-buffer-name))
 
 
 ;;; ----evil
@@ -191,6 +155,7 @@
 (tool-bar-mode -1)
 (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
 (add-to-list 'default-frame-alist '(ns-appearance . dark)) ;; assuming you are using a dark theme
+(add-to-list 'default-frame-alist '(undecorated-round . t))
 (setq ns-use-proxy-icon nil)
 (setq frame-title-format "\nemacs")
 
@@ -362,7 +327,9 @@
   (svelte-mode . check-and-lsp)
   (java-mode . check-and-lsp)
   (tuareg-mode . check-and-lsp)
-  (python-ts-mode . check-and-lsp))
+  (python-ts-mode . check-and-lsp)
+  (julia-mode . check-and-lsp)
+  (julia-ts-mode . check-and-lsp))
 
 (eval-after-load 'tramp
   (setq tramp-default-method "rsync"))
@@ -1243,15 +1210,6 @@ rather than the whole path."
 (use-package emacs-everywhere)
 
 ;; Stack Exchange
-(use-package sx
-  :config
-  (evil-leader/set-key 
-    "ss" 'sx-search
-    "sa" 'sx-ask
-    "so" 'sx-open-link
-    "si" 'sx-inbox
-    "sq" 'sx-tab-all-questions)
-  (define-key sx-question-list-mode-map (kbd "<RET>") 'sx-display))
 
 ;; Spelling
 (setenv "DICTIONARY" "en_US")
@@ -1383,7 +1341,58 @@ rather than the whole path."
 
 ;; ----new languages 
 ;; julia
-(use-package julia-mode)
+(use-package julia-mode
+  :init
+  (setq julia-repl-set-terminal-backend 'vterm)
+  :config
+  (evil-leader/set-key-for-mode 'julia-mode
+    "hsk" (lambda () (interactive) (setq jupyter--servers '()) (message "Cleared Jupyter servers!"))
+    "hsj" 'jupyter-run-server-repl
+    "hsc" 'jupyter-connect-server-repl
+    "hss" 'jupyter-server-list-kernels
+    "hst" 'jupyter-repl-associate-buffer
+    "hsp" 'jupyter-repl-shutdown-kernel
+    "ht" 'jupyter-eval-line-or-region
+    "hc" 'jupyter-eval-remove-overlays
+    "hn" 'jupyter-eval-defun
+    "hb" 'jupyter-eval-buffer
+    "hi" 'jupyter-inspect-at-point)
+  (evil-leader/set-key-for-mode 'julia-ts-mode
+    "hsk" (lambda () (interactive) (setq jupyter--servers '()) (message "Cleared Jupyter servers!"))
+    "hsj" 'jupyter-run-server-repl
+    "hsc" 'jupyter-connect-server-repl
+    "hss" 'jupyter-server-list-kernels
+    "hst" 'jupyter-repl-associate-buffer
+    "hsp" 'jupyter-repl-shutdown-kernel
+    "ht" 'jupyter-eval-line-or-region
+    "hc" 'jupyter-eval-remove-overlays
+    "hn" 'jupyter-eval-defun
+    "hb" 'jupyter-eval-buffer
+    "hi" 'jupyter-inspect-at-point))
+
+;; (use-package julia-repl
+;;   :ensure t
+;;   :hook (julia-mode . julia-repl-mode)
+
+;;   :init
+;;   (setenv "JULIA_NUM_THREADS" "8")
+
+;;   :config
+;;   (julia-repl-set-terminal-backend 'vterm)
+;;   (evil-leader/set-key-for-mode 'julia-mode
+;;     "ht" 'julia-repl-send-line
+;;     "hn" 'julia-repl-send-region-or-line
+;;     "hb" 'julia-repl-send-buffer
+;;     "hd" 'julia-repl-doc)
+;;   (evil-leader/set-key-for-mode 'julia-ts-mode
+;;     "ht" 'julia-repl-send-line
+;;     "hn" 'julia-repl-send-region-or-line
+;;     "hb" 'julia-repl-send-buffer
+;;     "hd" 'julia-repl-doc))
+;; (use-package lsp-julia)
+
+
+
 
 ;; swelte
 (use-package svelte-mode
@@ -1521,7 +1530,7 @@ rather than the whole path."
 (evil-define-key 'insert latex-mode-map (kbd "C-j") #'evil-window-down)
 
 ;; R
-(use-package ess)
+;; (use-package ess)
 
 ;; Dockerfile
 (use-package dockerfile-mode
@@ -2032,7 +2041,7 @@ that."
   (setq org-latex-packages-alist '(("margin=1in" "geometry")))
     (add-to-list 'org-latex-packages-alist '("" "minted"))
     (add-to-list 'org-latex-packages-alist '("" "physics"))
-    (add-to-list 'org-latex-packages-alist '("" "tikz"))
+    ;; (add-to-list 'org-latex-packages-alist '("" "tikz"))
     (add-to-list 'org-latex-packages-alist '("" "algpseudocode"))
     (add-to-list 'org-latex-packages-alist '("" "algorithm"))
     (add-to-list 'org-latex-packages-alist '("" "booktabs"))
@@ -2336,6 +2345,7 @@ are null."
   ;; Git
   "gt" 'magit
   "gd" 'magit-file-dispatch
+  "gf" 'magit-find-file
 
   ;; Perspectives
   "vs" 'persp-switch
@@ -2432,7 +2442,7 @@ are null."
 
 ;; Set default font
 (set-face-attribute 'default nil
-                    :family "Hack Nerd Font"
+                    :family "Hack"
                     :height 120
                     :weight 'normal
                     :width 'normal)
