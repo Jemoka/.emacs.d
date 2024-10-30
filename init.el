@@ -496,8 +496,8 @@
 (use-package pythonic)
 (use-package pyvenv
   :diminish pyvenv-mode
-  :init
-  (setenv "WORKON_HOME" "/opt/homebrew/Caskroom/miniforge/base/envs")
+  ;; :init
+  ;; (setenv "WORKON_HOME" "/opt/homebrew/Caskroom/miniforge/base/envs")
   :config
   (pyvenv-mode 1))
 
@@ -1370,6 +1370,9 @@ rather than the whole path."
     "hb" 'jupyter-eval-buffer
     "hi" 'jupyter-inspect-at-point))
 
+(use-package julia-ts-mode
+  :ensure t
+  :mode "\\.jl$")
 ;; (use-package julia-repl
 ;;   :ensure t
 ;;   :hook (julia-mode . julia-repl-mode)
@@ -2387,7 +2390,7 @@ are null."
   "omp" 'emms-previous
 
   ;; Python
-  "owo" 'pyvenv-workon
+  "owo" 'pyvenv-activate
 
   ;; blamer
   "ogi" 'blamer-show-commit-info
