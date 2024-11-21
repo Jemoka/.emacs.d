@@ -329,6 +329,7 @@
   (tuareg-mode . check-and-lsp)
   (python-ts-mode . check-and-lsp)
   (julia-mode . check-and-lsp)
+  (haskell-mode . check-and-lsp)
   (julia-ts-mode . check-and-lsp))
 
 (eval-after-load 'tramp
@@ -387,7 +388,7 @@
   :hook
   (lsp-mode . lsp-ui-mode))
 
-;; (use-package lsp-haskell
+(use-package lsp-haskell)
 ;;   :config
 
 ;;   (defun haskell-load-and-bring ()
@@ -1502,7 +1503,23 @@ rather than the whole path."
 ;; ;; or this if you're into use-package
 
 ;; haskall
-(use-package haskell-mode)
+(use-package haskell-mode
+
+  :init
+  (setq haskell-indentation-starter-offset 4)
+  (setq haskell-indentation-where-pre-offset 4)
+  (setq haskell-indentation-where-post-offset 4)
+  (setq haskell-indentation-layout-offset 4)
+  (setq haskell-indentation-left-offset 4)
+  :config
+  (evil-leader/set-key-for-mode 'haskell-mode
+    "hn" 'haskell-process-cabal-build
+    "hb" 'haskell-process-load-file
+    "hs" 'haskell-check
+    "ht" 'haskell-process-cabal)
+
+  :hook
+  (haskell-mode . interactive-haskell-mode))
 
 ;; LaTeX
 (use-package auctex
