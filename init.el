@@ -331,6 +331,9 @@
   (julia-mode . check-and-lsp)
   (haskell-mode . check-and-lsp)
   (julia-ts-mode . check-and-lsp))
+  (python-ts-mode . check-and-lsp))
+  ;; (julia-mode . check-and-lsp)
+  ;; (julia-ts-mode . check-and-lsp))
 
 (eval-after-load 'tramp
   (setq tramp-default-method "rsync"))
@@ -1341,6 +1344,26 @@ rather than the whole path."
 
 
 ;; ----new languages 
+;; Racket
+(use-package geiser-mit
+  :config
+  (evil-leader/set-key-for-mode 'scheme-mode
+    "ht" 'geiser-eval-last-sexp
+    "ue" 'geiser-eval-last-sexp
+    "hr" 'geiser-eval-last-sexp-and-print
+    "hn" 'geiser-eval-definition
+    "hb" 'geiser-eval-buffer
+    "hd" 'geiser-doc-symbol-at-point
+    "hst" 'geiser)
+  :hook
+  (scheme-mode . geiser-mode))
+    ;; "hsp" 'geiser-
+    ;; "had" 'cider-find-var
+    ;; "hsi" 'cider-inspect-last-result
+    ;; "hh" 'cider-switch-to-repl-buffer))
+(use-package geiser-racket
+  :after geiser-mit)
+
 ;; julia
 (use-package julia-mode
   :init
@@ -1374,6 +1397,7 @@ rather than the whole path."
 (use-package julia-ts-mode
   :ensure t
   :mode "\\.jl$")
+
 ;; (use-package julia-repl
 ;;   :ensure t
 ;;   :hook (julia-mode . julia-repl-mode)
@@ -2344,6 +2368,21 @@ are null."
   (evil-leader/set-key
     "owp" 'poetry))
 
+;; ediff characterwise
+  (setq-default ediff-forward-word-function 'ediff-forward-word)
+  (setq ediff-window-setup-function 'ediff-setup-windows-plain)
+
+;; Red-Green color scheme for ediff using custom-set-faces
+(custom-set-faces
+ '(ediff-current-diff-A ((t (:background "#662222" :foreground "#ffb0b0"))))
+ '(ediff-current-diff-B ((t (:background "#225522" :foreground "#90ff90"))))
+ '(ediff-fine-diff-A ((t (:background "#881111" :foreground "#ffcccc" :weight bold))))
+ '(ediff-fine-diff-B ((t (:background "#118811" :foreground "#ccffcc" :weight bold))))
+ '(ediff-odd-diff-A ((t (:background "#442222" :foreground "#f8f8f8"))))
+ '(ediff-odd-diff-B ((t (:background "#224422" :foreground "#f8f8f8"))))
+ '(ediff-even-diff-A ((t (:background "#332222" :foreground "#f8f8f8"))))
+ '(ediff-even-diff-B ((t (:background "#223322" :foreground "#f8f8f8")))))
+
 ;; ----random keybindings
 (evil-leader/set-key
   ;; Buffer switching
@@ -2411,6 +2450,7 @@ are null."
 
   ;; blamer
   "ogi" 'blamer-show-commit-info
+  "hld" 'ediff-regions-wordwise
 
   ;; global link store
   "osl" 'org-store-link
@@ -2462,7 +2502,7 @@ are null."
 
 ;; Set default font
 (set-face-attribute 'default nil
-                    :family "Hack"
+                    :family "Hack Nerd Font"
                     :height 120
                     :weight 'normal
                     :width 'normal)
