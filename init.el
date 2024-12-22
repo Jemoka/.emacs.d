@@ -330,7 +330,7 @@
   (python-ts-mode . check-and-lsp)
   (julia-mode . check-and-lsp)
   (haskell-mode . check-and-lsp)
-  (julia-ts-mode . check-and-lsp))
+  (julia-ts-mode . check-and-lsp)
   (python-ts-mode . check-and-lsp))
   ;; (julia-mode . check-and-lsp)
   ;; (julia-ts-mode . check-and-lsp))
@@ -476,6 +476,7 @@
     "hn" 'rustic-cargo-run
     "hh" 'rustic-cargo-current-test
     "hra" 'rustic-cargo-add
+    "hb" 'rustic-cargo-build
     "hc" 'rustic-compile))
 
 
@@ -1535,15 +1536,23 @@ rather than the whole path."
   (setq haskell-indentation-where-post-offset 4)
   (setq haskell-indentation-layout-offset 4)
   (setq haskell-indentation-left-offset 4)
+  (custom-set-variables '(haskell-process-type 'auto))
   :config
   (evil-leader/set-key-for-mode 'haskell-mode
-    "hn" 'haskell-process-cabal-build
+    "hn" 'haskell-process-cabal
     "hb" 'haskell-process-load-file
-    "hs" 'haskell-check
-    "ht" 'haskell-process-cabal)
+    "hd" 'haskell-hoogle
+    "hsk" 'haskell-session-kill
+    "hst" 'haskell-session-change-target
+    "hh" '(lambda () (interactive) (compile "stack test"))
+    "hc" 'haskell-interactive-mode-clear
+    "ht" 'haskell-process-reload)
 
   :hook
   (haskell-mode . interactive-haskell-mode))
+
+(use-package ansi-color
+  :hook (compilation-filter . ansi-color-compilation-filter))
 
 ;; LaTeX
 (use-package auctex
@@ -2404,6 +2413,7 @@ are null."
   ;; Git
   "gt" 'magit
   "gd" 'magit-file-dispatch
+  "ge" 'magit-ediff-dwim
   "gf" 'magit-find-file
 
   ;; Perspectives
@@ -2502,7 +2512,7 @@ are null."
 
 ;; Set default font
 (set-face-attribute 'default nil
-                    :family "Hack Nerd Font"
+                    :family "Hack"
                     :height 120
                     :weight 'normal
                     :width 'normal)

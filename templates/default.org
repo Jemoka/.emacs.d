@@ -76,6 +76,9 @@
 #+LATEX_HEADER_EXTRA: \usepackage{lipsum}
 #+LATEX_HEADER_EXTRA: \setlength{\footnotesep}{0.25em}
 #+LATEX_HEADER_EXTRA: \usepackage{amsmath}
+#+LATEX_HEADER_EXTRA: \usepackage[english]{babel}
+#+LATEX_HEADER_EXTRA: \usepackage[autostyle, english = american]{csquotes}
+#+LATEX_HEADER_EXTRA: \MakeOuterQuote{"}
 #+LATEX_HEADER_EXTRA: \usepackage[style=numeric,url=true,backend=biber] {biblatex}
 #+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/bibs/ml.bib}
 #+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/bibs/ling.bib}
