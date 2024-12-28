@@ -1539,12 +1539,12 @@ rather than the whole path."
   (custom-set-variables '(haskell-process-type 'auto))
   :config
   (evil-leader/set-key-for-mode 'haskell-mode
-    "hn" 'haskell-process-cabal
+    "hn" 'haskell-process-cabal-build
     "hb" 'haskell-process-load-file
     "hd" 'haskell-hoogle
     "hsk" 'haskell-session-kill
     "hst" 'haskell-session-change-target
-    "hh" '(lambda () (interactive) (compile "stack test"))
+    "hh" 'haskell-process-cabal
     "hc" 'haskell-interactive-mode-clear
     "ht" 'haskell-process-reload)
 
