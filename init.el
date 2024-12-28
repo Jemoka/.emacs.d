@@ -1538,6 +1538,12 @@ rather than the whole path."
   (setq haskell-indentation-left-offset 4)
   (custom-set-variables '(haskell-process-type 'auto))
   :config
+  (evil-define-key 'normal haskell-interactive-mode-map (kbd "C-p") #'haskell-interactive-mode-history-previous)
+  (evil-define-key 'normal haskell-interactive-mode-map (kbd "C-n") #'haskell-interactive-mode-history-next)
+  (evil-define-key 'insert haskell-interactive-mode-map (kbd "<up>") #'haskell-interactive-mode-history-previous)
+  (evil-define-key 'insert haskell-interactive-mode-map (kbd "<down>") #'haskell-interactive-mode-history-next)
+  (evil-define-key 'insert haskell-interactive-mode-map (kbd "C-p") #'haskell-interactive-mode-history-previous)
+  (evil-define-key 'insert haskell-interactive-mode-map (kbd "C-n") #'haskell-interactive-mode-history-next)
   (evil-leader/set-key-for-mode 'haskell-mode
     "hn" 'haskell-process-cabal-build
     "hb" 'haskell-process-load-file
