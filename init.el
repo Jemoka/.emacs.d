@@ -644,6 +644,10 @@ Start an unlimited search at `point-min' otherwise."
                           (yas-expand-snippet "\\qty($1)$0"))
                     "smm" (lambda () (interactive)
                           (yas-expand-snippet "\\mqty($1)$0"))
+                    "sm(" (lambda () (interactive)
+                            (yas-expand-snippet "\\mqty($1)$0"))
+                    "sm[" (lambda () (interactive)
+                            (yas-expand-snippet "\\mqty[$1]$0"))
                     "smd" (lambda () (interactive)
                           (yas-expand-snippet "\\dmat{$1}$0"))
                     "sq" "\\qty"
