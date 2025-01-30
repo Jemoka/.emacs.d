@@ -2424,7 +2424,12 @@ are null."
  '(ediff-even-diff-A ((t (:background "#332222" :foreground "#f8f8f8"))))
  '(ediff-even-diff-B ((t (:background "#223322" :foreground "#f8f8f8")))))
 
-;; ai slop
+;; GPT/LLM Integration Configuration
+;; Configures gptel for AI chat interaction in Emacs
+;; - Uses OpenRouter as backend to access multiple LLM models
+;; - Defaults to org-mode for responses
+;; - Sets up keybindings for send/rewrite commands
+;; - Loads API key from encrypted secrets file
 (load-if-exists "~/.emacs.d/secrets.el.gpg")
 (use-package gptel
   :init
@@ -2432,6 +2437,8 @@ are null."
   :config
   (evil-leader/set-key "ssm" #'gptel-send)
   (evil-leader/set-key "sss" #'gptel-rewrite)
+  (evil-leader/set-key "ssa" #'gptel-add)
+  (evil-leader/set-key "ssf" #'gptel-add-file)
   (add-hook 'gptel-post-response-functions 'gptel-end-of-response)
 
   (setq gptel-model 'anthropic/claude-3.5-sonnet
@@ -2444,7 +2451,6 @@ are null."
           :models '(google/gemini-flash-1.5
                     deepseek/deepseek-r1
                     anthropic/claude-3.5-sonnet))))
-
 
 ;; ----random keybindings
 (evil-leader/set-key
