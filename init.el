@@ -689,7 +689,8 @@ Start an unlimited search at `point-min' otherwise."
                     "slf" (lambda () (interactive) (laas-wrap-previous-object "mathbf"))
                     "slt" (lambda () (interactive) (laas-wrap-previous-object "text")))
   :hook
-  (org-mode . laas-mode))
+  (org-mode . laas-mode)
+  (latex-mode . laas-mode))
 
 ;; disable company-capf (i.e. Org Roam complete) inside a math enviroment for org
 (defun nil-in-math (res)
@@ -2032,6 +2033,15 @@ that."
           org-roam-ui-update-on-save t
           org-roam-ui-open-on-start t))
 
+(use-package ultra-scroll
+  :init
+  (setq scroll-conservatively 101 ; important!
+        scroll-margin 0) 
+  :config
+  (ultra-scroll-mode 1)
+  :straight
+  (:host github :repo "jdtsmith/ultra-scroll" :branch "main" :files ("*.el")))
+
 
 ;; Sage math
 (use-package sage-shell-mode)
@@ -2110,6 +2120,17 @@ that."
   (evil-define-key 'normal org-mode-map (kbd "<<") #'org-shiftmetaleft)
   (evil-define-key 'normal org-mode-map (kbd "gk") #'evil-previous-visual-line)
   (evil-define-key 'normal org-mode-map (kbd "gj") #'evil-next-visual-line)
+  
+
+  ;; (use-package xenops
+  ;;   :init
+  ;;   ;; (setq xenops-font-height 200)
+  ;;   (setq xenops-reveal-on-entry t)
+  ;;   :config
+  ;;   (evil-define-key 'normal org-mode-map (kbd "C-u C-u C-c C-x C-l") #'xenops-dwim)
+  ;;   :hook
+  ;;   (org-mode . xenops-mode))
+
 
 
   (setq org-latex-create-formula-image-program 'dvisvgm)
@@ -2126,7 +2147,7 @@ that."
     (setq org-latex-pdf-process '("latexmk -bibtex -f -pdf -%latex -interaction=nonstopmode -output-directory=%o %f"))
 
 
-(setq org-latex-listings 'minted)
+;; (setq org-latex-listings 'minted)
   (setq org-latex-compiler "xelatex")
 
   (evil-define-key 'normal org-mode-map (kbd "TAB") #'org-cycle)
