@@ -329,7 +329,7 @@
   (java-mode . check-and-lsp)
   (tuareg-mode . check-and-lsp)
   (python-ts-mode . check-and-lsp)
-  (julia-mode . check-and-lsp)
+  ;; (julia-mode . check-and-lsp)
   (haskell-mode . check-and-lsp)
   (julia-ts-mode . check-and-lsp)
   (python-ts-mode . check-and-lsp))
@@ -1719,6 +1719,13 @@ rather than the whole path."
   (setq jupyter-repl-echo-eval-p nil)
   (setq jupyter-eval-use-overlays t)
   :config
+  (evil-define-key 'normal jupyter-repl-mode-map (kbd "C-p") #'jupyter-repl-history-previous)
+  (evil-define-key 'normal jupyter-repl-mode-map (kbd "C-n") #'jupyter-repl-history-next)
+  (evil-define-key 'insert jupyter-repl-mode-map (kbd "<up>") #'jupyter-repl-history-previous)
+  (evil-define-key 'insert jupyter-repl-mode-map (kbd "<down>") #'jupyter-repl-history-next)
+  (evil-define-key 'insert jupyter-repl-mode-map (kbd "C-p") #'jupyter-repl-history-previous)
+  (evil-define-key 'insert jupyter-repl-mode-map (kbd "C-n") #'jupyter-repl-history-next)
+
   (evil-leader/set-key-for-mode 'python-ts-mode
     "hsk" (lambda () (interactive) (setq jupyter--servers '()) (message "Cleared Jupyter servers!"))
     "hsj" 'jupyter-run-server-repl
@@ -2032,7 +2039,6 @@ that."
           org-roam-ui-follow t
           org-roam-ui-update-on-save t
           org-roam-ui-open-on-start t))
-
 
 ;; Sage math
 (use-package sage-shell-mode)
@@ -2421,9 +2427,12 @@ are null."
 ;; ai slop
 (load-if-exists "~/.emacs.d/secrets.el.gpg")
 (use-package gptel
+  :init
+  (setq gptel-default-mode 'org-mode)
   :config
-  (evil-leader/set-key "sss" #'gptel-send)
-  (evil-leader/set-key "ssm" #'gptel-rewrite)
+  (evil-leader/set-key "ssm" #'gptel-send)
+  (evil-leader/set-key "sss" #'gptel-rewrite)
+  (add-hook 'gptel-post-response-functions 'gptel-end-of-response)
 
   (setq gptel-model 'anthropic/claude-3.5-sonnet
         gptel-backend
