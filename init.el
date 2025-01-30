@@ -1,6 +1,7 @@
 ;upaa So. so. so. Let's try this again. Will jack succeed this time?
 ;; Probably not. But it's worth a try.
 (defvar native-comp-deferred-compilation-deny-list nil)
+;; (setq use-package-always-defer t)
 
 (setenv "LIBRARY_PATH" "/opt/homebrew/opt/gcc/lib/gcc/14:/opt/homebrew/opt/libgccjit/lib/gcc/14:/opt/homebrew/opt/gcc/lib/gcc/14/gcc/aarch64-apple-darwin23/14")
 
@@ -474,6 +475,7 @@
     "hs" 'rustic-cargo-check
     "ht" 'rustic-cargo-test-run
     "hn" 'rustic-cargo-run
+    "hb" 'rustic-cargo-build
     "hh" 'rustic-cargo-current-test
     "hra" 'rustic-cargo-add
     "hb" 'rustic-cargo-build
@@ -543,7 +545,7 @@ Start an unlimited search at `point-min' otherwise."
     (goto-char end)
     (setq end (line-end-position)))
       (goto-char beg)
-      (when (re-search-forward "^[[:space:]]*#\\+TITLE:[[:space:]]*\\(.*?\\)[[:space:]]*$" end t)
+      (when (re-search-forward "^[[:space:]]*#\\+title:[[:space:]]*\\(.*?\\)[[:space:]]*$" end t)
     (rename-buffer (match-string 1)))))
   nil)
 
@@ -1349,6 +1351,19 @@ rather than the whole path."
 
 
 ;; ----new languages 
+;; Agda
+(load-file (let ((coding-system-for-read 'utf-8))
+                (shell-command-to-string "agda-mode locate")))
+(with-eval-after-load 'agda2
+    (setq agda2-program-args '("--show-implicit"))
+  (evil-leader/set-key-for-mode 'agda2-mode
+    "hb" 'agda2-make-case
+    "hh" 'agda2-goal-and-context-and-inferred
+    "ht" 'agda2-load
+    "hn" 'agda2-mimer-maybe-all
+    "hc" 'agda2-remove-annotations
+    "hs" 'agda2-refine))
+
 ;; Racket
 (use-package geiser-mit
   :config
@@ -2102,13 +2117,13 @@ that."
                              (olivetti-mode)))
 ;; code highlightin
   (setq org-latex-packages-alist '(("margin=1in" "geometry")))
-    (add-to-list 'org-latex-packages-alist '("" "minted"))
+    ;; (add-to-list 'org-latex-packages-alist '("" "minted"))
     (add-to-list 'org-latex-packages-alist '("" "physics"))
     ;; (add-to-list 'org-latex-packages-alist '("" "tikz"))
     (add-to-list 'org-latex-packages-alist '("" "algpseudocode"))
     (add-to-list 'org-latex-packages-alist '("" "algorithm"))
     (add-to-list 'org-latex-packages-alist '("" "booktabs"))
-    (setq org-latex-pdf-process '("latexmk -bibtex -f -pdf -%latex -shell-escape -interaction=nonstopmode -output-directory=%o %f"))
+    (setq org-latex-pdf-process '("latexmk -bibtex -f -pdf -%latex -interaction=nonstopmode -output-directory=%o %f"))
 
 
 (setq org-latex-listings 'minted)
@@ -2402,6 +2417,25 @@ are null."
  '(ediff-even-diff-A ((t (:background "#332222" :foreground "#f8f8f8"))))
  '(ediff-even-diff-B ((t (:background "#223322" :foreground "#f8f8f8")))))
 
+;; ai slop
+(load-if-exists "~/.emacs.d/secrets.el.gpg")
+(use-package gptel
+  :config
+  (global-set-key (kbd "C-S-M-<return>") #'gptel-send)
+  (global-set-key (kbd "C-S-<return>") #'gptel-rewrite)
+
+  (setq gptel-model 'anthropic/claude-3.5-sonnet
+        gptel-backend
+        (gptel-make-openai "OpenRouter"               ;Any name you want
+          :host "openrouter.ai"
+          :endpoint "/api/v1/chat/completions"
+          :stream t
+          :key openrouter-key                   ;can be a function that returns the key
+          :models '(google/gemini-flash-1.5
+                    deepseek/deepseek-r1
+                    anthropic/claude-3.5-sonnet))))
+
+
 ;; ----random keybindings
 (evil-leader/set-key
   ;; Buffer switching
@@ -2450,6 +2484,9 @@ are null."
   ;; browser
   "of" 'elfeed
 
+  ;; slop
+  "gpt" 'gptel
+
   ;; emms
   "omm" 'emms-pause
   "oms" 'emms-start
@@ -2479,7 +2516,7 @@ are null."
   "oii" '(lambda () (interactive)
            (erc :server "irc.libera.chat"
                 :nick "jemoka"))
-
+  
   ;; email
   "'m" 'notmuch-hello
 
@@ -2522,7 +2559,7 @@ are null."
 
 ;; Set default font
 (set-face-attribute 'default nil
-                    :family "Hack"
+                    :family "BerkeleyMono Nerd Font"
                     :height 120
                     :weight 'normal
                     :width 'normal)

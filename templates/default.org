@@ -24,7 +24,6 @@
 #+LATEX_HEADER_EXTRA: \usepackage{cancel}
 #+LATEX_HEADER_EXTRA: \usepackage{pgfplots}
 #+LATEX_HEADER_EXTRA: \usepackage{xcolor}
-#+LATEX_HEADER_EXTRA: \usepackage{indentfirst}
 #+LATEX_HEADER_EXTRA: \usepackage{fontspec}
 #+LATEX_HEADER_EXTRA: \usepackage{booktabs}
 #+LATEX_HEADER_EXTRA: \usepackage{etoolbox}
