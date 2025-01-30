@@ -2434,6 +2434,7 @@ are null."
 (use-package gptel
   :init
   (setq gptel-default-mode 'org-mode)
+  (setq gptel-expert-commands t)
   :config
   (evil-leader/set-key "ssm" #'gptel-send)
   (evil-leader/set-key "sss" #'gptel-rewrite)
