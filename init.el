@@ -2033,15 +2033,6 @@ that."
           org-roam-ui-update-on-save t
           org-roam-ui-open-on-start t))
 
-(use-package ultra-scroll
-  :init
-  (setq scroll-conservatively 101 ; important!
-        scroll-margin 0) 
-  :config
-  (ultra-scroll-mode 1)
-  :straight
-  (:host github :repo "jdtsmith/ultra-scroll" :branch "main" :files ("*.el")))
-
 
 ;; Sage math
 (use-package sage-shell-mode)
@@ -2120,17 +2111,6 @@ that."
   (evil-define-key 'normal org-mode-map (kbd "<<") #'org-shiftmetaleft)
   (evil-define-key 'normal org-mode-map (kbd "gk") #'evil-previous-visual-line)
   (evil-define-key 'normal org-mode-map (kbd "gj") #'evil-next-visual-line)
-  
-
-  ;; (use-package xenops
-  ;;   :init
-  ;;   ;; (setq xenops-font-height 200)
-  ;;   (setq xenops-reveal-on-entry t)
-  ;;   :config
-  ;;   (evil-define-key 'normal org-mode-map (kbd "C-u C-u C-c C-x C-l") #'xenops-dwim)
-  ;;   :hook
-  ;;   (org-mode . xenops-mode))
-
 
 
   (setq org-latex-create-formula-image-program 'dvisvgm)
@@ -2147,7 +2127,7 @@ that."
     (setq org-latex-pdf-process '("latexmk -bibtex -f -pdf -%latex -interaction=nonstopmode -output-directory=%o %f"))
 
 
-;; (setq org-latex-listings 'minted)
+(setq org-latex-listings 'minted)
   (setq org-latex-compiler "xelatex")
 
   (evil-define-key 'normal org-mode-map (kbd "TAB") #'org-cycle)
@@ -2442,8 +2422,8 @@ are null."
 (load-if-exists "~/.emacs.d/secrets.el.gpg")
 (use-package gptel
   :config
-  (global-set-key (kbd "C-S-M-<return>") #'gptel-send)
-  (global-set-key (kbd "C-S-<return>") #'gptel-rewrite)
+  (evil-leader/set-key "sss" #'gptel-send)
+  (evil-leader/set-key "ssm" #'gptel-rewrite)
 
   (setq gptel-model 'anthropic/claude-3.5-sonnet
         gptel-backend
@@ -2506,7 +2486,7 @@ are null."
   "of" 'elfeed
 
   ;; slop
-  "gpt" 'gptel
+  "ssb" 'gptel
 
   ;; emms
   "omm" 'emms-pause
