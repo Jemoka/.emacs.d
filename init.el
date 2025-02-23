@@ -1989,6 +1989,10 @@ that."
     "auc" 'org-ref-lookandput)
   (evil-define-key 'insert org-mode-map (kbd "C-<escape>") 'org-ref-insert-link)
   (evil-define-key 'insert org-mode-map (kbd "C-M-<escape>") 'org-ref-lookandput)
+  (evil-define-key 'insert org-mode-map (kbd "C-s-<escape>") 'org-ref-insert-label-link)
+  (evil-define-key 'insert org-mode-map (kbd "C-M-s-<escape>") 'org-ref-insert-ref-link)
+  (evil-define-key 'insert org-mode-map (kbd "C-M-<escape>") 'org-ref-lookandput)
+
   (add-function :after bibtex-completion-edit-notes-function (lambda (keys)
                                                                (goto-char (point-min))
                                                                (org-id-get-create))))

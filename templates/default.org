@@ -51,14 +51,14 @@
 #+LATEX_HEADER_EXTRA: skipbelow=\baselineskip,
 #+LATEX_HEADER_EXTRA: innertopmargin=5pt,
 #+LATEX_HEADER_EXTRA: linewidth=0pt,
-#+LATEX_HEADER_EXTRA: innerbottommargin=15pt,
+#+LATEX_HEADER_EXTRA: innerbottommargin=10pt,
 #+LATEX_HEADER_EXTRA: innerrightmargin=10pt,
 #+LATEX_HEADER_EXTRA: innerleftmargin=10pt,
 #+LATEX_HEADER_EXTRA:}
 #+LATEX_HEADER_EXTRA:
 #+LATEX_HEADER_EXTRA: \theoremstyle{definition}
 #+LATEX_HEADER_EXTRA: \newmdtheoremenv[
-#+LATEX_HEADER_EXTRA: backgroundcolor=gray!4
+#+LATEX_HEADER_EXTRA: backgroundcolor=gray!3
 #+LATEX_HEADER_EXTRA:]{example}{Example}[section]
 #+LATEX_HEADER_EXTRA: \theoremstyle{plain}
 #+LATEX_HEADER_EXTRA: \newmdtheoremenv{theorem}{Theorem}[section]
@@ -78,7 +78,7 @@
 
 #+LATEX_HEADER_EXTRA: \renewcommand{\headrulewidth}{0pt}
 #+LATEX_HEADER_EXTRA: \setlist{topsep=1em, itemsep=0.2em}
-#+LATEX_HEADER_EXTRA: \setlength{\parskip}{0.5mm}
+#+LATEX_HEADER_EXTRA: \setlength{\parskip}{1mm}
 #+LATEX_HEADER_EXTRA: \setlength{\parindent}{0pt}
 #+LATEX_HEADER_EXTRA: \usepackage{algpseudocode}
 #+LATEX_HEADER_EXTRA: \usepackage{algorithm}
