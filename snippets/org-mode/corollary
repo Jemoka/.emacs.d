@@ -1,0 +1,6 @@
+# key: ~coro
+# name: corollary
+# --
+#+begin_corollary
+$1
+#+end_corollary

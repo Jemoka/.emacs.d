@@ -1,13 +1,8 @@
-# key: ~defn
-# name: Definition
+# -*- mode: snippet -*-
+# name: definition
+# key: ~defb
 # --
 
-$1
-
-* constituents
-
-* requirements
-
-* additional information
-
-
+#+begin_definition $1
+$2
+#+end_definition

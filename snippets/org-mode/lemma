@@ -1,0 +1,6 @@
+# key: ~lem
+# name: lemma
+# --
+#+begin_lemma
+$1
+#+end_lemma
