@@ -827,7 +827,7 @@ Start an unlimited search at `point-min' otherwise."
                               (format "\\begin{theorem}[%s]\n%s\n\\end{theorem}" title (string-trim raw-contents))
                             (format "\\begin{theorem}\n%s\n\\end{theorem}" (string-trim raw-contents))))
                   ;; TODO handle Hugo/html
-                  (_ (format "<p class=\"theorem\"><span>%s</span></p>" contents))))
+                  (_ (format "<div class=\"theorem\"><span>\n%s\n</span></div>" (string-trim raw-contents)))))
 
   (org-defblock definition (title nil)
                 (pcase backend
@@ -835,7 +835,7 @@ Start an unlimited search at `point-min' otherwise."
                               (format "\\begin{definition}[%s]\n%s\n\\end{definition}" title (string-trim raw-contents))
                             (format "\\begin{definition}\n%s\n\\end{definition}" (string-trim raw-contents))))
                   ;; TODO handle Hugo/html
-                  (_ (format "<p class=\"definition\"><span>%s</span></p>" contents))))
+                  (_ (format "<div class=\"definition\"><span>\n%s\n</span></div>" (string-trim raw-contents)))))
 
   (org-defblock corollary (title nil)
                 (pcase backend
@@ -843,7 +843,7 @@ Start an unlimited search at `point-min' otherwise."
                               (format "\\begin{corollary}[%s]\n%s\n\\end{corollary}" title (string-trim raw-contents))
                             (format "\\begin{corollary}\n%s\n\\end{corollary}" (string-trim raw-contents))))
                   ;; TODO handle Hugo/html
-                  (_ (format "<p class=\"corollary\"><span>%s</span></p>" contents))))
+                  (_ (format "<div class=\"corollary\"><span>\n%s\n</span></div>" (string-trim raw-contents)))))
 
   (org-defblock lemma (title nil)
                 (pcase backend
@@ -851,7 +851,7 @@ Start an unlimited search at `point-min' otherwise."
                               (format "\\begin{lemma}[%s]\n%s\n\\end{lemma}" title (string-trim raw-contents))
                             (format "\\begin{lemma}\n%s\n\\end{lemma}" (string-trim raw-contents))))
                   ;; TODO handle Hugo/html
-                  (_ (format "<p class=\"lemma\"><span>%s</span></p>" contents))))
+                  (_ (format "<div class=\"lemma\"><span>\n%s\n</span></div>" (string-trim raw-contents)))))
 
   (org-defblock example (title nil)
                 (pcase backend
@@ -859,7 +859,7 @@ Start an unlimited search at `point-min' otherwise."
                               (format "\\begin{example}[%s]\n%s\n\\end{example}" title (string-trim raw-contents))
                             (format "\\begin{example}\n%s\n\\end{example}" (string-trim raw-contents))))
                   ;; TODO handle Hugo/html
-                  (_ (format "<p class=\"example\"><span>%s</span></p>" contents))))
+                  (_ (format "<div class=\"example\"><span>\n%s\n</span></div>" (string-trim raw-contents)))))
   
   :hook
   (org-mode . org-special-block-extras-mode))
