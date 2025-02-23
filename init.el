@@ -821,45 +821,52 @@ Start an unlimited search at `point-min' otherwise."
   :config
 
   ;; We can use variable values when defining new blocks
+  (org-defblock proof (title nil)
+                (pcase backend
+                  ('latex (if title
+                              (format "\\begin{proof}[%s]\n%s\n\\end{proof}" title (string-trim contents))
+                            (format "\\begin{proof}\n%s\n\\end{proof}" (string-trim contents))))
+                  ;; TODO handle Hugo/html
+                  (_ (format "<div class=\"proof\"><span>\n%s\n</span></div>" (string-trim contents)))))
   (org-defblock theorem (title nil)
                 (pcase backend
                   ('latex (if title
-                              (format "\\begin{theorem}[%s]\n%s\n\\end{theorem}" title (string-trim raw-contents))
-                            (format "\\begin{theorem}\n%s\n\\end{theorem}" (string-trim raw-contents))))
+                              (format "\\begin{theorem}[%s]\n%s\n\\end{theorem}" title (string-trim contents))
+                            (format "\\begin{theorem}\n%s\n\\end{theorem}" (string-trim contents))))
                   ;; TODO handle Hugo/html
-                  (_ (format "<div class=\"theorem\"><span>\n%s\n</span></div>" (string-trim raw-contents)))))
+                  (_ (format "<div class=\"theorem\"><span>\n%s\n</span></div>" (string-trim contents)))))
 
   (org-defblock definition (title nil)
                 (pcase backend
                   ('latex (if title
-                              (format "\\begin{definition}[%s]\n%s\n\\end{definition}" title (string-trim raw-contents))
-                            (format "\\begin{definition}\n%s\n\\end{definition}" (string-trim raw-contents))))
+                              (format "\\begin{definition}[%s]\n%s\n\\end{definition}" title (string-trim contents))
+                            (format "\\begin{definition}\n%s\n\\end{definition}" (string-trim contents))))
                   ;; TODO handle Hugo/html
-                  (_ (format "<div class=\"definition\"><span>\n%s\n</span></div>" (string-trim raw-contents)))))
+                  (_ (format "<div class=\"definition\"><span>\n%s\n</span></div>" (string-trim contents)))))
 
   (org-defblock corollary (title nil)
                 (pcase backend
                   ('latex (if title
-                              (format "\\begin{corollary}[%s]\n%s\n\\end{corollary}" title (string-trim raw-contents))
-                            (format "\\begin{corollary}\n%s\n\\end{corollary}" (string-trim raw-contents))))
+                              (format "\\begin{corollary}[%s]\n%s\n\\end{corollary}" title (string-trim contents))
+                            (format "\\begin{corollary}\n%s\n\\end{corollary}" (string-trim contents))))
                   ;; TODO handle Hugo/html
-                  (_ (format "<div class=\"corollary\"><span>\n%s\n</span></div>" (string-trim raw-contents)))))
+                  (_ (format "<div class=\"corollary\"><span>\n%s\n</span></div>" (string-trim contents)))))
 
   (org-defblock lemma (title nil)
                 (pcase backend
                   ('latex (if title
-                              (format "\\begin{lemma}[%s]\n%s\n\\end{lemma}" title (string-trim raw-contents))
-                            (format "\\begin{lemma}\n%s\n\\end{lemma}" (string-trim raw-contents))))
+                              (format "\\begin{lemma}[%s]\n%s\n\\end{lemma}" title (string-trim contents))
+                            (format "\\begin{lemma}\n%s\n\\end{lemma}" (string-trim contents))))
                   ;; TODO handle Hugo/html
-                  (_ (format "<div class=\"lemma\"><span>\n%s\n</span></div>" (string-trim raw-contents)))))
+                  (_ (format "<div class=\"lemma\"><span>\n%s\n</span></div>" (string-trim contents)))))
 
   (org-defblock example (title nil)
                 (pcase backend
                   ('latex (if title
-                              (format "\\begin{example}[%s]\n%s\n\\end{example}" title (string-trim raw-contents))
-                            (format "\\begin{example}\n%s\n\\end{example}" (string-trim raw-contents))))
+                              (format "\\begin{example}[%s]\n%s\n\\end{example}" title (string-trim contents))
+                            (format "\\begin{example}\n%s\n\\end{example}" (string-trim contents))))
                   ;; TODO handle Hugo/html
-                  (_ (format "<div class=\"example\"><span>\n%s\n</span></div>" (string-trim raw-contents)))))
+                  (_ (format "<div class=\"example\"><span>\n%s\n</span></div>" (string-trim contents)))))
   
   :hook
   (org-mode . org-special-block-extras-mode))
@@ -1992,6 +1999,9 @@ that."
   (evil-define-key 'insert org-mode-map (kbd "C-s-<escape>") 'org-ref-insert-label-link)
   (evil-define-key 'insert org-mode-map (kbd "C-M-s-<escape>") 'org-ref-insert-ref-link)
   (evil-define-key 'insert org-mode-map (kbd "C-M-<escape>") 'org-ref-lookandput)
+  (org-link-set-parameters "ref" :export
+                           (lambda (label desc format)
+                             (format "\\Cref{%s}" label)))
 
   (add-function :after bibtex-completion-edit-notes-function (lambda (keys)
                                                                (goto-char (point-min))

@@ -4,6 +4,7 @@
 #+LATEX_HEADER_EXTRA: \usepackage{amsmath}
 #+LATEX_HEADER_EXTRA: \usepackage{amsthm}
 #+LATEX_HEADER_EXTRA: \usepackage{fontspec}
+#+LATEX_HEADER_EXTRA: \usepackage{cleveref}
 #+LATEX_HEADER_EXTRA: \usepackage[utf8]{inputenc}
 #+LATEX_HEADER_EXTRA: \usepackage[T1]{fontenc}
 #+LATEX_HEADER_EXTRA: \usepackage{graphicx}
@@ -78,7 +79,7 @@
 
 #+LATEX_HEADER_EXTRA: \renewcommand{\headrulewidth}{0pt}
 #+LATEX_HEADER_EXTRA: \setlist{topsep=1em, itemsep=0.2em}
-#+LATEX_HEADER_EXTRA: \setlength{\parskip}{1mm}
+#+LATEX_HEADER_EXTRA: \setlength{\parskip}{0.8mm}
 #+LATEX_HEADER_EXTRA: \setlength{\parindent}{0pt}
 #+LATEX_HEADER_EXTRA: \usepackage{algpseudocode}
 #+LATEX_HEADER_EXTRA: \usepackage{algorithm}
