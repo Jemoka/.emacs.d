@@ -860,7 +860,7 @@ Start an unlimited search at `point-min' otherwise."
                   ;; TODO handle Hugo/html
                   (_ (format "<div class=\"lemma\"><span>\n%s\n</span></div>" (string-trim contents)))))
 
-  (org-defblock example (title nil)
+  (org-defblock sample (title nil)
                 (pcase backend
                   ('latex (if title
                               (format "\\begin{example}[%s]\n%s\n\\end{example}" title (string-trim contents))

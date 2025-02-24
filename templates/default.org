@@ -61,9 +61,9 @@
 #+LATEX_HEADER_EXTRA: \newmdtheoremenv[
 #+LATEX_HEADER_EXTRA: backgroundcolor=gray!3
 #+LATEX_HEADER_EXTRA:]{example}{Example}[section]
+#+LATEX_HEADER_EXTRA: \newmdtheoremenv{definition}{Definition}[section]
 #+LATEX_HEADER_EXTRA: \theoremstyle{plain}
 #+LATEX_HEADER_EXTRA: \newmdtheoremenv{theorem}{Theorem}[section]
-#+LATEX_HEADER_EXTRA: \newmdtheoremenv{definition}{Definition}[section]
 #+LATEX_HEADER_EXTRA: \newtheorem{corollary}{Corollary}[theorem]
 #+LATEX_HEADER_EXTRA: \newtheorem{lemma}[theorem]{Lemma}
 #+LATEX_HEADER_EXTRA: \pagestyle{empty}
@@ -84,9 +84,9 @@
 #+LATEX_HEADER_EXTRA: \usepackage{algpseudocode}
 #+LATEX_HEADER_EXTRA: \usepackage{algorithm}
 #+LATEX_HEADER_EXTRA: \setmainfont[
-#+LATEX_HEADER_EXTRA: BoldFont={IBM Plex Serif Medium},
+#+LATEX_HEADER_EXTRA: BoldFont={IBM Plex Serif Medm},
 #+LATEX_HEADER_EXTRA: ItalicFont={IBM Plex Serif Italic},
-#+LATEX_HEADER_EXTRA: BoldItalicFont={IBM Plex Serif Medium Italic}
+#+LATEX_HEADER_EXTRA: BoldItalicFont={IBM Plex Serif Medm:style=Medium Italic,Italic}
 #+LATEX_HEADER_EXTRA:]{IBM Plex Serif}
 
 #+LATEX_HEADER_EXTRA: \usepackage[side,ragged,flushmargin]{footmisc}
