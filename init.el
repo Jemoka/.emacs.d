@@ -749,7 +749,7 @@ Start an unlimited search at `point-min' otherwise."
 (add-hook 'org-mode-hook (lambda ()
                            (setq completion-ignore-case t)
                            (setq company-minimum-prefix-length 1)
-                           (setq-local company-backends '((company-files company-yasnippet company-capf :with company-dabbrev-code) ))))
+                           (setq-local company-backends '(company-files company-capf :with company-dabbrev-code company-yasnippet))))
 
 (add-hook 'company-after-completion-hook (lambda (canidate)
                                            (if (derived-mode-p 'org-mode)
