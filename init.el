@@ -333,6 +333,17 @@
   (haskell-mode . check-and-lsp)
   (julia-ts-mode . check-and-lsp)
   (python-ts-mode . check-and-lsp))
+
+(use-package dap-mode
+  :init
+  (setq dap-python-debugger 'debugpy)
+  :config
+  (require 'dap-python)
+  (dap-mode 1)
+  (dap-ui-mode 1)
+  (add-hook 'dap-stopped-hook
+            (lambda (arg) (call-interactively #'dap-hydra))))
+
   ;; (julia-mode . check-and-lsp)
   ;; (julia-ts-mode . check-and-lsp))
 
@@ -554,6 +565,14 @@ Start an unlimited search at `point-min' otherwise."
   (font-lock-add-keywords nil '(org+-buffer-name-to-title)))
 
 (add-hook 'org-mode-hook #'org+-buffer-name-to-title-config)
+
+;; drawing
+
+(use-package edraw-org
+  :straight
+    (:host github :repo "misohena/el-easydraw" :branch "master" :files ("*.el"))
+    :config
+    (edraw-org-setup-default))
 
 ;; <Begin a chain of package installs>
 ;; Ya! SnipPpets
@@ -867,6 +886,13 @@ Start an unlimited search at `point-min' otherwise."
                             (format "\\begin{example}\n%s\n\\end{example}" (string-trim contents))))
                   ;; TODO handle Hugo/html
                   (_ (format "<div class=\"example\"><span>\n%s\n</span></div>" (string-trim contents)))))
+  (org-defblock note (title nil)
+                (pcase backend
+                  ('latex (if title
+                              (format "\\begin{note}[%s]\n%s\n\\end{note}" title (string-trim contents))
+                            (format "\\begin{note}\n%s\n\\end{note}" (string-trim contents))))
+                  ;; TODO handle Hugo/html
+                  (_ (format "<div class=\"example\"><span>\n%s\n</span></div>" (string-trim contents)))))
   
   :hook
   (org-mode . org-special-block-extras-mode))
@@ -1145,6 +1171,7 @@ rather than the whole path."
   :init
   (setq vterm-shell "/bin/zsh")
   :config
+  (setq vterm-tramp-shells '(("docker" "/bin/sh") ("rsync" "/bin/bash")))
   ;; HJKL Nav
   (define-key vterm-mode-map (kbd "C-h") #'evil-window-left)
   (define-key vterm-mode-map (kbd "C-j") #'evil-window-down)
@@ -1392,6 +1419,16 @@ rather than the whole path."
 
 
 ;; ----new languages 
+(use-package flex-mode
+  :straight
+  (:host github :repo "Wilfred/bison-mode" :branch "master" :files ("*.el" "out"))
+  :config
+  (require 'bison-mode)
+  (add-to-list 'auto-mode-alist '("\\.flex\\'" . flex-mode))
+  (evil-leader/set-key-for-mode 'flex-mode
+    "ht" 'recompile
+    "hh" 'compile))
+
 ;; Agda
 (load-file (let ((coding-system-for-read 'utf-8))
                 (shell-command-to-string "agda-mode locate")))
@@ -2176,6 +2213,8 @@ that."
     ;; (add-to-list 'org-latex-packages-alist '("" "tikz"))
     (add-to-list 'org-latex-packages-alist '("" "algpseudocode"))
     (add-to-list 'org-latex-packages-alist '("" "algorithm"))
+    (add-to-list 'org-latex-packages-alist '("" "amssymb"))
+    (add-to-list 'org-latex-packages-alist '("" "amsmath"))
     (add-to-list 'org-latex-packages-alist '("" "booktabs"))
     (setq org-latex-pdf-process '("latexmk -bibtex -f -pdf -%latex -interaction=nonstopmode -output-directory=%o %f"))
 
@@ -2445,6 +2484,10 @@ are null."
 (setq message-sendmail-extra-arguments '("send" "--quiet" "-t" "-C" "~/mail/jemoka"))
 
 
+;; element
+(use-package ement)
+
+
 ;; Exec Path from Shell
 (use-package exec-path-from-shell
   :config
@@ -2489,7 +2532,7 @@ are null."
   (evil-leader/set-key "ssf" #'gptel-add-file)
   (add-hook 'gptel-post-response-functions 'gptel-end-of-response)
 
-  (setq gptel-model 'anthropic/claude-3.5-sonnet
+  (setq gptel-model 'anthropic/claude-3.7-sonnet
         gptel-backend
         (gptel-make-openai "OpenRouter"               ;Any name you want
           :host "openrouter.ai"
@@ -2498,7 +2541,10 @@ are null."
           :key openrouter-key                   ;can be a function that returns the key
           :models '(google/gemini-flash-1.5
                     deepseek/deepseek-r1
-                    anthropic/claude-3.5-sonnet))))
+                    anthropic/claude-3.5-sonnet
+                    anthropic/claude-3.7-sonnet))))
+
+
 
 ;; ----random keybindings
 (evil-leader/set-key
@@ -2595,7 +2641,11 @@ are null."
   "fm" 'describe-keymap
 
   ;; Universal argument
-  "uu" 'universal-argument)
+  "uu" 'universal-argument
+
+  ;; "h-remove-bugs"
+  "hrb" 'dap-debug
+  "hre" 'dap-debug-edit-template)
 
 ;; ----misc
 ;; offsets and tabs
