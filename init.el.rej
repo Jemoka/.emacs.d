@@ -1,0 +1,46 @@
+diff a/init.el b/init.el	(rejected hunks)
+@@ -1,6 +1,7 @@
+ ;upaa So. so. so. Let's try this again. Will jack succeed this time?
+ ;; Probably not. But it's worth a try.
+ (defvar native-comp-deferred-compilation-deny-list nil)
++;; (setq use-package-always-defer t)
+ 
+ (setenv "LIBRARY_PATH" "/opt/homebrew/opt/gcc/lib/gcc/14:/opt/homebrew/opt/libgccjit/lib/gcc/14:/opt/homebrew/opt/gcc/lib/gcc/14/gcc/aarch64-apple-darwin23/14")
+ 
+@@ -330,7 +331,7 @@
+   (python-ts-mode . check-and-lsp)
+   (julia-mode . check-and-lsp)
+   (haskell-mode . check-and-lsp)
+-  (julia-ts-mode . check-and-lsp))
++  (julia-ts-mode . check-and-lsp)
+   (python-ts-mode . check-and-lsp))
+   ;; (julia-mode . check-and-lsp)
+   ;; (julia-ts-mode . check-and-lsp))
+@@ -474,6 +475,7 @@
+     "hs" 'rustic-cargo-check
+     "ht" 'rustic-cargo-test-run
+     "hn" 'rustic-cargo-run
++    "hb" 'rustic-cargo-build
+     "hh" 'rustic-cargo-current-test
+     "hra" 'rustic-cargo-add
+     "hc" 'rustic-compile))
+@@ -1344,6 +1346,19 @@ rather than the whole path."
+ 
+ 
+ ;; ----new languages 
++;; Agda
++(load-file (let ((coding-system-for-read 'utf-8))
++                (shell-command-to-string "agda-mode locate")))
++(with-eval-after-load 'agda2
++    (setq agda2-program-args '("--show-implicit"))
++  (evil-leader/set-key-for-mode 'agda2-mode
++    "hb" 'agda2-make-case
++    "hh" 'agda2-goal-and-context-and-inferred
++    "ht" 'agda2-load
++    "hn" 'agda2-mimer-maybe-all
++    "hc" 'agda2-remove-annotations
++    "hs" 'agda2-refine))
++
+ ;; Racket
+ (use-package geiser-mit
+   :config

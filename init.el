@@ -54,6 +54,7 @@
 (add-to-list 'tramp-remote-path "~/.cargo/bin")
 (add-to-list 'tramp-remote-path "/nlp/scr/houjun/miniconda3/bin/")
 (add-to-list 'tramp-remote-path 'tramp-own-remote-path)
+(setq tramp-copy-size-limit 16384)
 
 ;;; ----Straight
 (defvar bootstrap-version)
@@ -295,6 +296,7 @@
   (require 'lsp-javascript)
   ;; (require 'lsp-css)
   ;; (require 'lsp-html)
+  (require 'lsp-ruff)
   (require 'lsp-pylsp)
   (require 'lsp-completion)
   (require 'lsp-svelte)
@@ -527,6 +529,19 @@
 (evil-define-key 'normal inferior-python-mode-map (kbd "C-j") #'evil-window-down)
 (evil-define-key 'normal inferior-python-mode-map (kbd "C-k") #'evil-window-up)
 
+(evil-define-key 'normal compilation-mode-map (kbd "C-j") #'evil-window-down)
+(evil-define-key 'normal compilation-mode-map (kbd "C-k") #'evil-window-up)
+(evil-define-key 'normal compilation-mode-map (kbd "C-h") #'evil-window-left)
+(evil-define-key 'normal compilation-mode-map (kbd "C-l") #'evil-window-right)
+
+(evil-define-key 'insert compilation-mode-map (kbd "C-j") #'evil-window-down)
+(evil-define-key 'insert compilation-mode-map (kbd "C-k") #'evil-window-up)
+(evil-define-key 'insert compilation-mode-map (kbd "C-h") #'evil-window-left)
+(evil-define-key 'insert compilation-mode-map (kbd "C-l") #'evil-window-right)
+
+
+
+
 (evil-define-key 'insert inferior-python-mode-map (kbd "C-j") #'evil-window-down)
 (evil-define-key 'insert inferior-python-mode-map (kbd "C-k") #'evil-window-up)
 
@@ -567,6 +582,18 @@ Start an unlimited search at `point-min' otherwise."
 (add-hook 'org-mode-hook #'org+-buffer-name-to-title-config)
 
 ;; drawing
+
+(use-package eagle
+  :straight
+    (:host codeberg :repo "akib/emacs-eagle" :branch "master" :files ("*.el")))
+(use-package cube
+  :straight
+  (:host codeberg :repo "akib/emacs-cube" :branch "master" :files ("*.el"))
+  :config
+  (evil-set-initial-state 'cube-mode 'emacs))
+
+
+
 
 (use-package edraw-org
   :straight
@@ -899,6 +926,15 @@ Start an unlimited search at `point-min' otherwise."
 
 ;; ----developer tools
 
+
+;; (use-package noccur
+;;   :config
+;;   (evil-leader/set-key
+;;     "hoo" 'noccur-project))
+
+(use-package easydraw
+  :straight (:host github :repo "misohena/el-easydraw" :files ("*.el")))
+
 (use-package copilot
   :straight (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))
   :ensure t
@@ -1171,7 +1207,7 @@ rather than the whole path."
   :init
   (setq vterm-shell "/bin/zsh")
   :config
-  (setq vterm-tramp-shells '(("docker" "/bin/sh") ("rsync" "/bin/bash")))
+  (setq vterm-tramp-shells '(("docker" "/bin/sh") ("rsync" "/bin/bash") ("ssh" "/bin/bash")))
   ;; HJKL Nav
   (define-key vterm-mode-map (kbd "C-h") #'evil-window-left)
   (define-key vterm-mode-map (kbd "C-j") #'evil-window-down)
@@ -1423,11 +1459,26 @@ rather than the whole path."
   :straight
   (:host github :repo "Wilfred/bison-mode" :branch "master" :files ("*.el" "out"))
   :config
-  (require 'bison-mode)
   (add-to-list 'auto-mode-alist '("\\.flex\\'" . flex-mode))
   (evil-leader/set-key-for-mode 'flex-mode
     "ht" 'recompile
+    "hh" 'compile)
+  (evil-leader/set-key-for-mode 'bison-mode
+    "ht" 'recompile
     "hh" 'compile))
+
+(evil-leader/set-key-for-mode 'c++-mode
+  "ht" 'recompile
+  "hh" 'compile)
+(evil-leader/set-key-for-mode 'c-mode
+  "ht" 'recompile
+  "hh" 'compile)
+
+;; (use-package citre
+;;   :init
+;;   (require 'citre-config))
+
+
 
 ;; Agda
 (load-file (let ((coding-system-for-read 'utf-8))
@@ -1467,6 +1518,18 @@ rather than the whole path."
   :init
   (setq julia-repl-set-terminal-backend 'vterm)
   :config
+
+  ;; chdir to current working directory (including over tramp)
+  ;; whenever jupyter is started or restarted
+  (cl-defmethod jupyter-repl-after-init (&context (jupyter-lang python))
+    (jupyter-eval (format "import os;os.chdir(\"%s\".split(\":\")[-1])" default-directory)))
+
+  (advice-add 'jupyter-repl-restart-kernel
+              :after
+              (lambda (&rest args)
+                (jupyter-eval (format "import os;os.chdir(\"%s\".split(\":\")[-1])" default-directory))))
+
+
   (evil-leader/set-key-for-mode 'julia-mode
     "hsk" (lambda () (interactive) (setq jupyter--servers '()) (message "Cleared Jupyter servers!"))
     "hsj" 'jupyter-run-server-repl
@@ -1616,7 +1679,10 @@ rather than the whole path."
     "hb" 'tuareg-eval-buffer
     "hn" 'tuareg-eval-region))
 
-;; (add-to-list 'load-path "/Users/houjun/.opam/default/share/emacs/site-lisp")
+;; (add-to-list 'load-path "/Users/houjun/.emacs.d/site-lisp/eagle.el")
+;; (add-to-list 'load-path "/Users/houjun/.emacs.d/site-lisp/cube.el")
+;; (require 'eagle)
+;; (require 'cube)
 ;; (require 'ocp-indent)
 
 ;; ;; ## added by OPAM user-setup for emacs / base ## 56ab50dc8996d2bb95e7856a6eddb17b ## you can edit, but keep this line
@@ -1773,20 +1839,20 @@ rather than the whole path."
               ("s-SPC" . numpydoc-generate)))
 
 ;; CMake
-(use-package cmake-ide
-  :config
-  (cmake-ide-setup)
-  (setq cmake-ide-build-pool-dir "~/.emacs.d/cmake-builds")
-  (setq cmake-ide-build-pool-use-persistent-naming t)
-  (setq cmake-ide-make-command "make run -j4 --no-print-directory")
-  (evil-leader/set-key-for-mode 'c++-mode
-    "hc" 'cmake-ide-run-cmake
-    "hn" 'cmake-ide-compile
-    "ht" 'cmake-ide-compile)
-  (evil-leader/set-key-for-mode 'c-mode
-    "hc" 'cmake-ide-run-cmake
-    "hn" 'cmake-ide-compile
-    "ht" 'cmake-ide-compile))
+;; (use-package cmake-ide
+;;   :config
+;;   (cmake-ide-setup)
+;;   (setq cmake-ide-build-pool-dir "~/.emacs.d/cmake-builds")
+;;   (setq cmake-ide-build-pool-use-persistent-naming t)
+;;   (setq cmake-ide-make-command "make run -j4 --no-print-directory")
+;;   (evil-leader/set-key-for-mode 'c++-mode
+;;     "hc" 'cmake-ide-run-cmake
+;;     "hn" 'cmake-ide-compile
+;;     "ht" 'cmake-ide-compile)
+;;   (evil-leader/set-key-for-mode 'c-mode
+;;     "hc" 'cmake-ide-run-cmake
+;;     "hn" 'cmake-ide-compile
+;;     "ht" 'cmake-ide-compile))
 
 (use-package cmake-mode)
 
@@ -2157,6 +2223,9 @@ that."
                                            (:results . "output")))
 (require 'org-inlinetask)
 
+(require 'ob-jupyter)
+(setq org-export-before-processing-functions '(org-blackfriday--reset-org-blackfriday--code-block-num-backticks))
+
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((python . t)
@@ -2167,7 +2236,8 @@ that."
    (shell . t)
    (sagemath . t)
    (sml . t)
-   (julia . t)))
+   (julia . t)
+   (dot . t)))
 
 
 
@@ -2521,6 +2591,12 @@ are null."
 ;; - Sets up keybindings for send/rewrite commands
 ;; - Loads API key from encrypted secrets file
 (load-if-exists "~/.emacs.d/secrets.el.gpg")
+(use-package claude-code-ide
+  :straight (:type git :host github :repo "manzaltu/claude-code-ide.el")
+  :config
+  (claude-code-ide-emacs-tools-setup)
+  (evil-leader/set-key "aaa" #'claude-code-ide-menu))
+
 (use-package gptel
   :init
   (setq gptel-default-mode 'org-mode)
@@ -2541,10 +2617,9 @@ are null."
           :key openrouter-key                   ;can be a function that returns the key
           :models '(google/gemini-flash-1.5
                     deepseek/deepseek-r1
+                    anthropic/claude-3.7-sonnet
                     anthropic/claude-3.5-sonnet
-                    anthropic/claude-3.7-sonnet))))
-
-
+                    google/gemini-2.5-pro-preview))))
 
 ;; ----random keybindings
 (evil-leader/set-key
@@ -2589,7 +2664,8 @@ are null."
 
   ;; Deft
   "md" 'deft
-  "mb" 'deft-find-file
+  "mbb" 'bookmark-jump
+  "mbs" 'bookmark-set
 
   ;; browser
   "of" 'elfeed
@@ -2642,10 +2718,15 @@ are null."
 
   ;; Universal argument
   "uu" 'universal-argument
+  "hoo" 'multi-occur
 
   ;; "h-remove-bugs"
   "hrb" 'dap-debug
   "hre" 'dap-debug-edit-template)
+
+
+(setq-default anoetuh 32
+               aoeutn 234)
 
 ;; ----misc
 ;; offsets and tabs

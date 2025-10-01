@@ -1,0 +1,11 @@
+diff a/bookmarks b/bookmarks	(rejected hunks)
+@@ -3,7 +3,7 @@
+ ;;; nevertheless, you probably don't want to edit it.
+ ;;; -*- End Of Bookmark File Format Version Stamp -*-
+ (("org-capture-last-stored"
+- (filename . "~/Dropbox/knowledgebase/KBhp_vs_np.org")
++ (filename . "~/Dropbox/knowledgebase/KBhcs154_final_ummary.org")
+  (front-context-string) (rear-context-string . "hor: Houjun Liu\n")
+- (position . 107) (last-modified 26411 40021 94908 0))
++ (position . 117) (last-modified 26445 19349 660808 0))
+ )

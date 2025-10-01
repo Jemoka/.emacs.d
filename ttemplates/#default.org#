@@ -1,0 +1,123 @@
+#+LATEX_COMPILER: xelaex
+
+#+LATEX_CLASS_OPTIONS: [letterpaper]
+
+#+LATEX_CLASS_OPTIONS: \usepackage{amsmath}
+#+LATEX_CLASS_OPTIONS: \usepackage{amsthm}
+#+LATEX_CLASS_OPTIONS: \usepackage{fontspec}
+#+LATEX_CLASS_OPTIONS: \usepackage[utf8]{inputenc}
+#+LATEX_CLASS_OPTIONS: \usepackage[T1]{fontenc}
+#+LATEX_CLASS_OPTIONS: \usepackage{graphicx}
+#+LATEX_CLASS_OPTIONS: \usepackage{longtable}
+#+LATEX_CLASS_OPTIONS: \usepackage{wrapfig}
+#+LATEX_CLASS_OPTIONS: \usepackage{rotating}
+#+LATEX_CLASS_OPTIONS: \usepackage[normalem]{ulem}
+#+LATEX_CLASS_OPTIONS: \usepackage{amsmath}
+#+LATEX_CLASS_OPTIONS: \usepackage{amssymb}
+#+LATEX_CLASS_OPTIONS: \usepackage{capt-of}
+#+LATEX_CLASS_OPTIONS: \usepackage{booktabs}
+#+LATEX_CLASS_OPTIONS: \usepackage{algorithm}
+#+LATEX_CLASS_OPTIONS: \usepackage{algpseudocode}
+#+LATEX_CLASS_OPTIONS: \usepackage{physics}
+#+LATEX_CLASS_OPTIONS: \usepackage[margin=1.2in]{geometry}
+#+LATEX_CLASS_OPTIONS: \usepackage{graphicx}
+#+LATEX_CLASS_OPTIONS: \usepackage{minted}
+#+LATEX_CLASS_OPTIONS: \usepackage{longtable}
+#+LATEX_CLASS_OPTIONS: \usepackage{wrapfig}
+#+LATEX_CLASS_OPTIONS: \usepackage{rotating}
+#+LATEX_CLASS_OPTIONS: \usepackage[normalem]{ulem}
+#+LATEX_CLASS_OPTIONS: \usepackage{amsmath}
+#+LATEX_CLASS_OPTIONS: \usepackage{amssymb}
+#+LATEX_CLASS_OPTIONS: \usepackage{capt-of}
+#+LATEX_CLASS_OPTIONS: \usepackage[hidelinks]{hyperref}
+#+LATEX_CLASS_OPTIONS: \usepackage{algorithm}
+#+LATEX_CLASS_OPTIONS: \usepackage{algpseudocode}
+#+LATEX_CLASS_OPTIONS: \usepackage{tikz}
+#+LATEX_CLASS_OPTIONS: \usepackage{physics}
+#+LATEX_CLASS_OPTIONS: \setlength{\parindent}{0pt}
+#+LATEX_CLASS_OPTIONS: \usepackage{svg}
+#+LATEX_CLASS_OPTIONS: \usepackage{tikz}
+#+LATEX_CLASS_OPTIONS: \usepackage{physics}
+#+LATEX_CLASS_OPTIONS: \usepackage{cancel}
+#+LATEX_CLASS_OPTIONS: \usepackage{pgfplots}
+#+LATEX_CLASS_OPTIONS: \usepackage{xcolor}
+#+LATEX_CLASS_OPTIONS: \usepackage{fontspec}
+#+LATEX_CLASS_OPTIONS: \usepackage{booktabs}
+#+LATEX_CLASS_OPTIONS: \usepackage{etoolbox}
+#+LATEX_CLASS_OPTIONS: \usepackage{enumitem}
+#+LATEX_CLASS_OPTIONS: \usepackage{fancyhdr}
+#+LATEX_CLASS_OPTIONS: \usepackage{nameref}
+#+LATEX_CLASS_OPTIONS: \usepackage{mdframed}
+
+#+LATEX_CLASS_OPTIONS: \mdfsetup{
+#+LATEX_CLASS_OPTIONS: backgroundcolor=gray!7,
+#+LATEX_CLASS_OPTIONS: skipabove=\baselineskip,
+#+LATEX_CLASS_OPTIONS: skipbelow=\baselineskip,
+#+LATEX_CLASS_OPTIONS: innertopmargin=5pt,
+#+LATEX_CLASS_OPTIONS: linewidth=0pt,
+#+LATEX_CLASS_OPTIONS: innerbottommargin=15pt,
+#+LATEX_CLASS_OPTIONS: innerrightmargin=10pt,
+#+LATEX_CLASS_OPTIONS: innerleftmargin=10pt,
+#+LATEX_CLASS_OPTIONS:}
+#+LATEX_CLASS_OPTIONS:
+#+LATEX_CLASS_OPTIONS: \theoremstyle{definition}
+#+LATEX_CLASS_OPTIONS: \newmdtheoremenv[
+#+LATEX_CLASS_OPTIONS: backgroundcolor=gray!4
+#+LATEX_CLASS_OPTIONS:]{example}{Example}[section]
+#+LATEX_CLASS_OPTIONS: \theoremstyle{plain}
+#+LATEX_CLASS_OPTIONS: \newmdtheoremenv{theorem}{Theorem}[section]
+#+LATEX_CLASS_OPTIONS: \newmdtheoremenv{definition}{Definition}[section]
+#+LATEX_CLASS_OPTIONS: \newtheorem{corollary}{Corollary}[theorem]
+#+LATEX_CLASS_OPTIONS: \newtheorem{lemma}[theorem]{Lemma}
+#+LATEX_CLASS_OPTIONS: \pagestyle{empty}
+#+LATEX_CLASS_OPTIONS: \pagestyle{fancy}
+#+LATEX_CLASS_OPTIONS: \fancyhead{}
+#+LATEX_CLASS_OPTIONS: \fancyfoot{}
+#+LATEX_CLASS_OPTIONS: \fancyhead[R]{
+#+LATEX_CLASS_OPTIONS: \leftmark\hspace{0.7em} \small{\thepage}
+#+LATEX_CLASS_OPTIONS:}
+#+LATEX_CLASS_OPTIONS: \renewcommand{\sectionmark}[1]{\markboth{\footnotesize{Sec. \thesection\hspace{0.75em} #1}}{}}
+#+LATEX_CLASS_OPTIONS: % \fancyhead[L]{\large{\thepage}}
+#+LATEX_CLASS_OPTIONS:
+
+#+LATEX_CLASS_OPTIONS: \renewcommand{\headrulewidth}{0pt}
+#+LATEX_CLASS_OPTIONS: \setlist{topsep=1em, itemsep=0.2em}
+#+LATEX_CLASS_OPTIONS: \setlength{\parskip}{0.5mm}
+#+LATEX_CLASS_OPTIONS: \setlength{\parindent}{0pt}
+#+LATEX_CLASS_OPTIONS: \usepackage{algpseudocode}
+#+LATEX_CLASS_OPTIONS: \usepackage{algorithm}
+#+LATEX_CLASS_OPTIONS: \setmainfont[
+#+LATEX_CLASS_OPTIONS: BoldFont={IBM Plex Serif Medium},
+#+LATEX_CLASS_OPTIONS: ItalicFont={IBM Plex Serif Italic},
+#+LATEX_CLASS_OPTIONS: BoldItalicFont={IBM Plex Serif Medium Italic}
+#+LATEX_CLASS_OPTIONS:]{IBM Plex Serif}
+
+#+LATEX_CLASS_OPTIONS: \usepackage[side,ragged,flushmargin]{footmisc}
+#+LATEX_CLASS_OPTIONS: \makeatother
+#+LATEX_CLASS_OPTIONS: \usepackage{lipsum}
+#+LATEX_CLASS_OPTIONS: \setlength{\footnotesep}{0.25em}
+#+LATEX_CLASS_OPTIONS: \usepackage{amsmath}
+#+LATEX_CLASS_OPTIONS: \usepackage[english]{babel}
+#+LATEX_CLASS_OPTIONS: \usepackage[autostyle, english = american]{csquotes}
+#+LATEX_CLASS_OPTIONS: \MakeOuterQuote{"}
+
+#+LATEX_CLASS_OPTIONS: \usepackage[style=numeric,url=true,backend=biber] {biblatex}
+#+LATEX_CLASS_OPTIONS: \addbibresource{~/Documents/knowledgebase/documents/bibs/ml.bib}
+#+LATEX_CLASS_OPTIONS: \addbibresource{~/Documents/knowledgebase/documents/bibs/ling.bib}
+#+LATEX_CLASS_OPTIONS: \addbibresource{~/Documents/knowledgebase/documents/bibs/cs.bib}
+#+LATEX_CLASS_OPTIONS: \addbibresource{~/Documents/knowledgebase/documents/bibs/biomed.bib}
+#+LATEX_CLASS_OPTIONS: \addbibresource{~/Documents/knowledgebase/documents/bibs/chem.bib}
+#+LATEX_CLASS_OPTIONS: \addbibresource{~/Documents/knowledgebase/documents/bibs/jc.bib}
+#+LATEX_CLASS_OPTIONS: \addbibresource{~/Documents/knowledgebase/documents/bibs/phymath.bib}
+#+LATEX_CLASS_OPTIONS: \addbibresource{~/Documents/knowledgebase/documents/bibs/socio.bib}
+#+LATEX_CLASS_OPTIONS: \addbibresource{~/Documents/knowledgebase/documents/bibs/misc.bib}
+#+LATEX_CLASS_OPTIONS: \addbibresource{~/Documents/knowledgebase/documents/oldrefs.bib}
+#+LATEX_CLASS_OPTIONS: \renewcommand{\tableofcontents}{}
+#+LATEX_CLASS_OPTIONS: \usepackage{titlesec}
+#+LATEX_CLASS_OPTIONS: \usepackage{titling}
+#+LATEX_CLASS_OPTIONS: \makeatletter
+#+LATEX_CLASS_OPTIONS: \renewcommand\maketitle{
+#+LATEX_CLASS_OPTIONS: {\huge \textbf{\@title}} \\[0.5em] \theauthor\ \ \ \textit{\thedate} \\[5pt]
+#+LATEX_CLASS_OPTIONS: \thispagestyle{empty} % skip footer on first page
+#+LATEX_CLASS_OPTIONS: \vspace{-0.5em}}
+#+LATEX_CLASS_OPTIONS: \makeatother

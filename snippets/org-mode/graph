@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: graph
+# key: ~graph
+# --
+
+#+begin_src dot :file $1
+digraph {
+rankdir=LR;
+graph [bgcolor=transparent];
+node [fontcolor=white, color=white, shape=none];
+edge [fontcolor=white, color=white];
+
+$2
+}
+#+end_src
+

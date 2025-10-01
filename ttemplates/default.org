@@ -1,0 +1,125 @@
+#+LATEX_COMPILER: xelaex
+
+#+latex_class_options: [10pt]
+#+LATEX_HEADER_EXTRA: \usepackage{amsmath}
+#+LATEX_HEADER_EXTRA: \usepackage{amsthm}
+#+LATEX_HEADER_EXTRA: \usepackage{fontspec}
+#+LATEX_HEADER_EXTRA: \usepackage{cleveref}
+#+LATEX_HEADER_EXTRA: \usepackage[utf8]{inputenc}
+#+LATEX_HEADER_EXTRA: \usepackage[T1]{fontenc}
+#+LATEX_HEADER_EXTRA: \usepackage{graphicx}
+#+LATEX_HEADER_EXTRA: \usepackage{longtable}
+#+LATEX_HEADER_EXTRA: \usepackage{wrapfig}
+#+LATEX_HEADER_EXTRA: \usepackage{rotating}
+#+LATEX_HEADER_EXTRA: \usepackage[normalem]{ulem}
+#+LATEX_HEADER_EXTRA: \usepackage{amsmath}
+#+LATEX_HEADER_EXTRA: \usepackage{amssymb}
+#+LATEX_HEADER_EXTRA: \usepackage{capt-of}
+#+LATEX_HEADER_EXTRA: \usepackage{booktabs}
+#+LATEX_HEADER_EXTRA: \usepackage{algorithm}
+#+LATEX_HEADER_EXTRA: \usepackage{algpseudocode}
+#+LATEX_HEADER_EXTRA: \usepackage{physics}
+#+LATEX_HEADER_EXTRA: \usepackage{graphicx}
+#+LATEX_HEADER_EXTRA: \usepackage{longtable}
+#+LATEX_HEADER_EXTRA: \usepackage{wrapfig}
+#+LATEX_HEADER_EXTRA: \usepackage{rotating}
+#+LATEX_HEADER_EXTRA: \usepackage[normalem]{ulem}
+#+LATEX_HEADER_EXTRA: \usepackage{amsmath}
+#+LATEX_HEADER_EXTRA: \usepackage{amssymb}
+#+LATEX_HEADER_EXTRA: \usepackage{capt-of}
+#+LATEX_HEADER_EXTRA: \usepackage{algorithm}
+#+LATEX_HEADER_EXTRA: \usepackage{algpseudocode}
+#+LATEX_HEADER_EXTRA: \usepackage{tikz}
+#+LATEX_HEADER_EXTRA: \usepackage{physics}
+#+LATEX_HEADER_EXTRA: \setlength{\parindent}{0pt}
+#+LATEX_HEADER_EXTRA: \usepackage{svg}
+#+LATEX_HEADER_EXTRA: \usepackage{tikz}
+#+LATEX_HEADER_EXTRA: \usepackage{physics}
+#+LATEX_HEADER_EXTRA: \usepackage{cancel}
+#+LATEX_HEADER_EXTRA: \usepackage{pgfplots}
+#+LATEX_HEADER_EXTRA: \usepackage{xcolor}
+#+LATEX_HEADER_EXTRA: \usepackage{fontspec}
+#+LATEX_HEADER_EXTRA: \usepackage{booktabs}
+#+LATEX_HEADER_EXTRA: \usepackage{etoolbox}
+#+LATEX_HEADER_EXTRA: \usepackage{enumitem}
+#+LATEX_HEADER_EXTRA: \usepackage{fancyhdr}
+#+LATEX_HEADER_EXTRA: \usepackage{nameref}
+#+LATEX_HEADER_EXTRA: \usepackage{mdframed}
+
+#+LATEX_HEADER_EXTRA: \mdfsetup{
+#+LATEX_HEADER_EXTRA: backgroundcolor=gray!7,
+#+LATEX_HEADER_EXTRA: skipabove=\baselineskip,
+#+LATEX_HEADER_EXTRA: skipbelow=\baselineskip,
+#+LATEX_HEADER_EXTRA: innertopmargin=5pt,
+#+LATEX_HEADER_EXTRA: linewidth=0pt,
+#+LATEX_HEADER_EXTRA: innerbottommargin=10pt,
+#+LATEX_HEADER_EXTRA: innerrightmargin=10pt,
+#+LATEX_HEADER_EXTRA: innerleftmargin=10pt,
+#+LATEX_HEADER_EXTRA:}
+#+LATEX_HEADER_EXTRA:
+#+LATEX_HEADER_EXTRA: \theoremstyle{definition}
+#+LATEX_HEADER_EXTRA: \newmdtheoremenv[
+#+LATEX_HEADER_EXTRA: backgroundcolor=gray!3
+#+LATEX_HEADER_EXTRA:]{example}{Example}[section]
+#+LATEX_HEADER_EXTRA: \theoremstyle{plain}
+#+LATEX_HEADER_EXTRA: \newmdtheoremenv{theorem}{Theorem}[section]
+#+LATEX_HEADER_EXTRA: \newmdtheoremenv{definition}{Definition}[section]
+#+LATEX_HEADER_EXTRA: \newtheorem{corollary}{Corollary}[theorem]
+#+LATEX_HEADER_EXTRA: \newtheorem{lemma}[theorem]{Lemma}
+#+LATEX_HEADER_EXTRA: \pagestyle{empty}
+#+LATEX_HEADER_EXTRA: \pagestyle{fancy}
+#+LATEX_HEADER_EXTRA: \fancyhead{}
+#+LATEX_HEADER_EXTRA: \fancyfoot{}
+#+LATEX_HEADER_EXTRA: \fancyhead[R]{
+#+LATEX_HEADER_EXTRA: \leftmark\hspace{0.7em} \small{\thepage}
+#+LATEX_HEADER_EXTRA:}
+#+LATEX_HEADER_EXTRA: \renewcommand{\sectionmark}[1]{\markboth{\footnotesize{Sec. \thesection\hspace{0.75em} #1}}{}}
+#+LATEX_HEADER_EXTRA: % \fancyhead[L]{\large{\thepage}}
+#+LATEX_HEADER_EXTRA:
+
+#+LATEX_HEADER_EXTRA: \renewcommand{\headrulewidth}{0pt}
+#+LATEX_HEADER_EXTRA: \setlist{topsep=1em, itemsep=0.2em}
+#+LATEX_HEADER_EXTRA: \setlength{\parskip}{0.8mm}
+#+LATEX_HEADER_EXTRA: \setlength{\parindent}{0pt}
+#+LATEX_HEADER_EXTRA: \usepackage{algpseudocode}
+#+LATEX_HEADER_EXTRA: \usepackage{algorithm}
+#+LATEX_HEADER_EXTRA: \setmainfont[
+#+LATEX_HEADER_EXTRA: BoldFont={IBM Plex Serif Medium},
+#+LATEX_HEADER_EXTRA: ItalicFont={IBM Plex Serif Italic},
+#+LATEX_HEADER_EXTRA: BoldItalicFont={IBM Plex Serif Medium Italic}
+#+LATEX_HEADER_EXTRA:]{IBM Plex Serif}
+
+#+LATEX_HEADER_EXTRA: \usepackage[side,ragged,flushmargin]{footmisc}
+#+LATEX_HEADER_EXTRA: \makeatother
+#+LATEX_HEADER_EXTRA: \usepackage{lipsum}
+#+LATEX_HEADER_EXTRA: \setlength{\footnotesep}{0.25em}
+#+LATEX_HEADER_EXTRA: \usepackage{amsmath}
+#+LATEX_HEADER_EXTRA: \usepackage[english]{babel}
+#+LATEX_HEADER_EXTRA: \usepackage[autostyle, english = american]{csquotes}
+#+LATEX_HEADER_EXTRA: \MakeOuterQuote{"}
+
+#+LATEX_HEADER_EXTRA: \usepackage[style=numeric,url=true,backend=biber] {biblatex}
+#+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/bibs/ml.bib}
+#+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/bibs/ling.bib}
+#+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/bibs/cs.bib}
+#+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/bibs/biomed.bib}
+#+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/bibs/chem.bib}
+#+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/bibs/jc.bib}
+#+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/bibs/phymath.bib}
+#+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/bibs/socio.bib}
+#+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/bibs/misc.bib}
+#+LATEX_HEADER_EXTRA: \addbibresource{~/Documents/knowledgebase/documents/oldrefs.bib}
+#+LATEX_HEADER_EXTRA: \renewcommand{\tableofcontents}{}
+#+LATEX_HEADER_EXTRA: \usepackage{titlesec}
+#+LATEX_HEADER_EXTRA: \usepackage{titling}
+#+LATEX_HEADER_EXTRA: \titleformat{\section}{\normalfont\fontsize{12}{15}\bfseries}{\thesection}{1em}{}
+#+LATEX_HEADER_EXTRA: 
+#+LATEX_HEADER_EXTRA: \titleformat{\subsection}{\normalfont\fontsize{10}{12}\bfseries}{\thesubsection}{1em}{}
+#+LATEX_HEADER_EXTRA: \titlespacing*{\section}{0pt}{3.5ex plus 1ex minus .2ex}{2.3ex plus .2ex}
+#+LATEX_HEADER_EXTRA: \titlespacing*{\subsection}{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+#+LATEX_HEADER_EXTRA: \makeatletter
+#+LATEX_HEADER_EXTRA: \renewcommand\maketitle{
+#+LATEX_HEADER_EXTRA: {\huge \textbf{\@title}} \\[0.5em] \theauthor\ \ \ \textit{\thedate} \\[5pt]
+#+LATEX_HEADER_EXTRA: \thispagestyle{empty} % skip footer on first page
+#+LATEX_HEADER_EXTRA: \vspace{-0.5em}}
+#+LATEX_HEADER_EXTRA: \makeatother
