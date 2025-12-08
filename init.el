@@ -3,7 +3,7 @@
 (defvar native-comp-deferred-compilation-deny-list nil)
 ;; (setq use-package-always-defer t)
 
-(setenv "LIBRARY_PATH" "/opt/homebrew/opt/gcc/lib/gcc/14:/opt/homebrew/opt/libgccjit/lib/gcc/14:/opt/homebrew/opt/gcc/lib/gcc/14/gcc/aarch64-apple-darwin23/14")
+(setenv "LIBRARY_PATH" "/opt/homebrew/opt/gcc/lib/gcc/14:/opt/homebrew/opt/libgccjit/lib/gcc/14:/opt/homebrew/opt/gcc/lib/gcc/14/gcc/aarch64-apple-darwin23/14:/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib")
 
 ;;; ----Load PATH
 (defun set-exec-path-from-shell-PATH ()
@@ -180,17 +180,18 @@
   (prog-mode . highlight-numbers-mode))
 
 ;; Powerline! POWER!
-(use-package powerline
-  :config
-  (powerline-default-theme)
-  (display-time-mode))
-
-;; (use-package doom-modeline
-;;   :ensure t
-;;   :init (doom-modeline-mode 1)
+;; (use-package powerline
 ;;   :config
-;;   (setq doom-modeline-icon t)
-;;   (setq doom-modeline-major-mode-icon nil))
+;;   (powerline-default-theme)
+;;   (display-time-mode))
+
+(use-package doom-modeline
+  :ensure t
+  :init (doom-modeline-mode 1)
+  :config
+  (setq doom-modeline-icon t)
+  (setq doom-modeline-modal-icon nil)
+  (setq doom-modeline-major-mode-icon t))
 
 
 ;; Line numbers, relativity
@@ -931,6 +932,12 @@ Start an unlimited search at `point-min' otherwise."
 ;;   :config
 ;;   (evil-leader/set-key
 ;;     "hoo" 'noccur-project))
+
+(use-package valign
+  :diminish valign-mode
+  :straight (:host github :repo "casouri/valign" :files ("*.el"))
+  :hook
+  (org-mode . valign-mode))
 
 (use-package easydraw
   :straight (:host github :repo "misohena/el-easydraw" :files ("*.el")))
