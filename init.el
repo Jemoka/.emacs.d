@@ -347,6 +347,7 @@
   (require 'dap-python)
   (dap-mode 1)
   (dap-ui-mode 1)
+  (setq dap-python-executable "uv run python")
   (add-hook 'dap-stopped-hook
             (lambda (arg) (call-interactively #'dap-hydra))))
 
@@ -1497,17 +1498,17 @@ rather than the whole path."
 
 
 ;; Agda
-(load-file (let ((coding-system-for-read 'utf-8))
-                (shell-command-to-string "agda-mode locate")))
-(with-eval-after-load 'agda2
-    (setq agda2-program-args '("--show-implicit"))
-  (evil-leader/set-key-for-mode 'agda2-mode
-    "hb" 'agda2-make-case
-    "hh" 'agda2-goal-and-context-and-inferred
-    "ht" 'agda2-load
-    "hn" 'agda2-mimer-maybe-all
-    "hc" 'agda2-remove-annotations
-    "hs" 'agda2-refine))
+;; (load-file (let ((coding-system-for-read 'utf-8))
+;;                 (shell-command-to-string "agda-mode locate")))
+;; (with-eval-after-load 'agda2
+;;     (setq agda2-program-args '("--show-implicit"))
+;;   (evil-leader/set-key-for-mode 'agda2-mode
+;;     "hb" 'agda2-make-case
+;;     "hh" 'agda2-goal-and-context-and-inferred
+;;     "ht" 'agda2-load
+;;     "hn" 'agda2-mimer-maybe-all
+;;     "hc" 'agda2-remove-annotations
+;;     "hs" 'agda2-refine))
 
 ;; Racket
 (use-package geiser-mit
