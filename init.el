@@ -3,7 +3,9 @@
 (defvar native-comp-deferred-compilation-deny-list nil)
 ;; (setq use-package-always-defer t)
 
-(setenv "LIBRARY_PATH" "/opt/homebrew/opt/gcc/lib/gcc/14:/opt/homebrew/opt/libgccjit/lib/gcc/14:/opt/homebrew/opt/gcc/lib/gcc/14/gcc/aarch64-apple-darwin23/14:/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib")
+(setq local-file (concat user-emacs-directory "local-init.el"))
+(when (file-exists-p local-file)
+  (load local-file))
 
 ;;; ----Load PATH
 (defun set-exec-path-from-shell-PATH ()
@@ -189,6 +191,7 @@
   :ensure t
   :init (doom-modeline-mode 1)
   :config
+  (setq doom-modeline-persp-icon nil)
   (setq doom-modeline-icon t)
   (setq doom-modeline-modal-icon nil)
   (setq doom-modeline-major-mode-icon t))
@@ -926,6 +929,8 @@ Start an unlimited search at `point-min' otherwise."
   (org-mode . org-special-block-extras-mode))
 
 ;; ----developer tools
+;; (use-package swanky-python
+;;   :straight (:host codeberg :repo "sczi/swanky-python" :files ("*.el")))
 
 
 ;; (use-package noccur
@@ -1302,7 +1307,11 @@ rather than the whole path."
   (ivy-mode)
   (define-key ivy-minibuffer-map (kbd "C-M-<return>") 'ivy-immediate-done)
   (put 'dired-do-copy   'ivy nil)
-  (put 'dired-do-rename 'ivy nil))
+  (put 'dired-do-rename 'ivy nil)
+  (defun ivy-update-candidates-dynamic-collection-workaround-a (old-fun &rest args)
+    (cl-letf (((symbol-function #'completion-metadata) #'ignore))
+      (apply old-fun args)))
+  (advice-add #'ivy-update-candidates :around #'ivy-update-candidates-dynamic-collection-workaround-a))
 
 ;; Ranger dired?
 (use-package ranger)
@@ -1888,7 +1897,8 @@ rather than the whole path."
     "hn" 'jupyter-eval-defun
     "hb" 'jupyter-eval-buffer
     "hi" 'jupyter-inspect-at-point
-    "hd" 'python-pytest-dispatch))
+    "hd" 'python-pytest-dispatch)
+  (add-to-list 'mode-line-misc-info '(:eval (jupyter-repl-interaction-mode-line))))
 
 ;; Olivetti
 (use-package olivetti
@@ -2183,19 +2193,6 @@ that."
 (defun kb-commit ()
   (interactive)
   (shell-command "pushd ~/Documents/knowledgebase/site && git add --all && git commit -m \"kb autocommit\" && git push && popd"))
-
-(use-package org-roam-ui
-  :diminish org-roam-ui-mode
-  :diminish org-roam-ui-follow-mode
-  :straight
-    (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
-    :after org-roam
-    :hook (after-init . org-roam-ui-mode)
-    :config
-    (setq org-roam-ui-sync-theme t
-          org-roam-ui-follow t
-          org-roam-ui-update-on-save t
-          org-roam-ui-open-on-start t))
 
 ;; Sage math
 (use-package sage-shell-mode)
