@@ -347,7 +347,7 @@
   (require 'dap-python)
   (dap-mode 1)
   (dap-ui-mode 1)
-  (setq dap-python-executable "uv run python")
+  (setq dap-python-executable "python")
   (add-hook 'dap-stopped-hook
             (lambda (arg) (call-interactively #'dap-hydra))))
 
