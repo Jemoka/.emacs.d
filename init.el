@@ -720,6 +720,8 @@ Start an unlimited search at `point-min' otherwise."
                     "null" "\\text{null}\\"
                     "sht" (lambda () (interactive)
                          (yas-expand-snippet "\\dv{$1}{$2}$0"))
+                    "snm" (lambda () (interactive)
+                            (yas-expand-snippet "\\norm{$1}$0"))
                     "shn" "\\pdv"
                     "shs" (lambda () (interactive)
                          (yas-expand-snippet "\\pdv{$1}{$2}$0"))
@@ -733,6 +735,7 @@ Start an unlimited search at `point-min' otherwise."
                     ;; add accent snippets
                     :cond #'laas-object-on-left-condition
                     "ssr" (lambda () (interactive) (laas-wrap-previous-object "sqrt"))
+                    "snr" (lambda () (interactive) (laas-wrap-previous-object "norm"))
                     "svc" (lambda () (interactive) (laas-wrap-previous-object "vec"))
                     "scp" (lambda () (interactive) (laas-wrap-previous-object "hat"))
                     "slb" (lambda () (interactive) (laas-wrap-previous-object "mathbb"))
