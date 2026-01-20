@@ -651,6 +651,9 @@ Start an unlimited search at `point-min' otherwise."
                            (yas-expand-snippet "\\begin{equation}\n\\begin{cases}\n$1\n\\end{cases}\n\\end{equation} $0"))
                     ".pt" (lambda () (interactive)
                            (yas-expand-snippet "\\begin{align}\n$1\n\\end{align} $0"))
+                    ".pm" (lambda () (interactive)
+                           (yas-expand-snippet "\\begin{align}\n\\min_{$1}\\quad & $2 \\\\\\\\ $3 \n\\textrm{s.t.} \\quad & $3 \\\\\\\\ \n\\end{align} $0"))
+
                     ".pbt" ":tangle "
                     :cond #'texmathp ; expand only while in math
                     "ssed" "\\blacksquare"
@@ -770,7 +773,7 @@ Start an unlimited search at `point-min' otherwise."
 (yas-global-mode 1)
 (company-auctex-init)
 
-;; eglot just to have it
+;; beglot just to have it
 ;; IF EGLOT IS BROKEN
 ;; /opt/homebrew/Cellar/emacs-plus@28/28.2/share/emacs/28.2/lisp/progmodes
 ;; delete/move project.el.gz; project.elc somewhere else
