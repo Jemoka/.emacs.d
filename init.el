@@ -652,7 +652,7 @@ Start an unlimited search at `point-min' otherwise."
                     ".pt" (lambda () (interactive)
                            (yas-expand-snippet "\\begin{align}\n$1\n\\end{align} $0"))
                     ".pm" (lambda () (interactive)
-                           (yas-expand-snippet "\\begin{align}\n\\min_{$1}\\quad & $2 \\\\\\\\ $3 \n\\textrm{s.t.} \\quad & $3 \\\\\\\\ \n\\end{align} $0"))
+                           (yas-expand-snippet "\\begin{align}\n\\min_{$1}\\quad & $2 \\\\\\\\  \n\\textrm{s.t.} \\quad & $3 \n\\end{align} $0"))
 
                     ".pbt" ":tangle "
                     :cond #'texmathp ; expand only while in math
@@ -729,6 +729,7 @@ Start an unlimited search at `point-min' otherwise."
                     "shs" (lambda () (interactive)
                          (yas-expand-snippet "\\pdv{$1}{$2}$0"))
                     "san" " \\\\\n\\Rightarrow\\ & "
+                    "sam" " \\\\\n& "
                     "sas" "& "
                     "sst" (lambda () (interactive)
                          (yas-expand-snippet "\\sqrt{$1}$0"))

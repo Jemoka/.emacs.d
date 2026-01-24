@@ -44,8 +44,25 @@
      "https://medlife.substack.com/feed"
      "https://www.youtube.com/feeds/videos.xml?channel_id=UC2C_jShtL725hvbm1arSV9w"
      "https://www.youtube.com/feeds/videos.xml?channel_id=UCgRBRE1DUP2w7HTH9j_L4OQ"))
+ '(haskell-process-type 'auto)
  '(safe-local-variable-values
-   '((org-hugo-base-dir . "~/Documents/knowledgebase/site")
+   '((eval dap-register-debug-template "Python :: fork :: Debug Run"
+           (list :name "Python :: fork :: Debug Run" :type "python"
+                 :cwd "${workspaceFolder}" :module nil :program
+                 "${workspaceFolder}/main.py" :args
+                 '("test" "--plan" "regular" "regular" "fork"
+                   "regular" "regular" "fork" "regular" "regular"
+                   "--validation_interval" "3" "--report_interval" "3")
+                 :request "launch"))
+     (eval dap-register-debug-template "Python :: fork :: Debug Run"
+           (list :name "Python :: fork :: Debug Run" :type "python"
+                 :cwd "${workspaceFolder}" :module nil :program
+                 "${workspaceFolder}/main.py" :args
+                 '("test" "--plan" "regular" "regular" "fork"
+                   "regular" "regular" "fork" "regular" "regular"
+                   "--validation-interval" "3" "--report-interval" "3")
+                 :request "launch"))
+     (org-hugo-base-dir . "~/Documents/knowledgebase/site")
      (lsp-pylsp-plugins-mypy-enabled . t)
      (TeX-command-extra-options . "-shell-escape")
      (org-mode (eval org-hugo-auto-export-mode))
@@ -77,4 +94,11 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(ediff-current-diff-A ((t (:background "#662222" :foreground "#ffb0b0"))))
+ '(ediff-current-diff-B ((t (:background "#225522" :foreground "#90ff90"))))
+ '(ediff-even-diff-A ((t (:background "#332222" :foreground "#f8f8f8"))))
+ '(ediff-even-diff-B ((t (:background "#223322" :foreground "#f8f8f8"))))
+ '(ediff-fine-diff-A ((t (:background "#881111" :foreground "#ffcccc" :weight bold))))
+ '(ediff-fine-diff-B ((t (:background "#118811" :foreground "#ccffcc" :weight bold))))
+ '(ediff-odd-diff-A ((t (:background "#442222" :foreground "#f8f8f8"))))
+ '(ediff-odd-diff-B ((t (:background "#224422" :foreground "#f8f8f8")))))
