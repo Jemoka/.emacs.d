@@ -273,6 +273,23 @@
 ;;   :hook
 ;;   (tree-sitter-mode . tree-sitter-hl-mode))
 
+(use-package eagle
+  :straight
+    (:host codeberg :repo "akib/emacs-eagle" :branch "master" :files ("*.el")))
+
+(use-package typst-ts-mode
+  :mode "\\.typ\\'")
+
+(use-package typst-preview
+  :straight (:type git :host github :repo "havarddj/typst-preview.el")
+  :custom
+  (typst-preview-invert-colors "never")	
+  (typst-preview-browser "default")
+  :config
+  (evil-leader/set-key-for-mode 'typst-ts-mode
+    "hst" 'typst-preview-start))
+
+
 ;; (use-package tree-sitter-langs)
 (setq treesit-font-lock-level 4)
 
@@ -634,9 +651,109 @@ Start an unlimited search at `point-min' otherwise."
       ;;                   "w/" "with")
       )
 
+(use-package aas
+  :hook (typst-ts-mode . aas-activate-for-major-mode)
+  :config
+  (load-file "~/.emacs.d/site-lisp/mathp.el")
+  (require 'typst-ts-mathp)
+  (aas-set-snippets 'typst-ts-mode
+    ;; math environment openers (no condition needed)
+    ".p " (lambda () (interactive)
+            (yas-expand-snippet "$$1$$0"))
+    ".pp" (lambda () (interactive)
+            (yas-expand-snippet "$$1$$0"))
+    "..p" (lambda () (interactive)
+            (yas-expand-snippet "$$1$$0"))
+    ".ph" (lambda () (interactive)
+            (yas-expand-snippet "$\n  $1\n$ $0"))
+    ".pn" (lambda () (interactive)
+            (yas-expand-snippet "$\n  cases(\n    $1\n  )\n$ $0"))
+    ".pt" (lambda () (interactive)
+            (yas-expand-snippet "$\n  $1\n$ $0"))
+    ".pm" (lambda () (interactive)
+            (yas-expand-snippet "$\n  min_($1) quad & $2 \\\\\n  \"s.t.\" quad & $3\n$ $0"))
+    :cond #'typst-ts-mode-mathp ; replace with e.g. a typst math context predicate
+    "ssed" "square.filled"
+    "sssu" "union"
+    "sssi" "sect"
+    "ssb" (lambda () (interactive)
+            (yas-expand-snippet "bb($1)$0"))
+    "ssf" (lambda () (interactive)
+            (yas-expand-snippet "bold($1)$0"))
+    "ssc" (lambda () (interactive)
+            (yas-expand-snippet "cal($1)$0"))
+    "smp" (lambda () (interactive)
+            (yas-expand-snippet "mat(delim: \"(\",\n  $1\n)$0"))
+    "smb" (lambda () (interactive)
+            (yas-expand-snippet "mat(delim: \"[\",\n  $1\n)$0"))
+    "smv" (lambda () (interactive)
+            (yas-expand-snippet "mat(delim: \"|\",\n  $1\n)$0"))
+    "ssm" (lambda () (interactive)
+            (yas-expand-snippet "sum_($1)^($2)$0"))
+    "ssx" (lambda () (interactive)
+            (yas-expand-snippet "product_($1)^($2)$0"))
+    "sid" (lambda () (interactive)
+            (yas-expand-snippet "integral_($1)^($2)$0"))
+    "slm" (lambda () (interactive)
+            (yas-expand-snippet "lim_($1 -> $2)$0"))
+    "smil" (lambda () (interactive)
+             (yas-expand-snippet "angle.l"))
+    "smir" (lambda () (interactive)
+             (yas-expand-snippet "angle.r"))
+    "smii" (lambda () (interactive)
+             (yas-expand-snippet "angle.l $1 angle.r$0"))
+    "ssv" (lambda () (interactive)
+            (yas-expand-snippet "arrow($1)$0"))
+    "emptyset" "emptyset"
+    "^" (lambda () (interactive)
+          (yas-expand-snippet "^($1)$0"))
+    "_" (lambda () (interactive)
+          (yas-expand-snippet "_($1)$0"))
+    "sii" "integral"
+    "st" (lambda () (interactive)
+           (yas-expand-snippet "lr(($1))$0"))
+    "smm" (lambda () (interactive)
+            (yas-expand-snippet "mat(delim: \"(\", $1)$0"))
+    "sm(" (lambda () (interactive)
+            (yas-expand-snippet "mat(delim: \"(\", $1)$0"))
+    "sm[" (lambda () (interactive)
+            (yas-expand-snippet "mat(delim: \"[\", $1)$0"))
+    "smd" (lambda () (interactive)
+            (yas-expand-snippet "mat($1, dots.down, $1)$0"))
+    "sq" "lr"
+    "sh " (lambda () (interactive)
+            (yas-expand-snippet "dif $1$0"))
+    "shh" "dv"
+    "dim" "dim"
+    "prec" "prec"
+    "preq" "prec.eq"
+    "sim" "tilde.op"
+    "succ" "succ"
+    "spv" "tack.r"
+    "sucq" "succ.eq"
+    "range" "\"range\""
+    "smns" "without"
+    "mod" "mod"
+    "null" "\"null\""
+    "sht" (lambda () (interactive)
+            (yas-expand-snippet "dv($1, $2)$0"))
+    "snm" (lambda () (interactive)
+            (yas-expand-snippet "lr(||$1||)$0"))
+    "shn" "pdv"
+    "shs" (lambda () (interactive)
+            (yas-expand-snippet "pdv($1, $2)$0"))
+    "san" " \\\n=> & "
+    "sam" " \\\n& "
+    "sas" "& "
+    "sst" (lambda () (interactive)
+            (yas-expand-snippet "sqrt($1)$0"))
+    "saq" " &= "
+    "sae" (lambda () (interactive)
+            (yas-expand-snippet " \\\n&= $1"))))
 (use-package laas
   :diminish laas-mode
   :config ; do whatever here
+    ; wraps in "..."
   (aas-set-snippets 'laas-mode
                     ;; set condition!
                     ".p " (lambda () (interactive)
@@ -746,6 +863,7 @@ Start an unlimited search at `point-min' otherwise."
                     "slc" (lambda () (interactive) (laas-wrap-previous-object "mathcal"))
                     "slf" (lambda () (interactive) (laas-wrap-previous-object "mathbf"))
                     "slt" (lambda () (interactive) (laas-wrap-previous-object "text")))
+
   :hook
   (org-mode . laas-mode)
   (TeX-mode . laas-mode)

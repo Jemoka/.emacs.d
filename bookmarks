@@ -3,8 +3,9 @@
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
 (("org-capture-last-stored"
- (filename
-  . "~/Dropbox/knowledgebase/KBhmixed_autonomy_traffic_with_llms.org")
- (front-context-string) (rear-context-string . "hor: Houjun Liu\n")
- (position . 131) (last-modified 26935 4772 965067 0))
+ (filename . "~/Dropbox/knowledgebase/KBhagent_security.org")
+ (front-context-string)
+ (rear-context-string . "hor: Houjun Liu\n")
+ (position . 113)
+ (last-modified 27045 54440 418512 0))
 )
