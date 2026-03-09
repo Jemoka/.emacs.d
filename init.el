@@ -1112,41 +1112,6 @@ Start an unlimited search at `point-min' otherwise."
 ;; mpv
 (use-package mpv)
 
-;; Elfeed
-(use-package elfeed
-  :init
-  (setq-default elfeed-search-filter "-hide +unread "))
-
-;; Elfeed tube
-;; (use-package elfeed-tube
-;;   :straight (:host github :repo "karthink/elfeed-tube")
-;;   :after elfeed
-;;   :demand t
-;;   :config
-;;   ;; (setq elfeed-tube-auto-save-p nil) ;; t is auto-save (not default)
-;;   ;; (setq elfeed-tube-auto-fetch-p t) ;;  t is auto-fetch (default)
-;;   (elfeed-tube-setup)
-
-;;   :config
-;;   (setq elfeed-tube-captions-languages
-;;       '("en" "zh-cn" "zh" "cn" "english (auto generated)"))
-
-;;   :bind (:map elfeed-show-mode-map
-;;          ("F" . elfeed-tube-fetch)
-;;          ([remap save-buffer] . elfeed-tube-save)
-;;          :map elfeed-search-mode-map
-;;          ("F" . elfeed-tube-fetch)
-;;          ([remap save-buffer] . elfeed-tube-save)))
-;;mpv
-(use-package elfeed-tube-mpv
-  :straight (:host github :repo "karthink/elfeed-tube")
-  :bind (:map elfeed-show-mode-map
-              ("C-c C-f" . elfeed-tube-mpv-follow-mode)
-              ("C-c C-w" . elfeed-tube-mpv-where))
-  :config
-  (evil-leader/set-key-for-mode 'elfeed-show-mode
-    "oe" 'elfeed-tube-mpv-follow-mode))
-
 (defun file-notify-rm-all-watches ()
   "Remove all existing file notification watches from Emacs."
   (interactive)
