@@ -3,7 +3,6 @@
 #+latex_class_options: [10pt]
 #+LATEX_HEADER_EXTRA: \usepackage{amsmath}
 #+LATEX_HEADER_EXTRA: \usepackage{amsthm}
-#+LATEX_HEADER_EXTRA: \usepackage{fontspec}
 #+LATEX_HEADER_EXTRA: \usepackage{cleveref}
 #+LATEX_HEADER_EXTRA: \usepackage[utf8]{inputenc}
 #+LATEX_HEADER_EXTRA: \usepackage[T1]{fontenc}

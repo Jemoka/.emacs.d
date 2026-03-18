@@ -278,7 +278,12 @@
     (:host codeberg :repo "akib/emacs-eagle" :branch "master" :files ("*.el")))
 
 (use-package typst-ts-mode
-  :mode "\\.typ\\'")
+  :mode "\\.typ\\'"
+  :config
+  (evil-define-key 'normal outline-mode-map (kbd "C-j") #'evil-window-down)
+  (evil-define-key 'normal outline-mode-map (kbd "C-k") #'evil-window-up)
+  (evil-define-key 'normal outline-mode-map (kbd "C-h") #'evil-window-left)
+  (evil-define-key 'normal outline-mode-map (kbd "C-l") #'evil-window-right))
 
 (use-package typst-preview
   :straight (:type git :host github :repo "havarddj/typst-preview.el")
@@ -1969,6 +1974,12 @@ rather than the whole path."
   (setq jupyter-repl-echo-eval-p nil)
   (setq jupyter-eval-use-overlays t)
   :config
+  (defun jupyter-get-client ()
+    "Return a monadic value that returns the client."
+    (jupyter-mlet* ((state  (jupyter-get-state))
+                    (client (jupyter-return (if (listp state) (car state) state))))
+      (cl-check-type client jupyter-kernel-client)
+      (jupyter-return client)))
   (evil-define-key 'normal jupyter-repl-mode-map (kbd "C-p") #'jupyter-repl-history-previous)
   (evil-define-key 'normal jupyter-repl-mode-map (kbd "C-n") #'jupyter-repl-history-next)
   (evil-define-key 'insert jupyter-repl-mode-map (kbd "<up>") #'jupyter-repl-history-previous)
@@ -2374,7 +2385,7 @@ that."
 ;; code highlightin
   (setq org-latex-packages-alist '(("margin=1.2in" "geometry")))
     ;; (add-to-list 'org-latex-packages-alist '("" "minted"))
-    (add-to-list 'org-latex-packages-alist '("" "physics"))
+    (add-to-list 'org-latex-packages-alist '("" "physics" t))
     ;; (add-to-list 'org-latex-packages-alist '("" "tikz"))
     (add-to-list 'org-latex-packages-alist '("" "algpseudocode"))
     (add-to-list 'org-latex-packages-alist '("" "algorithm"))
@@ -2382,6 +2393,21 @@ that."
     (add-to-list 'org-latex-packages-alist '("" "amsmath"))
     (add-to-list 'org-latex-packages-alist '("" "booktabs"))
     (setq org-latex-pdf-process '("latexmk -bibtex -f -pdf -%latex -interaction=nonstopmode -output-directory=%o %f"))
+
+    (setq org-preview-latex-process-alist
+          (mapcar (lambda (entry)
+                    (if (eq (car entry) 'dvisvgm)
+                        '(dvisvgm
+                          :programs ("xelatex" "dvisvgm")
+                          :description "xdv > svg"
+                          :message "you need to install xelatex and dvisvgm."
+                          :image-input-type "xdv"
+                          :image-output-type "svg"
+                          :image-size-adjust (1.7 . 1.5)
+                          :latex-compiler ("xelatex -no-pdf -interaction nonstopmode -output-directory %o %f")
+                          :image-converter ("dvisvgm %f --no-fonts --exact-bbox --scale=%S --output=%O"))
+                      entry))
+                  org-preview-latex-process-alist))
 
 
 (setq org-latex-listings 'minted)
