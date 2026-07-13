@@ -719,6 +719,134 @@ Start an unlimited search at `point-min' otherwise."
     ".pm" (lambda () (interactive)
             (yas-expand-snippet "$\n  min_($1) quad & $2 \\\\\n  \"s.t.\" quad & $3\n$ $0"))
     :cond #'typst-ts-mode-mathp ; replace with e.g. a typst math context predicate
+;; ── Relations & binary operators ──
+    "!=" "eq.not"
+    "!>" "arrow.r.bar"
+    "**" "dot.op"
+    "+-" "plus.minus"
+    "-+" "minus.plus"
+    "->" "arrow.r"
+    "..." "dots"
+    "<<" "lt.double"
+    "<=" "lt.eq"
+    "<>" "diamond.stroked"
+    "=<" "arrow.l.double"
+    "==" "&= "
+    "=>" "arrow.r.double"
+    ">=" "gt.eq"
+    ">>" "gt.double"
+    "AA" "forall"
+    "EE" "exists"
+    "cb" "^3"
+    "iff" "arrow.l.r.double"
+    "inn" "in"
+    "notin" "in.not"
+    "sr" "^2"
+    "xx" "times"
+    "|->" "arrow.r.bar"
+    "|=" "tack.r.double"
+    "||" "mid(|)"
+    "~=" "approx"
+    "~~" "tilde.op"
+    "eqv" "equiv"
+
+    ;; ── Functions not built into Typst math ──
+    ;; (sin, cos, tan, log, ln, exp, min, max, gcd, arcsin, arccos, arctan
+    ;;  are already recognized in Typst math mode — no snippets needed)
+    "arccot" (lambda () (interactive)
+               (yas-expand-snippet "op(\"arccot\")"))
+    "arccsc" (lambda () (interactive)
+               (yas-expand-snippet "op(\"arccsc\")"))
+    "arcsec" (lambda () (interactive)
+               (yas-expand-snippet "op(\"arcsec\")"))
+    "cot" "cot"
+    "csc" "csc"
+
+    ;; ── Number sets (Typst has these as built-in shorthands) ──
+    "CC" "CC"
+    "FF" "FF"
+    "HH" "HH"
+    "NN" "NN"
+    "PP" "PP"
+    "QQ" "QQ"
+    "RR" "RR"
+    "ZZ" "ZZ"
+
+    ;; ── Greek letters & symbols (semicolon prefix) ──
+    ";a" "alpha"
+    ";A" "forall"           ";;A" "aleph"
+    ";b" "beta"
+    ";;;c" "cos"
+    ";;;C" "arccos"
+    ";d" "delta"            ";;d" "partial"
+    ";D" "Delta"            ";;D" "nabla"
+    ";e" "epsilon"          ";;e" "epsilon.alt"     ";;;e" "exp"
+    ";E" "exists"                                   ";;;E" "ln"
+    ";f" "phi.alt"          ";;f" "phi"
+    ";F" "Phi"
+    ";g" "gamma"                                    ";;;g" "lg"
+    ";G" "Gamma"
+    ";;;G" (lambda () (interactive)
+             (yas-expand-snippet "10^($1)$0"))
+    ";h" "eta"              ";;h" "planck.reduce"
+    ";i" "in"               ";;i" "dotless.i"
+    ";I" "iota"
+    ";;I" (lambda () (interactive)
+            (yas-expand-snippet "op(\"Im\")"))
+    ";;j" "dotless.j"
+    ";k" "kappa"
+    ";l" "lambda"           ";;l" "ell"             ";;;l" "log"
+    ";L" "Lambda"
+    ";m" "mu"
+    ";n" "nu"                                       ";;;n" "ln"
+    ";N" "nabla"                                    ";;;N" "exp"
+    ";o" "omega"
+    ";O" "Omega"            ";;O" "mho"
+    ";p" "pi"               ";;p" "pi.alt"
+    ";P" "Pi"
+    ";q" "theta"            ";;q" "theta.alt"
+    ";Q" "Theta"
+    ";r" "rho"              ";;r" "rho.alt"
+    ";;R" (lambda () (interactive)
+            (yas-expand-snippet "op(\"Re\")"))
+    ";s" "sigma"            ";;s" "sigma.alt"       ";;;s" "sin"
+    ";S" "Sigma"                                    ";;;S" "arcsin"
+    ";t" "tau"                                      ";;;t" "tan"
+    ";;;T" "arctan"
+    ";u" "upsilon"
+    ";U" "Upsilon"
+    ";v" "or"
+    ";V" "Phi"
+    ";w" "xi"
+    ";W" "Xi"
+    ";x" "chi"
+    ";y" "psi"
+    ";Y" "Psi"
+    ";z" "zeta"
+    ";0" "emptyset"
+    ";8" "infinity"
+    ";!" "not"
+    ";^" "arrow.t"
+    ";&" "and"
+    ";~" "approx"           ";;~" "tilde.eq"
+    ";_" "arrow.b"
+    ";+" "union"            ";;+" "plus.circle"
+    ";-" "arrow.l.r"        ";;-" "arrow.l.r.long"
+    ";*" "times"
+    ";/" "not"
+    ";|" "arrow.r.bar"      ";;|" "arrow.r.bar.long"
+    ";\\" "without"
+    ";=" "arrow.l.r.double" ";;=" "arrow.l.r.double.long"
+    ";(" "angle.l"
+    ";)" "angle.r"
+    ";[" "arrow.l.double"   ";;[" "arrow.l.double.long"
+    ";]" "arrow.r.double"   ";;]" "arrow.r.double.long"
+    ";{" "subset"
+    ";}" "supset"
+    ";<" "arrow.l"          ";;<" "arrow.l.long"    ";;;<" "min"
+    ";>" "arrow.r"          ";;>" "arrow.r.long"    ";;;>" "max"
+    ";'" "prime"
+    ";." "dot.op"
     "ssed" "square.filled"
     "sssu" "union"
     "sssi" "sect"
@@ -757,7 +885,7 @@ Start an unlimited search at `point-min' otherwise."
           (yas-expand-snippet "_($1)$0"))
     "sii" "integral"
     "st" (lambda () (interactive)
-           (yas-expand-snippet "lr(($1))$0"))
+           (yas-expand-snippet "($1)$0"))
     "smm" (lambda () (interactive)
             (yas-expand-snippet "mat(delim: \"(\", $1)$0"))
     "sm(" (lambda () (interactive)
@@ -1137,6 +1265,10 @@ Start an unlimited search at `point-min' otherwise."
 ;;   :config
 ;;   (evil-leader/set-key
 ;;     "hoo" 'noccur-project))
+
+
+(use-package bazel
+  :straight (:host github :repo "bazel-contrib/bazel.el" :files ("*.el")))
 
 (use-package valign
   :diminish valign-mode
@@ -1648,6 +1780,9 @@ rather than the whole path."
     "ht" 'recompile
     "hh" 'compile))
 
+(evil-leader/set-key-for-mode 'LaTeX-mode
+  "ht" 'recompile
+  "hh" 'compile)
 (evil-leader/set-key-for-mode 'c++-mode
   "ht" 'recompile
   "hh" 'compile)
