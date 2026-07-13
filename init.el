@@ -1586,6 +1586,10 @@ rather than the whole path."
   "ht" 'recompile
   "hh" 'compile)
 
+(evil-leader/set-key-for-mode 'LaTeX-mode
+  "ht" 'recompile
+  "hh" 'compile)
+
 ;; (use-package citre
 ;;   :init
 ;;   (require 'citre-config))
@@ -2408,6 +2412,8 @@ that."
                           :image-converter ("dvisvgm %f --no-fonts --exact-bbox --scale=%S --output=%O"))
                       entry))
                   org-preview-latex-process-alist))
+
+
 
 
 (setq org-latex-listings 'minted)
