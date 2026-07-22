@@ -194,7 +194,7 @@
   (setq doom-modeline-persp-icon nil)
   (setq doom-modeline-icon t)
   (setq doom-modeline-modal-icon nil)
-  (setq doom-modeline-major-mode-icon t))
+  (setq doom-modeline-major-mode-icon nil))
 
 
 ;; Line numbers, relativity
@@ -1707,8 +1707,9 @@ rather than the whole path."
   (set-face-attribute 'markdown-header-face-3 nil :foreground 'unspecified :inherit 'outline-3)
   (set-face-attribute 'markdown-header-face-4 nil :foreground 'unspecified :inherit 'outline-4)
   (set-face-attribute 'markdown-header-face-5 nil :foreground 'unspecified :inherit 'outline-5)
-  (add-hook 'markdown-mode-hook (lambda ()
-                                  (olivetti-mode))))
+  ;; (add-hook 'markdown-mode-hook (lambda ()
+  ;;                                 olivetti-mode))
+  )
 
 
 
@@ -2045,23 +2046,53 @@ rather than the whole path."
 
 ;; LaTeX
 (use-package auctex
-  :init
-  (setq TeX-auto-save t)
-  (setq TeX-parse-self t)
-  (setq-default TeX-engine 'xetex)
+  :config
+  ;; (setq TeX-auto-save t)
+  ;; (setq TeX-parse-self t)
+
+  (setq TeX-engine-alist '((default
+                            "Tectonic"
+                            "tectonic -X compile -f plain %T"
+                            "tectonic -X watch"
+                            nil)))
+
+  (setq LaTeX-command-style '(("" "%(latex)")))
+
+  (setq TeX-process-asynchronous t
+        TeX-check-TeX nil
+        TeX-engine 'default)
+
+  (let ((tex-list (assoc "TeX" TeX-command-list))
+        (latex-list (assoc "LaTeX" TeX-command-list)))
+    (setf (cadr tex-list) "%(tex)"
+          (cadr latex-list) "%l"))
+
+
+  (setq TeX-source-correlate-mode t
+        TeX-source-correlate-method 'synctex
+        TeX-source-correlate-start-server t)
+
   (setq TeX-view-program-selection '((output-pdf "PDF Tools"))
         TeX-source-correlate-start-server t)
+
   (TeX-global-PDF-mode t)
 
-  ;; Update PDF buffers after successful LaTeX runs
-  (add-hook 'TeX-after-compilation-finished-functions
-            #'TeX-revert-document-buffer)
+  (add-hook 'LaTeX-mode-hook
+            (lambda ()
+              (when-let ((proot (projectile-project-root)))
+                (when (file-exists-p
+                       (expand-file-name "Tectonic.toml" proot))
+                  (setq-local TeX-master "default")
+                  (setq-local
+                   TeX-output-dir
+                   (expand-file-name "build/default/" proot))))))
+
+(add-to-list 'auto-mode-alist '("\\.tex\\'" . LaTeX-mode))
 
   :hook
   (LaTeX-mode . visual-line-mode)
   (LaTeX-mode . flyspell-mode)
-  (LaTeX-mode . LaTeX-math-mode)
-  (TeX-after-compilation-finished-functions . TeX-revert-document-buffer))
+  (LaTeX-mode . LaTeX-math-mode))
 
 (define-key LaTeX-mode-map (kbd "C-j") #'evil-window-down)
 (define-key LaTeX-mode-map (kbd "C-k") #'evil-window-up)
@@ -2211,13 +2242,13 @@ rather than the whole path."
   (add-to-list 'mode-line-misc-info '(:eval (jupyter-repl-interaction-mode-line))))
 
 ;; Olivetti
-(use-package olivetti
-  :diminish olivetti-mode
-  :init
-  (setq olivetti-body-width 100)
-  :hook
-  (markdown-mode . olivetti-mode)
-  (org-mode . olivetti-mode))
+;; (use-package olivetti
+;;   :diminish olivetti-mode
+;;   :init
+;;   (setq olivetti-body-width 100)
+;;   :hook
+;;   (markdown-mode . olivetti-mode)
+;;   (org-mode . olivetti-mode))
 
 ;; C++
 (use-package modern-cpp-font-lock
@@ -2555,7 +2586,7 @@ that."
 
 
 
-(setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
+;; (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5))
 (setq org-babel-clojure-backend 'cider)
 (setq org-src-tab-acts-natively t)
 (setq org-src-fontify-natively t)
@@ -2587,51 +2618,76 @@ that."
   (evil-define-key 'normal org-mode-map (kbd "gj") #'evil-next-visual-line)
 
 
-  (setq org-latex-create-formula-image-program 'dvisvgm)
-  (add-hook 'org-mode-hook (lambda ()
-                             (olivetti-mode)))
+  
+  ;; (add-hook 'org-mode-hook (lambda ()
+  ;;                            (olivetti-mode)))
 ;; code highlightin
-  (setq org-latex-packages-alist '(("margin=1.2in" "geometry")))
-    ;; (add-to-list 'org-latex-packages-alist '("" "minted"))
-    (add-to-list 'org-latex-packages-alist '("" "physics" t))
-    ;; (add-to-list 'org-latex-packages-alist '("" "tikz"))
-    (add-to-list 'org-latex-packages-alist '("" "algpseudocode"))
-    (add-to-list 'org-latex-packages-alist '("" "algorithm"))
-    (add-to-list 'org-latex-packages-alist '("" "amssymb"))
-    (add-to-list 'org-latex-packages-alist '("" "amsmath"))
-    (add-to-list 'org-latex-packages-alist '("" "booktabs"))
-    (setq org-latex-pdf-process '("latexmk -bibtex -f -pdf -%latex -interaction=nonstopmode -output-directory=%o %f"))
+  ;; (setq org-latex-packages-alist '(("margin=1.2in" "geometry")))
+  ;;   ;; (add-to-list 'org-latex-packages-alist '("" "minted"))
+  ;;   (add-to-list 'org-latex-packages-alist '("" "physics" t))
+  ;;   ;; (add-to-list 'org-latex-packages-alist '("" "tikz"))
+  ;;   (add-to-list 'org-latex-packages-alist '("" "algpseudocode"))
+  ;;   (add-to-list 'org-latex-packages-alist '("" "algorithm"))
+  ;;   (add-to-list 'org-latex-packages-alist '("" "amssymb" t))
+  ;;   (add-to-list 'org-latex-packages-alist '("" "amsmath" t))
+  ;;   (add-to-list 'org-latex-packages-alist '("" "booktabs"))
+  ;;   ;; (setq org-latex-pdf-process '("latexmk -bibtex -f -pdf -%latex -interaction=nonstopmode -output-directory=%o %f"))
 
-    (setq org-preview-latex-process-alist
-          (mapcar (lambda (entry)
-                    (if (eq (car entry) 'dvisvgm)
-                        '(dvisvgm
-                          :programs ("xelatex" "dvisvgm")
-                          :description "xdv > svg"
-                          :message "you need to install xelatex and dvisvgm."
-                          :image-input-type "xdv"
-                          :image-output-type "svg"
-                          :image-size-adjust (1.7 . 1.5)
-                          :latex-compiler ("xelatex -no-pdf -interaction nonstopmode -output-directory %o %f")
-                          :image-converter ("dvisvgm %f --no-fonts --exact-bbox --scale=%S --output=%O"))
-                      entry))
-                  org-preview-latex-process-alist))
+  ;; (with-eval-after-load 'org
+  ;;   (setq org-preview-latex-default-process 'dvisvgm)
+
+  ;;   ;; Packages required inside fragment previews.
+  ;;   (setq org-latex-packages-alist
+  ;;         '(("margin=1.2in" "geometry")
+  ;;           ("" "physics" t)
+  ;;           ("" "algpseudocode")
+  ;;           ("" "algorithm")
+  ;;           ("" "amsfonts" t)
+  ;;           ("" "amsmath" nil)
+  ;;           ("" "booktabs")))
+  ;;   (setq org-preview-latex-process-alist
+  ;;         (cons
+  ;;          '(dvisvgm
+  ;;            :programs ("latex" "dvisvgm")
+  ;;            :image-input-type "dvi"
+  ;;            :image-output-type "svg"
+  ;;            :latex-compiler
+  ;;            ("latex -interaction nonstopmode -output-directory %o %f")
+  ;;            :image-converter
+  ;;            ("dvisvgm %f --no-fonts --exact-bbox --scale=%S --output=%O"))
+  ;;          nil)))
+
+  (with-eval-after-load 'org
+    (setq org-preview-latex-default-process 'dvipng)
+
+    (setq org-latex-packages-alist
+          '(("margin=1.2in" "geometry")
+            ("" "physics" t)
+            ("" "algpseudocode")
+            ("" "algorithm")
+            ("" "amsfonts" t)
+            ("" "amsmath" t)
+            ("" "booktabs")))
+
+    ;; Increase raster resolution for Retina/HiDPI displays.
+    (setq org-format-latex-options
+          (plist-put org-format-latex-options :scale 1)))
+
+   
 
 
-
-
-(setq org-latex-listings 'minted)
-  (setq org-latex-compiler "xelatex")
+;(setq org-latex-listings 'minted)
+  ;(setq org-latex-compiler "xelatex")
 
   (evil-define-key 'normal org-mode-map (kbd "TAB") #'org-cycle)
   (setq org-id-link-to-org-use-id 'create-if-interactive-and-no-custom-id))
 
 (setq org-latex-subtitle-separate t)
 (setq org-latex-subtitle-format "\\newcommand{\\thesubtitle}{%s}")
-(add-hook 'org-export-before-parsing-hook
-          (lambda (bach-end) 
-            (goto-char 0)
-            (insert "#+SETUPFILE: ~/.emacs.d/templates/default.org\n")))
+;;(add-hook 'org-export-before-parsing-hook
+;;          (lambda (bach-end) 
+;;            (goto-char 0)
+;;            (insert "#+SETUPFILE: ~/.emacs.d/templates/default.org\n")))
 
 (setq org-export-with-drawers nil)
 
@@ -2689,8 +2745,8 @@ that."
   "api" 'org-toggle-inline-images
   "adc" 'org-download-clipboard
   "ans" 'org-noter
-  "owl" 'olivetti-expand
-  "owh" 'olivetti-shrink
+  ;; "owl" 'olivetti-expand
+  ;; "owh" 'olivetti-shrink
   "ahs" 'org-edit-special
   "aht" 'org-babel-tangle
   "att" 'org-todo
